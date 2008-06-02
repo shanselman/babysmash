@@ -1,0 +1,18 @@
+﻿<Window x:Class="BabySmash.Window1"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Baby Smash by Scott Hanselman - http://www.hanselman.com/babysmash"
+        Height="386" Width="601"  WindowStyle="None"
+         Topmost="True" Activated="Window_Activated" Closing="Window_Closing"    
+        
+    AccessKeyManager.AccessKeyPressed="Window_AccessKeyPressed"
+       KeyUp="Window_KeyUp" KeyDown="Window_KeyDown"
+       Loaded="Window_Loaded"
+        >
+
+    <Grid>
+        <Canvas x:Name="MainCanvas">
+            
+        </Canvas>
+    </Grid>
+</Window>
