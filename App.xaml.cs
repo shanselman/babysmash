@@ -25,7 +25,7 @@ namespace BabySmash
                 MainWindow.WindowState = WindowState.Maximized; //Do it here, rather than in XAML otherwise multimon won't work.
                 mainWindow.Show();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //TODO: Logging?
                 InterceptKeys.UnhookWindowsHookEx(_hookID);

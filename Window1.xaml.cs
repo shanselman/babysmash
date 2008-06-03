@@ -15,30 +15,15 @@ using System.Threading;
 
 namespace BabySmash
 {
-    public enum Sounds
-    {
-        None = 0,
-        Speech,
-        Laughter
-    }
-
     public partial class Window1 : Window
     {
-        IsolatedStorage.ConfigurationManager config = null;
-        int clearAfter = 20;
-        bool forceUppercase = true;
         SpVoice objSpeech = null;
         int numberOfShapes = 0;
-        Sounds sounds = Sounds.Laughter;
         public Window1()
         {
             objSpeech = new SpVoice();
-
             InitializeComponent();
-
-
         }
-
 
         private void Window_AccessKeyPressed(object sender, AccessKeyPressedEventArgs e)
         {
@@ -58,7 +43,6 @@ namespace BabySmash
         {
         }
 
-
         //TODO: Do I need multiple?
         Random r = new Random();
 
@@ -75,12 +59,11 @@ namespace BabySmash
                 e.Handled = true;
                 Options o = new Options();
                 o.ShowDialog();
-                LoadConfigSettings(); //HACK: Is this the best way to "refresh" config?
                 return;
             }
 
             numberOfShapes++;
-            if (numberOfShapes > clearAfter)
+            if (numberOfShapes > Properties.Settings.Default.ClearAfter)
             {
                 numberOfShapes = 1;
                 MainCanvas.Children.Clear();
@@ -100,7 +83,7 @@ namespace BabySmash
                 double left = (double)Utils.RandomBetweenTwoNumbers(-100, Convert.ToInt32(MainCanvas.ActualWidth) - 200);
                 double top = (double)Utils.RandomBetweenTwoNumbers(-100, Convert.ToInt32(MainCanvas.ActualHeight) - 300);
                 //Text is Uppercase if that option is set, otherwise, it'll be random mixed case 
-                MainCanvas.Children.Add(Utils.DrawCharacter(400, forceUppercase ? s: (Utils.GetRandomBoolean() ? s : s.ToLowerInvariant()), brush, left, top));
+                MainCanvas.Children.Add(Utils.DrawCharacter(400, Properties.Settings.Default.ForceUppercase ? s: (Utils.GetRandomBoolean() ? s : s.ToLowerInvariant()), brush, left, top));
 
             }
             else //draw shapes
@@ -122,7 +105,7 @@ namespace BabySmash
 
         private void PlayLaughter()
         {
-            if (sounds == Sounds.Laughter)
+            if (Properties.Settings.Default.Sounds == "Laughter")
             {
                 Winmm.PlayWavResource(Utils.GetRandomSoundFile());
             }
@@ -130,7 +113,7 @@ namespace BabySmash
 
         private void SpeakString(string s)
         {
-            if (sounds == Sounds.Speech)
+            if (Properties.Settings.Default.Sounds == "Speech")
             {
                 objSpeech.WaitUntilDone(Timeout.Infinite);
                 objSpeech.Speak(s, SpeechVoiceSpeakFlags.SVSFlagsAsync);
@@ -223,9 +206,6 @@ namespace BabySmash
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //TODO: Is this how config is done?
-            LoadConfigSettings();
-
             //TODO: Make the link an actual Hyperlink
             TextBlock b = new TextBlock()
             {
@@ -234,19 +214,11 @@ namespace BabySmash
             MainCanvas.Children.Add(b);
         }
 
-        private void LoadConfigSettings()
-        {
-            //TODO: This is duplicated elsewhere
-            config = IsolatedStorage.ConfigurationManager.GetConfigurationManager("BabySmash");
-            clearAfter = config.ReadInteger("ClearAfter", 20);
-            forceUppercase = config.ReadBoolean("ForceUppercase", true);
-            sounds = (Sounds)Enum.Parse(typeof(Sounds),config.Read("Sounds", "Laughter"));
-        }
-
         private void Window_Activated(object sender, EventArgs e)
         {
 
         }
+
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {

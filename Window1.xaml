@@ -11,8 +11,6 @@
         >
 
     <Grid>
-        <Canvas x:Name="MainCanvas">
-            
-        </Canvas>
+        <Canvas x:Name="MainCanvas"/>
     </Grid>
 </Window>
