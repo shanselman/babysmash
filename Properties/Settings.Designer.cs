@@ -58,5 +58,17 @@ namespace BabySmash.Properties {
                 this["Sounds"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool FadeAway {
+            get {
+                return ((bool)(this["FadeAway"]));
+            }
+            set {
+                this["FadeAway"] = value;
+            }
+        }
     }
 }

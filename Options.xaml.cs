@@ -17,6 +17,7 @@ namespace BabySmash
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
+            Properties.Settings.Default.Reload();
             this.Close();
         }
     }

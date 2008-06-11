@@ -13,18 +13,10 @@ namespace BabySmash
     {
         public const UInt32 SND_ASYNC = 1;
         public const UInt32 SND_MEMORY = 4;
-        // these 2 overloads we dont need ... 
-        // [DllImport("Winmm.dll")]
-        // public static extern bool PlaySound(IntPtr rsc, IntPtr hMod, UInt32 dwFlags); 
-        // [DllImport("Winmm.dll")]
-        // public static extern bool PlaySound(string Sound, IntPtr hMod, UInt32 dwFlags);
 
         // this is the overload we want to play embedded resource...
         [DllImport("Winmm.dll")]
         public static extern bool PlaySound(byte[] data, IntPtr hMod, UInt32 dwFlags);
-        public Winmm()
-        {
-        }
 
         public static Dictionary<string, byte[]> cachedWavs = new Dictionary<string, byte[]>();
         public static object cachedWavsLock = new object();

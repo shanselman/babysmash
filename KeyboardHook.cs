@@ -36,13 +36,5 @@ namespace BabySmash
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
-
-        //private static IntPtr _hookID = IntPtr.Zero;
-        //public static void Main()
-        //{
-        //    _hookID = SetHook(_proc);
-        //    Application.Run();
-        //    UnhookWindowsHookEx(_hookID);
-        //}
     }
 }

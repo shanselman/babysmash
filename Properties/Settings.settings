@@ -11,5 +11,8 @@
     <Setting Name="Sounds" Type="System.String" Scope="User">
       <Value Profile="(Default)">Laughter</Value>
     </Setting>
+    <Setting Name="FadeAway" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

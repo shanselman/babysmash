@@ -1,10 +1,11 @@
 ﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace BabySmash
 {
-    class HiResTextBlock : FrameworkElement
+    class HiResTextBlock : Shape
     {
         public HiResTextBlock()
             : base()
@@ -17,6 +18,10 @@ namespace BabySmash
         static Pen m_pen;
         #endregion
 
+        protected override Geometry DefiningGeometry
+        {
+           get { return m_textg ?? Geometry.Empty; }
+        }
         #region methods
         protected override void OnRender(DrawingContext drawingContext)
         {
@@ -55,56 +60,7 @@ namespace BabySmash
         #endregion
 
         #region DPs
-        public Brush Stroke
-        {
-            get
-            {
-                return (Brush)GetValue(StrokeProperty);
-            }
-
-            set
-            {
-                SetValue(StrokeProperty, value);
-            }
-        }
-
-        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(
-            "Stroke",
-            typeof(Brush),
-            typeof(HiResTextBlock),
-            new FrameworkPropertyMetadata(
-                 new SolidColorBrush(Colors.Black),
-                 FrameworkPropertyMetadataOptions.AffectsRender,
-                 new PropertyChangedCallback(OnTextInvalidated),
-                 null
-                 )
-            );
-
-        public ushort StrokeThickness
-        {
-            get
-            {
-                return (ushort)GetValue(StrokeThicknessProperty);
-            }
-
-            set
-            {
-                SetValue(StrokeThicknessProperty, value);
-            }
-        }
-
-        public static readonly DependencyProperty StrokeThicknessProperty = DependencyProperty.Register(
-            "StrokeThickness",
-            typeof(ushort),
-            typeof(HiResTextBlock),
-            new FrameworkPropertyMetadata(
-                 (ushort)1,
-                 FrameworkPropertyMetadataOptions.AffectsRender,
-                 new PropertyChangedCallback(OnTextInvalidated),
-                 null
-                 )
-            );
-
+ 
         public string Text
         {
             get
@@ -153,31 +109,6 @@ namespace BabySmash
                  new PropertyChangedCallback(OnTextInvalidated),
                  null
                  )
-            );
-
-        public Brush Fill
-        {
-            get
-            {
-                return (Brush)GetValue(FillProperty);
-            }
-
-            set
-            {
-                SetValue(FillProperty, value);
-            }
-        }
-
-        public static readonly DependencyProperty FillProperty = DependencyProperty.Register(
-            "Fill",
-            typeof(Brush),
-            typeof(HiResTextBlock),
-            new FrameworkPropertyMetadata(
-                new SolidColorBrush(Colors.White),
-                FrameworkPropertyMetadataOptions.AffectsRender,
-                new PropertyChangedCallback(OnTextInvalidated),
-                null
-                )
             );
 
         public FontFamily Font
