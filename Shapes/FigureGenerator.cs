@@ -67,6 +67,7 @@ namespace BabySmash
             int shape = Utils.RandomBetweenTwoNumbers(0, 6);
             //TODO: Should I change the height, width and stroke to be relative to the screen size?
             //TODO: I think I need a shapefactory?
+            //TODO: Where can I get REALLY complex shapes like animal vectors or custom pics? Where do I store them?
             switch (shape)
             {
                case 0:
@@ -87,6 +88,5 @@ namespace BabySmash
          }
          return null;
       }
-
    }
 }

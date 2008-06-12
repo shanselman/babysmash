@@ -9,9 +9,11 @@ namespace BabySmash
    {
       private UIElement shape;
       private readonly string name;
+      private readonly string color;
 
       protected Figure(Brush fill, string name)
       {
+         this.color = Utils.BrushToString(fill);
          this.name = name;
       }
 
@@ -21,10 +23,8 @@ namespace BabySmash
          protected set { shape = value; }
       }
 
-      public string Name
-      {
-         get { return name; }
-      }
+      public string Name { get { return name; } }
+      public string Color { get { return color; } }
    }
 
    public class LetterFigure : Figure
@@ -44,8 +44,21 @@ namespace BabySmash
             else
                nameToDisplay = name.ToLowerInvariant();
          }
-         Shape = Utils.DrawCharacter(400, nameToDisplay, fill);
+         Shape = DrawCharacter(400, nameToDisplay, fill);
       }
+
+      private UIElement DrawCharacter(double fontSize, string textString, Brush brush)
+      {
+         HiResTextBlock textBlock = new HiResTextBlock()
+         {
+            FontSize = fontSize, //pick better size
+            Fill = brush,
+            Text = textString,
+            StrokeThickness = 5,
+         };
+         return textBlock;
+      }
+
    }
 
    public class SquareFigure : Figure
@@ -133,7 +146,7 @@ namespace BabySmash
          };
       }
    }
-   
+
    public class TrapezoidFigure : Figure
    {
       public TrapezoidFigure(Brush fill)
@@ -148,7 +161,7 @@ namespace BabySmash
          };
       }
    }
-   
+
    public class HeartFigure : Figure
    {
       public HeartFigure(Brush fill)

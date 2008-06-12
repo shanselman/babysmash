@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Collections.Generic;
 
 namespace BabySmash
 {
@@ -17,6 +18,18 @@ namespace BabySmash
                                   Brushes.Tan,
                                   Brushes.Gray};
 
+        private static Dictionary<Brush, string> brushToString = new Dictionary<Brush, string> { 
+                                  { Brushes.Red, "Red" },
+                                  { Brushes.Blue, "Blue" },
+                                  { Brushes.Yellow, "Yellow" },
+                                  { Brushes.Green, "Green" },
+                                  { Brushes.Purple, "Purple" },
+                                  { Brushes.Pink, "Pink" },
+                                  { Brushes.Orange, "Orange" },
+                                  { Brushes.Tan, "Tan" },
+                                  { Brushes.Gray, "Gray" }
+                                 };
+
         private static string[] sounds = { "giggle.wav", 
                                             "babylaugh.wav",
                                             "babygigl2.wav",
@@ -29,6 +42,11 @@ namespace BabySmash
         {
             Brush brush = someBrushes[lRandom.Next(0, someBrushes.Length)];
             return  brush;
+        }
+
+        public static string BrushToString(Brush b)
+        {
+           return brushToString[b];
         }
 
         public static string GetRandomSoundFile()
@@ -50,37 +68,5 @@ namespace BabySmash
         {
             return lRandom.Next(min, max + 1);
         }
-
-       public static UIElement DrawCharacter(double fontSize, string textString, Brush brush)
-       {
-          HiResTextBlock textBlock = new HiResTextBlock()
-          {
-             //TextWrapping = TextWrapping.Wrap,
-             //FontFamily = new FontFamily("Rockwell Extra Bold"),
-             //Foreground = brush, //randomize
-             FontSize = fontSize, //pick better size
-             Fill = brush,
-             Text = textString,
-             StrokeThickness = 5,
-          };
-          return textBlock;
-       }
-        public static UIElement DrawCharacter(double fontSize, string textString, Brush brush, double left, double top)
-        {
-            HiResTextBlock textBlock = new HiResTextBlock()
-            {
-                //TextWrapping = TextWrapping.Wrap,
-                //FontFamily = new FontFamily("Rockwell Extra Bold"),
-                //Foreground = brush, //randomize
-                FontSize = fontSize, //pick better size
-                Fill = brush,
-                Text = textString,
-                StrokeThickness = 5,
-            };
-            textBlock.SetValue(Canvas.LeftProperty, left);
-            textBlock.SetValue(Canvas.TopProperty, top);
-            return textBlock;
-        }
-
     }
 }

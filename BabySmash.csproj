@@ -110,8 +110,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio.cs" />
-    <Compile Include="Figure.cs" />
-    <Compile Include="FigureGenerator.cs" />
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -133,6 +131,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="Shapes\Figure.cs" />
+    <Compile Include="Shapes\FigureGenerator.cs" />
     <Compile Include="Shapes\HiResTextBlock.cs" />
     <Compile Include="Shapes\ShapeFactory.cs" />
     <Compile Include="Shapes\Star.cs" />

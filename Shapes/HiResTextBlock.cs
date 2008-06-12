@@ -4,207 +4,204 @@ using System.Windows.Media;
 
 namespace BabySmash
 {
-    class HiResTextBlock : FrameworkElement
-    {
-        public HiResTextBlock()
-            : base()
-        {
-            RenderOptions.SetEdgeMode(this, EdgeMode.Unspecified);
-            this.SnapsToDevicePixels = true;
-        }
-        #region props
-        Geometry m_textg;
-        static Pen m_pen;
-        #endregion
+   class HiResTextBlock : FrameworkElement
+   {
+      public HiResTextBlock()
+         : base()
+      {
+         RenderOptions.SetEdgeMode(this, EdgeMode.Unspecified);
+         this.SnapsToDevicePixels = true;
+      }
 
-        #region methods
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-            drawingContext.DrawGeometry(Fill, m_pen, m_textg);
-        }
+      Geometry m_textg;
+      static Pen m_pen;
 
-        private static void OnTextInvalidated(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            m_pen = new Pen(((HiResTextBlock)d).Stroke, ((HiResTextBlock)d).StrokeThickness);
-            m_pen.LineJoin = PenLineJoin.Round;
-            m_pen.MiterLimit = 1;
-            m_pen = m_pen.GetAsFrozen() as Pen;
-            ((HiResTextBlock)d).GenerateText();
-        }
+      protected override void OnRender(DrawingContext drawingContext)
+      {
+         drawingContext.DrawGeometry(Fill, m_pen, m_textg);
+      }
 
-        private void GenerateText()
-        {
-            if (Font == null)
-                Font = new FontFamily("Arial");
+      private static void OnTextInvalidated(DependencyObject d, DependencyPropertyChangedEventArgs e)
+      {
+         m_pen = new Pen(((HiResTextBlock)d).Stroke, ((HiResTextBlock)d).StrokeThickness);
+         m_pen.LineJoin = PenLineJoin.Round;
+         m_pen.MiterLimit = 1;
+         m_pen = m_pen.GetAsFrozen() as Pen;
+         ((HiResTextBlock)d).GenerateText();
+      }
 
-            FormattedText fText = new FormattedText(
-               Text,
-               CultureInfo.CurrentCulture,
-               FlowDirection.LeftToRight,
-               new Typeface(
-                   Font,
-                   FontStyles.Normal,
-                   FontWeights.Heavy,
-                   FontStretches.Normal),
-               FontSize,
-               Brushes.Black
-               );
+      private void GenerateText()
+      {
+         if (Font == null)
+            Font = new FontFamily("Arial");
 
-            m_textg = fText.BuildGeometry(new Point(0, 0)).GetAsFrozen() as Geometry;
-        }
-        #endregion
-
-        #region DPs
-        public Brush Stroke
-        {
-            get
-            {
-                return (Brush)GetValue(StrokeProperty);
-            }
-
-            set
-            {
-                SetValue(StrokeProperty, value);
-            }
-        }
-
-        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(
-            "Stroke",
-            typeof(Brush),
-            typeof(HiResTextBlock),
-            new FrameworkPropertyMetadata(
-                 new SolidColorBrush(Colors.Black),
-                 FrameworkPropertyMetadataOptions.AffectsRender,
-                 new PropertyChangedCallback(OnTextInvalidated),
-                 null
-                 )
+         FormattedText fText = new FormattedText(
+            Text,
+            CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            new Typeface(
+                Font,
+                FontStyles.Normal,
+                FontWeights.Heavy,
+                FontStretches.Normal),
+            FontSize,
+            Brushes.Black
             );
 
-        public ushort StrokeThickness
-        {
-            get
-            {
-                return (ushort)GetValue(StrokeThicknessProperty);
-            }
+         m_textg = fText.BuildGeometry(new Point(0, 0)).GetAsFrozen() as Geometry;
+      }
 
-            set
-            {
-                SetValue(StrokeThicknessProperty, value);
-            }
-        }
+      #region DPs
+      public Brush Stroke
+      {
+         get
+         {
+            return (Brush)GetValue(StrokeProperty);
+         }
 
-        public static readonly DependencyProperty StrokeThicknessProperty = DependencyProperty.Register(
-            "StrokeThickness",
-            typeof(ushort),
-            typeof(HiResTextBlock),
-            new FrameworkPropertyMetadata(
-                 (ushort)1,
-                 FrameworkPropertyMetadataOptions.AffectsRender,
-                 new PropertyChangedCallback(OnTextInvalidated),
-                 null
-                 )
-            );
+         set
+         {
+            SetValue(StrokeProperty, value);
+         }
+      }
 
-        public string Text
-        {
-            get
-            {
-                return (string)GetValue(TextProperty);
-            }
+      public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register(
+          "Stroke",
+          typeof(Brush),
+          typeof(HiResTextBlock),
+          new FrameworkPropertyMetadata(
+               new SolidColorBrush(Colors.Black),
+               FrameworkPropertyMetadataOptions.AffectsRender,
+               new PropertyChangedCallback(OnTextInvalidated),
+               null
+               )
+          );
 
-            set
-            {
-                SetValue(TextProperty, value);
-            }
-        }
+      public ushort StrokeThickness
+      {
+         get
+         {
+            return (ushort)GetValue(StrokeThicknessProperty);
+         }
 
-        public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
-            "Text",
-            typeof(string),
-            typeof(HiResTextBlock),
-            new FrameworkPropertyMetadata(
-                 "",
-                 FrameworkPropertyMetadataOptions.AffectsRender,
-                 new PropertyChangedCallback(OnTextInvalidated),
-                 null
-                 )
-            );
+         set
+         {
+            SetValue(StrokeThicknessProperty, value);
+         }
+      }
 
-        public double FontSize
-        {
-            get
-            {
-                return (double)GetValue(FontSizeProperty);
-            }
+      public static readonly DependencyProperty StrokeThicknessProperty = DependencyProperty.Register(
+          "StrokeThickness",
+          typeof(ushort),
+          typeof(HiResTextBlock),
+          new FrameworkPropertyMetadata(
+               (ushort)1,
+               FrameworkPropertyMetadataOptions.AffectsRender,
+               new PropertyChangedCallback(OnTextInvalidated),
+               null
+               )
+          );
 
-            set
-            {
-                SetValue(FontSizeProperty, value);
-            }
-        }
+      public string Text
+      {
+         get
+         {
+            return (string)GetValue(TextProperty);
+         }
 
-        public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(
-            "FontSize",
-            typeof(double),
-            typeof(HiResTextBlock),
-            new FrameworkPropertyMetadata(
-                 (double)12,
-                 FrameworkPropertyMetadataOptions.AffectsRender,
-                 new PropertyChangedCallback(OnTextInvalidated),
-                 null
-                 )
-            );
+         set
+         {
+            SetValue(TextProperty, value);
+         }
+      }
 
-        public Brush Fill
-        {
-            get
-            {
-                return (Brush)GetValue(FillProperty);
-            }
+      public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
+          "Text",
+          typeof(string),
+          typeof(HiResTextBlock),
+          new FrameworkPropertyMetadata(
+               "",
+               FrameworkPropertyMetadataOptions.AffectsRender,
+               new PropertyChangedCallback(OnTextInvalidated),
+               null
+               )
+          );
 
-            set
-            {
-                SetValue(FillProperty, value);
-            }
-        }
+      public double FontSize
+      {
+         get
+         {
+            return (double)GetValue(FontSizeProperty);
+         }
 
-        public static readonly DependencyProperty FillProperty = DependencyProperty.Register(
-            "Fill",
-            typeof(Brush),
-            typeof(HiResTextBlock),
-            new FrameworkPropertyMetadata(
-                new SolidColorBrush(Colors.White),
-                FrameworkPropertyMetadataOptions.AffectsRender,
-                new PropertyChangedCallback(OnTextInvalidated),
-                null
-                )
-            );
+         set
+         {
+            SetValue(FontSizeProperty, value);
+         }
+      }
 
-        public FontFamily Font
-        {
-            get
-            {
-                return (FontFamily)GetValue(FontProperty);
-            }
+      public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(
+          "FontSize",
+          typeof(double),
+          typeof(HiResTextBlock),
+          new FrameworkPropertyMetadata(
+               (double)12,
+               FrameworkPropertyMetadataOptions.AffectsRender,
+               new PropertyChangedCallback(OnTextInvalidated),
+               null
+               )
+          );
 
-            set
-            {
-                SetValue(FontProperty, value);
-            }
-        }
+      public Brush Fill
+      {
+         get
+         {
+            return (Brush)GetValue(FillProperty);
+         }
 
-        public static readonly DependencyProperty FontProperty = DependencyProperty.Register(
-             "Font",
-             typeof(FontFamily),
-             typeof(HiResTextBlock),
-             new FrameworkPropertyMetadata(
-                 new FontFamily("Arial"),
-                 FrameworkPropertyMetadataOptions.AffectsRender,
-                 new PropertyChangedCallback(OnTextInvalidated),
-                 null
-                 )
-             );
+         set
+         {
+            SetValue(FillProperty, value);
+         }
+      }
 
-        #endregion
-    }
+      public static readonly DependencyProperty FillProperty = DependencyProperty.Register(
+          "Fill",
+          typeof(Brush),
+          typeof(HiResTextBlock),
+          new FrameworkPropertyMetadata(
+              new SolidColorBrush(Colors.White),
+              FrameworkPropertyMetadataOptions.AffectsRender,
+              new PropertyChangedCallback(OnTextInvalidated),
+              null
+              )
+          );
+
+      public FontFamily Font
+      {
+         get
+         {
+            return (FontFamily)GetValue(FontProperty);
+         }
+
+         set
+         {
+            SetValue(FontProperty, value);
+         }
+      }
+
+      public static readonly DependencyProperty FontProperty = DependencyProperty.Register(
+           "Font",
+           typeof(FontFamily),
+           typeof(HiResTextBlock),
+           new FrameworkPropertyMetadata(
+               new FontFamily("Arial"),
+               FrameworkPropertyMetadataOptions.AffectsRender,
+               new PropertyChangedCallback(OnTextInvalidated),
+               null
+               )
+           );
+
+      #endregion
+   }
 }
