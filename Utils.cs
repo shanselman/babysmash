@@ -51,6 +51,20 @@ namespace BabySmash
             return lRandom.Next(min, max + 1);
         }
 
+       public static UIElement DrawCharacter(double fontSize, string textString, Brush brush)
+       {
+          HiResTextBlock textBlock = new HiResTextBlock()
+          {
+             //TextWrapping = TextWrapping.Wrap,
+             //FontFamily = new FontFamily("Rockwell Extra Bold"),
+             //Foreground = brush, //randomize
+             FontSize = fontSize, //pick better size
+             Fill = brush,
+             Text = textString,
+             StrokeThickness = 5,
+          };
+          return textBlock;
+       }
         public static UIElement DrawCharacter(double fontSize, string textString, Brush brush, double left, double top)
         {
             HiResTextBlock textBlock = new HiResTextBlock()
