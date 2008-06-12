@@ -1,0 +1,39 @@
+﻿<Window x:Class="BabySmash.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:BabySmash"
+    Title="Baby Smash by Scott Hanselman - http://www.hanselman.com/babysmash"
+    Height="386" Width="601"  WindowStyle="None"
+    Closing="Window_Closing"    
+    KeyUp="Window_KeyUp" Loaded="Window_Loaded">
+    <Window.Resources>
+        <local:FigureGenerator x:Key="figureGenerator"/>
+    </Window.Resources>
+    <Grid>
+        <Canvas x:Name="MainCanvas">
+            <TextBlock>
+                BabySmash by Scott Hanselman
+                <Hyperlink RequestNavigate="HelpUrlNavigated" NavigateUri="http://www.babysmash.com">http://www.babysmash.com</Hyperlink>
+                <LineBreak />Ctrl-Shift-Alt-O for options, ALT-F4 to exit</TextBlock>
+
+        </Canvas>
+        <ItemsControl Name="figures" ItemsSource="{Binding Source={StaticResource figureGenerator},Path=Figures}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ContentPresenter Content="{Binding Path=Shape}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style>
+                    <Setter Property="Canvas.Left" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}},Path=ShapeLeft}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}},Path=ShapeTop}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+    </Grid>
+</Window>
