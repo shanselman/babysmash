@@ -70,5 +70,17 @@ namespace BabySmash.Properties {
                 this["FadeAway"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool BitmapEffects {
+            get {
+                return ((bool)(this["BitmapEffects"]));
+            }
+            set {
+                this["BitmapEffects"] = value;
+            }
+        }
     }
 }

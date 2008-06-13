@@ -1,7 +1,61 @@
 ﻿<Application x:Class="BabySmash.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Startup="Application_Startup"    
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:BabySmash="clr-namespace:BabySmash" Startup="Application_Startup"    
     >
     <Application.Resources>
+        <Style x:Key="BabySmashBaseStyle" TargetType="Shape">
+            <Setter Property="StrokeThickness" Value="5"/>
+            <Setter Property="Stroke" Value="Black"/>
+        </Style>
+
+        <Style x:Key="trapezoid" TargetType="Path"
+            BasedOn="{StaticResource BabySmashBaseStyle}">
+            <Setter Property="Data" Value="F1 M 257.147,126.953L 543.657,126.953L 640.333,448.287L 160.333,448.287L 257.147,126.953 Z"/>
+        </Style>
+
+        <Style x:Key="star" TargetType="BabySmash:Star" 
+               BasedOn="{StaticResource BabySmashBaseStyle}">
+            <Setter Property="NumberOfPoints" Value="5"/>
+            <Setter Property="Width" Value="400"/>
+            <Setter Property="Height" Value="400"/>
+        </Style>
+
+        <Style x:Key="square" TargetType="Rectangle"
+               BasedOn="{StaticResource BabySmashBaseStyle}">
+            <Setter Property="Width" Value="380"/>
+            <Setter Property="Height" Value="380"/>
+        </Style>
+
+        <Style x:Key="heart" TargetType="Path"
+            BasedOn="{StaticResource BabySmashBaseStyle}">
+            <Setter Property="Data" Value="F1 M 429,161.333C 506.333,88.6667 609,142.122 609,225.333C 609,308.544 429,462.667 429,462.667C 429,462.667 257,306.544 257,223.333C 257,140.123 356.138,88.4713 429,161.333 Z"/>
+        </Style>
+
+        <Style x:Key="path" TargetType="Path"
+               BasedOn="{StaticResource BabySmashBaseStyle}">
+        </Style>
+
+        <Style x:Key="circle" TargetType="Ellipse"
+               BasedOn="{StaticResource BabySmashBaseStyle}">
+            <Setter Property="Width" Value="400"/>
+            <Setter Property="Height" Value="400"/>
+        </Style>
+
+        <Style x:Key="triangle" TargetType="Polygon"
+               BasedOn="{StaticResource BabySmashBaseStyle}">
+            <Setter Property="Points" Value="200,50 400,400 0,400 200,50"/>
+            <Setter Property="Width" Value="400"/>
+            <Setter Property="Height" Value="400"/>
+        </Style>
+
+        <Style x:Key="rectangle" TargetType="Rectangle"
+               BasedOn="{StaticResource BabySmashBaseStyle}">
+            <Setter Property="Width" Value="380"/>
+            <Setter Property="Height" Value="160"/>
+        </Style>
+
+
+
     </Application.Resources>
 </Application>

@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
-using WinForms = System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
-using System.Threading;
-using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 using System.Speech.Synthesis;
 using System.Collections.Specialized;
@@ -18,14 +12,13 @@ namespace BabySmash
 {
    public partial class MainWindow : Window
    {
-      private int numberOfShapes = 0;
-      private SpeechSynthesizer objSpeech = null;
-      private FigureGenerator figureGenerator;
+      private SpeechSynthesizer objSpeech;
+      private readonly FigureGenerator figureGenerator;
 
       public MainWindow()
       {
          InitializeComponent();
-         figureGenerator = (FigureGenerator)this.Resources["figureGenerator"];
+         figureGenerator = (FigureGenerator)Resources["figureGenerator"];
          figureGenerator.ClearAfter = Properties.Settings.Default.ClearAfter;
          ICollectionView collectionView = CollectionViewSource.GetDefaultView(figureGenerator.Figures);
          collectionView.CollectionChanged += FiguresCollectionChanged;
@@ -47,17 +40,22 @@ namespace BabySmash
       public double ShapeLeft
       {
          //TODO: Feels weird...we need to know the actualwidth of the canvas and of the figure....
-         // ideally: Utils.RandomBetweenTwoNumbers(0, Convert.ToInt32(canvas.ActualWidth - figure.ActualWidth)
+         // ideally: Utils.RandomBetweenTwoNumbers(0, 
+         //   Convert.ToInt32(canvas.ActualWidth - figure.ActualWidth)
          // Perhaps this belongs elsewhere?
-         get { return Utils.RandomBetweenTwoNumbers(-100, Convert.ToInt32(figures.ActualWidth) - 200); }
+         get { return Utils.RandomBetweenTwoNumbers(-100, 
+             Convert.ToInt32(figures.ActualWidth) - 200); }
       }
 
       public double ShapeTop
       {
          //TODO: Feels weird...we need to know the actualwidth of the canvas and of the figure....
-         // ideally: Utils.RandomBetweenTwoNumbers(0, Convert.ToInt32(canvas.ActualWidth - figure.ActualWidth)
+         // ideally: Utils.RandomBetweenTwoNumbers(0, 
+         // Convert.ToInt32(canvas.ActualWidth - figure.ActualWidth)
          // Perhaps this belongs elsewhere?
-         get { return Utils.RandomBetweenTwoNumbers(-100, Convert.ToInt32(figures.ActualHeight) - 300); }
+         get { return Utils.RandomBetweenTwoNumbers(
+             -100, 
+             Convert.ToInt32(figures.ActualHeight) - 300); }
       }
 
       private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
@@ -70,17 +68,10 @@ namespace BabySmash
          //TODO: Might be able to remove this: http://www.ageektrapped.com/blog/using-commands-in-babysmash/
          if (Alt && Control && Shift && e.Key == Key.O)
          {
-            Options o = new Options();
+            var o = new Options();
             o.ShowDialog();
             e.Handled = true;
             return;
-         }
-
-         numberOfShapes++;
-         if (numberOfShapes > Properties.Settings.Default.ClearAfter)
-         {
-            numberOfShapes = 1;
-            MainCanvas.Children.Clear();
          }
 
          string s = e.Key.ToString();
@@ -88,7 +79,7 @@ namespace BabySmash
          figureGenerator.Generate(this, s);
       }
 
-      private void PlayLaughter()
+      private static void PlayLaughter()
       {
          if (Properties.Settings.Default.Sounds == "Laughter")
          {
@@ -98,13 +89,12 @@ namespace BabySmash
 
       private void SpeakString(string s)
       {
-         if (objSpeech != null && Properties.Settings.Default.Sounds == "Speech")
-         {
-            objSpeech.SpeakAsyncCancelAll();
-            objSpeech.Rate = -1;
-            objSpeech.Volume = 100;
-            objSpeech.SpeakAsync(s);
-         }
+          if (objSpeech == null || Properties.Settings.Default.Sounds != "Speech") return;
+          
+          objSpeech.SpeakAsyncCancelAll();
+          objSpeech.Rate = -1;
+          objSpeech.Volume = 100;
+          objSpeech.SpeakAsync(s);
       }
 
       private void HelpUrlNavigated(object sender, RequestNavigateEventArgs e)
@@ -117,7 +107,7 @@ namespace BabySmash
          objSpeech = new SpeechSynthesizer();
       }
 
-      private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+      private void Window_Closing(object sender, CancelEventArgs e)
       {
          Application.Current.Shutdown();
       }

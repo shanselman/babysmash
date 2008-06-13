@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:BabySmash.Properties"
         xmlns:l="clr-namespace:BabySmash"
         Title="Baby Smash! - Options"
-        Height="196" Width="268"
+        Height="210" Width="268"
         ShowInTaskbar="True"
         Topmost="True"
         WindowStartupLocation="CenterScreen"
@@ -19,6 +19,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -45,7 +46,11 @@
                   IsChecked="{Binding Path=Default.FadeAway,Mode=TwoWay}" >
             Fade Away
         </CheckBox>
-        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Right">
+        <CheckBox Grid.Row="4" Grid.Column="1" Margin="15,0,0,0"
+                  IsChecked="{Binding Path=Default.BitmapEffects,Mode=TwoWay}" >
+            Bitmap Effects
+        </CheckBox>
+        <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Right">
             <Button Name="okButton" IsDefault="True" Margin="0,7,10,7" Padding="30,0,30,0" Click="OK_Click" >OK</Button>
             <Button IsCancel="True" Margin="5,7,7,7" Padding="15,0,15,0" Click="Cancel_Click" Width="77">Cancel</Button>
         </StackPanel>

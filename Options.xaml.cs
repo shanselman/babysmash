@@ -12,13 +12,13 @@ namespace BabySmash
         private void OK_Click(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.Save();
-            this.Close();
+            Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.Reload();
-            this.Close();
+            Close();
         }
     }
 }

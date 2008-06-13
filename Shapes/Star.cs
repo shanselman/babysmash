@@ -27,23 +27,18 @@ namespace BabySmash
 
         public Geometry CreateStarGeometry(int numberOfPoints)
         {
-            GeometryGroup group = new GeometryGroup();
-            group.FillRule = FillRule.Nonzero;
-            Geometry triangle = PathGeometry.Parse("M 0,-300 L 90,90 -90,90 0,-300");
-            group.Children.Add(triangle);
-
-            double deltaAngle = 360 / numberOfPoints;
-            double currentAngle = 0;
-            for (int index = 1; index < numberOfPoints; index++)
-            {
-                currentAngle += deltaAngle;
-                triangle = triangle.CloneCurrentValue();
-                triangle.Transform = new RotateTransform(currentAngle, 0, 0);
-                group.Children.Add(triangle);
-            }
-
-            Geometry outlinePath = group.GetOutlinedPathGeometry();
-            return outlinePath;
+           const double outerRadius = 300;
+           const double innerRadius = 90;
+           Point[] points = new Point[numberOfPoints * 2 - 1];
+           for (int i = 0; i < numberOfPoints * 2 - 1; ++i)
+           {
+              double radius = ((i & 1) == 0) ? innerRadius : outerRadius;
+              double angle = Math.PI * (i + 1) / numberOfPoints;
+              points[i] = new Point(radius * Math.Sin(angle), -radius * Math.Cos(angle));
+           }
+           PolyLineSegment segment = new PolyLineSegment(points, true);
+           PathFigure starFigure = new PathFigure(new Point(0, -outerRadius), new PathSegment[] { segment }, true);
+           return new PathGeometry(new PathFigure[] { starFigure });
         }
     }
 }

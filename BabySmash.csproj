@@ -133,13 +133,12 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Shapes\Figure.cs" />
     <Compile Include="Shapes\FigureGenerator.cs" />
-    <Compile Include="Shapes\HiResTextBlock.cs" />
-    <Compile Include="Shapes\ShapeFactory.cs" />
     <Compile Include="Shapes\Star.cs" />
     <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="BabySmash_TemporaryKey.pfx" />

@@ -10,13 +10,11 @@
         <local:FigureGenerator x:Key="figureGenerator"/>
     </Window.Resources>
     <Grid>
-        <Canvas x:Name="MainCanvas">
-            <TextBlock>
-                BabySmash by Scott Hanselman
-                <Hyperlink RequestNavigate="HelpUrlNavigated" NavigateUri="http://www.babysmash.com">http://www.babysmash.com</Hyperlink>
-                <LineBreak />Ctrl-Shift-Alt-O for options, ALT-F4 to exit</TextBlock>
+         <TextBlock>
+              BabySmash by Scott Hanselman
+              <Hyperlink RequestNavigate="HelpUrlNavigated" NavigateUri="http://www.babysmash.com">http://www.babysmash.com</Hyperlink>
+              <LineBreak />Ctrl-Shift-Alt-O for options, ALT-F4 to exit</TextBlock>
 
-        </Canvas>
         <ItemsControl Name="figures" ItemsSource="{Binding Source={StaticResource figureGenerator},Path=Figures}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
