@@ -11,8 +11,11 @@ namespace BabySmash
 {
     public class Winmm
     {
-        public const UInt32 SND_ASYNC = 1;
-        public const UInt32 SND_MEMORY = 4;
+        public const UInt32 SND_ASYNC = 0x0001;
+        public const UInt32 SND_MEMORY = 0x0004;
+        public const UInt32 SND_LOOP = 0x0008;
+        public const UInt32 SND_NOSTOP = 0x0010;
+
 
         // this is the overload we want to play embedded resource...
         [DllImport("Winmm.dll")]
@@ -26,6 +29,13 @@ namespace BabySmash
             byte[] b = GetWavResource(wav);
             PlaySound(b, IntPtr.Zero, SND_ASYNC | SND_MEMORY);
         }
+
+        public static void PlayWavResourceYield(string wav)
+        {
+            byte[] b = GetWavResource(wav);
+            PlaySound(b, IntPtr.Zero, SND_ASYNC | SND_MEMORY | SND_NOSTOP);
+        }
+        
 
         private static byte[] GetWavResource(string wav)
         {
@@ -46,7 +56,7 @@ namespace BabySmash
                         if (str == null)
                             throw new ArgumentException(wav + " not found!");
                         // bring stream into a byte array
-                        byte[] bStr = new Byte[str.Length];
+                        var bStr = new Byte[str.Length];
                         str.Read(bStr, 0, (int)str.Length);
                         cachedWavs.Add(wav, bStr);
                         return bStr;

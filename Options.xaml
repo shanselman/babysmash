@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:BabySmash.Properties"
         xmlns:l="clr-namespace:BabySmash"
         Title="Baby Smash! - Options"
-        Height="210" Width="268"
+        Height="227" Width="542"
         ShowInTaskbar="True"
         Topmost="True"
         WindowStartupLocation="CenterScreen"
@@ -13,20 +13,33 @@
     <Window.Resources>
         <local:Settings x:Key="settings" />
     </Window.Resources>
-    <Grid DataContext="{StaticResource settings}">
+    <Grid DataContext="{StaticResource settings}" Width="Auto">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" MinWidth="119" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" MinHeight="43" />
+            <RowDefinition Height="Auto" MinHeight="43" />
+            <RowDefinition Height="Auto" MinHeight="16" />
+            <RowDefinition Height="Auto" MinHeight="16" />
+            <RowDefinition Height="Auto" MinHeight="16" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" MinHeight="34" />
         </Grid.RowDefinitions>
-        <Label Height="23" Margin="10,20,0,0" Grid.ColumnSpan="2">Clear after x Shape</Label>
+        <TextBlock Grid.Column="3" Grid.RowSpan="7" TextWrapping="Wrap" FontSize="18" TextAlignment="Center" Grid.ColumnSpan="1" >
+            <TextBlock.BitmapEffect>
+                    <BitmapEffectGroup>
+                       <OuterGlowBitmapEffect GlowColor="Yellow" GlowSize="15"/>
+                     </BitmapEffectGroup>
+            </TextBlock.BitmapEffect>
+            <Bold>Welcome to BabySmash!</Bold><LineBreak/>We're adding new features weekly. 
+            This week added cool effects for faster computers, as well as drawing with the mouse. 
+            Clicking "Mouse Draw" lets your baby draw without clicking any buttons!<LineBreak/>
+            <Italic>There's more fun coming soon!</Italic>
+        </TextBlock >
+        <Label Height="23" Margin="10,20,0,0" Grid.ColumnSpan="1">Clear after x Shape</Label>
         <TextBox Text="{Binding Path=Default.ClearAfter}"
                  Height="23"  Grid.Column="1" Margin="15,20,7,0"/>
         <Label Height="23" Grid.Row="1" Margin="10">Sounds</Label>
@@ -50,7 +63,11 @@
                   IsChecked="{Binding Path=Default.BitmapEffects,Mode=TwoWay}" >
             Bitmap Effects
         </CheckBox>
-        <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Right">
+        <CheckBox Grid.Row="5" Grid.Column="1" Margin="15,0,0,0"
+                  IsChecked="{Binding Path=Default.MouseDraw,Mode=TwoWay}" >
+            Mouse Draw
+        </CheckBox>
+        <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Right">
             <Button Name="okButton" IsDefault="True" Margin="0,7,10,7" Padding="30,0,30,0" Click="OK_Click" >OK</Button>
             <Button IsCancel="True" Margin="5,7,7,7" Padding="15,0,15,0" Click="Cancel_Click" Width="77">Cancel</Button>
         </StackPanel>

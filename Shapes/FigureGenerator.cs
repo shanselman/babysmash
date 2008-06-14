@@ -28,6 +28,11 @@ namespace BabySmash
             get { return figures; }
         }
 
+        public void Generate(FrameworkElement container)
+        {
+            Generate(container, "");
+        }
+
         public void Generate(FrameworkElement container, string letter)
         {
             if (figures.Count == clearAfter)

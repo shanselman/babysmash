@@ -19,7 +19,7 @@ namespace BabySmash
                 _hookID = InterceptKeys.SetHook(_proc);
                 ShutdownMode = ShutdownMode.OnLastWindowClose; //TODO: Should this be OnMainWindowClose?
                 mainWindow = new MainWindow();
-                //MainWindow.WindowState = WindowState.Maximized; //Do it here, rather than in XAML otherwise multimon won't work.
+                MainWindow.WindowState = WindowState.Maximized; //Do it here, rather than in XAML otherwise multimon won't work.
                 mainWindow.Show();
             }
             catch

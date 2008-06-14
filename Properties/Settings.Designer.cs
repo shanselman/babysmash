@@ -25,18 +25,6 @@ namespace BabySmash.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("20")]
-        public int ClearAfter {
-            get {
-                return ((int)(this["ClearAfter"]));
-            }
-            set {
-                this["ClearAfter"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool ForceUppercase {
             get {
@@ -80,6 +68,30 @@ namespace BabySmash.Properties {
             }
             set {
                 this["BitmapEffects"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int ClearAfter {
+            get {
+                return ((int)(this["ClearAfter"]));
+            }
+            set {
+                this["ClearAfter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool MouseDraw {
+            get {
+                return ((bool)(this["MouseDraw"]));
+            }
+            set {
+                this["MouseDraw"] = value;
             }
         }
     }

@@ -5,7 +5,13 @@
     Title="Baby Smash by Scott Hanselman - http://www.hanselman.com/babysmash"
     Height="386" Width="601"  WindowStyle="None"
     Closing="Window_Closing"    
-    KeyUp="Window_KeyUp" Loaded="Window_Loaded">
+    KeyUp="Window_KeyUp" Loaded="Window_Loaded"
+        MouseLeftButtonDown="Window_MouseButtonDown"
+        MouseRightButtonDown="Window_MouseButtonDown"
+        MouseDown="Window_MouseButtonDown"
+        MouseMove="Window_MouseMove"
+        MouseUp="Window_MouseUp"
+        LostMouseCapture="Window_LostMouseCapture">
     <Window.Resources>
         <local:FigureGenerator x:Key="figureGenerator"/>
     </Window.Resources>
@@ -14,7 +20,7 @@
               BabySmash by Scott Hanselman
               <Hyperlink RequestNavigate="HelpUrlNavigated" NavigateUri="http://www.babysmash.com">http://www.babysmash.com</Hyperlink>
               <LineBreak />Ctrl-Shift-Alt-O for options, ALT-F4 to exit</TextBlock>
-
+        <Canvas Name="mainCanvas"></Canvas>
         <ItemsControl Name="figures" ItemsSource="{Binding Source={StaticResource figureGenerator},Path=Figures}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>

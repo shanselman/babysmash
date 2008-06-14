@@ -188,6 +188,9 @@
     <EmbeddedResource Include="App.ico" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Sounds\smallbumblebee.wav" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="Resources\Voices\Female\" />
     <Folder Include="Resources\Voices\Male\" />
   </ItemGroup>
