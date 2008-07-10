@@ -37,18 +37,6 @@ namespace BabySmash.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Laughter")]
-        public string Sounds {
-            get {
-                return ((string)(this["Sounds"]));
-            }
-            set {
-                this["Sounds"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool FadeAway {
             get {
@@ -73,7 +61,7 @@ namespace BabySmash.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        [global::System.Configuration.DefaultSettingValueAttribute("65")]
         public int ClearAfter {
             get {
                 return ((int)(this["ClearAfter"]));
@@ -85,13 +73,49 @@ namespace BabySmash.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool MouseDraw {
             get {
                 return ((bool)(this["MouseDraw"]));
             }
             set {
                 this["MouseDraw"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int FadeAfter {
+            get {
+                return ((int)(this["FadeAfter"]));
+            }
+            set {
+                this["FadeAfter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool FacesOnShapes {
+            get {
+                return ((bool)(this["FacesOnShapes"]));
+            }
+            set {
+                this["FacesOnShapes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Speech")]
+        public string Sounds {
+            get {
+                return ((string)(this["Sounds"]));
+            }
+            set {
+                this["Sounds"] = value;
             }
         }
     }

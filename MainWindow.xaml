@@ -3,28 +3,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:BabySmash"
     Title="Baby Smash by Scott Hanselman - http://www.hanselman.com/babysmash"
-    Height="386" Width="601"  WindowStyle="None"
-    Closing="Window_Closing"    
-    KeyUp="Window_KeyUp" Loaded="Window_Loaded"
-        MouseLeftButtonDown="Window_MouseButtonDown"
-        MouseRightButtonDown="Window_MouseButtonDown"
-        MouseDown="Window_MouseButtonDown"
-        MouseMove="Window_MouseMove"
-        MouseUp="Window_MouseUp"
-        LostMouseCapture="Window_LostMouseCapture">
-    <Window.Resources>
-        <local:FigureGenerator x:Key="figureGenerator"/>
-    </Window.Resources>
-    <Grid>
-         <TextBlock>
-              BabySmash by Scott Hanselman
-              <Hyperlink RequestNavigate="HelpUrlNavigated" NavigateUri="http://www.babysmash.com">http://www.babysmash.com</Hyperlink>
-              <LineBreak />Ctrl-Shift-Alt-O for options, ALT-F4 to exit</TextBlock>
-        <Canvas Name="mainCanvas"></Canvas>
-        <ItemsControl Name="figures" ItemsSource="{Binding Source={StaticResource figureGenerator},Path=Figures}">
+    Height="500" Width="500"  WindowStyle="None" HorizontalAlignment="Center" VerticalAlignment="Center"
+        > 
+    <Grid Name="mainGrid">
+         <TextBlock FontSize="10">
+              <Bold>BabySmash!</Bold> by Scott Hanselman <Italic>with many community contributions!</Italic> - http://www.babysmash.com 
+              <LineBreak /><Bold>Ctrl-Shift-Alt-O</Bold> for options, <Bold>ALT-F4</Bold> to exit</TextBlock>
+        <Canvas Name="mainCanvas"/>
+        
+        <!--<ItemsControl Name="figuresControl" ItemsSource="{Binding Path=Figures}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <ContentPresenter Content="{Binding Path=Shape}" />
+                    <ContentPresenter />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
@@ -38,6 +28,6 @@
                     <Setter Property="Canvas.Top" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}},Path=ShapeTop}"/>
                 </Style>
             </ItemsControl.ItemContainerStyle>
-        </ItemsControl>
+        </ItemsControl>-->
     </Grid>
 </Window>

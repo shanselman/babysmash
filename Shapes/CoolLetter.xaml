@@ -1,0 +1,26 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	x:Class="BabySmash.CoolLetter"
+	x:Name="UserControl"
+	d:DesignWidth="6.666" d:DesignHeight="10">
+
+	<Grid x:Name="LayoutRoot">
+		<Canvas x:Name="Letter" Height="400" Width="400">
+			<Path x:Name="letterPath" StrokeThickness="10" Stroke="#ff000000"  >
+				<Path.Fill>
+					<RadialGradientBrush MappingMode="Absolute" GradientOrigin="123,198" Center="123,198" RadiusX="102" RadiusY="102">
+						<RadialGradientBrush.Transform>
+							<MatrixTransform Matrix="1,0,-0,-1,-16,305" />
+						</RadialGradientBrush.Transform>
+						<GradientStop Offset="0" Color="#ffffff00"/>
+						<GradientStop Offset="1" Color="#ff98ff00"/>
+					</RadialGradientBrush>
+				</Path.Fill>
+			</Path>
+		</Canvas>
+	</Grid>
+</UserControl>

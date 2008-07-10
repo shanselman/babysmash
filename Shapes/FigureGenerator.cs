@@ -1,112 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Media.Effects;
-using System.Windows.Shapes;
+using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using BabySmash;
-
+using System.Windows.Media.Effects;
+using BrushControlFunc = System.Func<System.Windows.Media.Brush, System.Windows.Controls.UserControl>;
 namespace BabySmash
 {
+    public class FigureTemplate
+    {
+        public Brush Fill { get; set; }
+        public Color Color { get; set; }
+        public BrushControlFunc GeneratorFunc { get; set; }
+        public BitmapEffect Effect { get; set; }
+        public string Name { get; set; }
+        public string Letter { get; set; }
+    }
+
     public class FigureGenerator
     {
-        private int clearAfter;
-        private readonly ObservableCollection<Figure> figures = new ObservableCollection<Figure>();
+        private static readonly List<KeyValuePair<string, BrushControlFunc>> hashTableOfFigureGenerators = new List<KeyValuePair<string, BrushControlFunc>>
+       {
+           new KeyValuePair<string, BrushControlFunc>("Circle", x => new CoolCircle(x) ),
+           new KeyValuePair<string, BrushControlFunc>("Rectangle", x => new CoolRectangle(x) ),
+           new KeyValuePair<string, BrushControlFunc>("Hexagon", x => new CoolHexagon(x) ),
+           new KeyValuePair<string, BrushControlFunc>("Trapezoid", x => new CoolTrapezoid(x) ),
+           new KeyValuePair<string, BrushControlFunc>("Star", x => new CoolStar(x) ),
+           new KeyValuePair<string, BrushControlFunc>("Square", x => new CoolSquare(x) ),
+           new KeyValuePair<string, BrushControlFunc>("Triangle", x => new CoolTriangle(x) ),
+           new KeyValuePair<string, BrushControlFunc>("Heart", x => new CoolHeart(x) )
+       };
 
-        public int ClearAfter
+        public static UserControl NewUserControlFrom(FigureTemplate template)
         {
-            get { return clearAfter; }
-            set { clearAfter = value; }
-        }
-
-        public ObservableCollection<Figure> Figures
-        {
-            get { return figures; }
-        }
-
-        public void Generate(FrameworkElement container)
-        {
-            Generate(container, "");
-        }
-
-        public void Generate(FrameworkElement container, string letter)
-        {
-            if (figures.Count == clearAfter)
-                figures.Clear();
-            Figure f = GenerateFigure(letter);
-            Storyboard s = CreateStoryboardAnimation(container, f.Shape, Shape.OpacityProperty);
-
+            UserControl retVal = null;
             //We'll wait for Hardware Accelerated Shader Effects in SP1
-            if (Properties.Settings.Default.BitmapEffects)
-                f.Shape.BitmapEffect = GetRandomBitmapEffect();
 
-            figures.Add(f);
-            if (Properties.Settings.Default.FadeAway) s.Begin(container);
-        }
-
-        private BitmapEffect GetRandomBitmapEffect()
-        {
-            int e = Utils.RandomBetweenTwoNumbers(0, 3);
-            switch (e)
+            if (template.Letter.Length == 1 && Char.IsLetterOrDigit(template.Letter[0]))
             {
-                case 0:
-                    return new BevelBitmapEffect();
-                case 1:
-                    return new DropShadowBitmapEffect();
-                case 2:
-                    return new EmbossBitmapEffect();
-                case 3:
-                    return new OuterGlowBitmapEffect();
+                retVal = new CoolLetter(template.Fill.Clone(), template.Letter);
             }
-            return new BevelBitmapEffect();
-        }
+            else
+            {
+                retVal = template.GeneratorFunc(template.Fill.Clone());
+            }
 
-        private static Storyboard CreateStoryboardAnimation(FrameworkElement container, UIElement shape, DependencyProperty dp)
-        {
-            var st = new Storyboard();
-            NameScope.SetNameScope(container, new NameScope());
-            container.RegisterName("shape", shape);
-
-            var d = new DoubleAnimation();
-            d.From = 1.0;
-            d.To = 0.0;
-            d.Duration = new Duration(TimeSpan.FromSeconds(7));
-            d.AutoReverse = false;
-
-            st.Children.Add(d);
-            Storyboard.SetTargetName(d, "shape");
-            Storyboard.SetTargetProperty(d, new PropertyPath(dp));
-            return st;
+            //TODO: TOO SLOW! Waiting for ShaderEffects in 3.5SP1
+            //if (Settings.Default.BitmapEffects)
+            //{
+            //   retVal.BitmapEffect = template.Effect.Clone();
+            //}
+            return retVal;
         }
 
         //TODO: Should this be in XAML? Would that make it better?
         //TODO: Should I change the height, width and stroke to be relative to the screen size?
         //TODO: Where can I get REALLY complex shapes like animal vectors or custom pics? Where do I store them?
 
-        private static readonly List<Func<Brush, Figure>> listOfPotentialFigures = new List<Func<Brush, Figure>>
+        public static FigureTemplate GenerateFigureTemplate(string letter)
         {
-            x => new SquareFigure(x),
-            x => new CircleFigure(x),
-            x => new TriangleFigure(x),
-            x => new StarFigure(x),
-            x => new HeartFigure(x),
-            x => new TrapezoidFigure(x),
-            x => new RectangleFigure(x)
-        };
+            Color c = Utils.GetRandomColor();
 
-        private static Figure GenerateFigure(string letter)
-        {
-            var fill = Utils.GetRandomColoredBrush();
-            if (letter.Length == 1 && Char.IsLetterOrDigit(letter[0]))
-                return new LetterFigure(fill, letter);
-            var myFunc = listOfPotentialFigures[
-                Utils.RandomBetweenTwoNumbers(0, listOfPotentialFigures.Count - 1)];
-            return myFunc(fill);
+            var nameFunc = hashTableOfFigureGenerators[Utils.RandomBetweenTwoNumbers(0, hashTableOfFigureGenerators.Count - 1)];
+            return new FigureTemplate
+            {
+                Color = c,
+                Name = (letter.Length == 1 && Char.IsLetterOrDigit(letter[0])) ? letter : nameFunc.Key,
+                GeneratorFunc = nameFunc.Value,
+                Fill = Utils.GetGradientBrush(c),
+                Letter = letter,
+                Effect = Animation.GetRandomBitmapEffect()
+            };
         }
     }
 }
-

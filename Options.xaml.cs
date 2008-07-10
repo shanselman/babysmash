@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using BabySmash.Properties;
 
 namespace BabySmash
 {
@@ -11,16 +12,14 @@ namespace BabySmash
 
         private void OK_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.Save();
+            Settings.Default.Save();
             Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            Properties.Settings.Default.Reload();
+            Settings.Default.Reload();
             Close();
         }
     }
 }
-
-

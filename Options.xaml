@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:BabySmash.Properties"
         xmlns:l="clr-namespace:BabySmash"
         Title="Baby Smash! - Options"
-        Height="227" Width="542"
+        Height="261" Width="542"
         ShowInTaskbar="True"
         Topmost="True"
         WindowStartupLocation="CenterScreen"
@@ -16,58 +16,70 @@
     <Grid DataContext="{StaticResource settings}" Width="Auto">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" MinWidth="119" />
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" MinWidth="58" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="43" />
             <RowDefinition Height="Auto" MinHeight="43" />
-            <RowDefinition Height="Auto" MinHeight="16" />
-            <RowDefinition Height="Auto" MinHeight="16" />
-            <RowDefinition Height="Auto" MinHeight="16" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" MinHeight="34" />
+            <RowDefinition Height="Auto" MinHeight="20" />
+            <RowDefinition Height="Auto" MinHeight="20" />
+            <RowDefinition Height="Auto" MinHeight="20" />
+            <RowDefinition Height="Auto" MinHeight="20" />
+            <RowDefinition Height="Auto" MinHeight="20" />
+            <RowDefinition Height="*" MinHeight="34" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Column="3" Grid.RowSpan="7" TextWrapping="Wrap" FontSize="18" TextAlignment="Center" Grid.ColumnSpan="1" >
+        <TextBlock Grid.Column="3" Grid.RowSpan="9" TextWrapping="Wrap" FontSize="18" TextAlignment="Center" Grid.ColumnSpan="1" >
             <TextBlock.BitmapEffect>
                     <BitmapEffectGroup>
                        <OuterGlowBitmapEffect GlowColor="Yellow" GlowSize="15"/>
                      </BitmapEffectGroup>
             </TextBlock.BitmapEffect>
             <Bold>Welcome to BabySmash!</Bold><LineBreak/>We're adding new features weekly. 
-            This week added cool effects for faster computers, as well as drawing with the mouse. 
-            Clicking "Mouse Draw" lets your baby draw without clicking any buttons!<LineBreak/>
-            <Italic>There's more fun coming soon!</Italic>
+            This week added click animations and all new graphics! 
+            <LineBreak/>Try turning <Bold>OFF</Bold> Clickless Mouse <LineBreak/>and show your baby<LineBreak/> how to click on shapes!<LineBreak/>
+            <Italic>There's even more fun soon!</Italic>
         </TextBlock >
-        <Label Height="23" Margin="10,20,0,0" Grid.ColumnSpan="1">Clear after x Shape</Label>
-        <TextBox Text="{Binding Path=Default.ClearAfter}"
-                 Height="23"  Grid.Column="1" Margin="15,20,7,0"/>
+        <Label Height="23" Margin="10,20,0,0" Grid.Row="0" Grid.ColumnSpan="1">Clear after x Shapes</Label>
+        <TextBox Text="{Binding Path=Default.ClearAfter}"  Grid.Row="0"
+                 Height="23" Width="40" Grid.Column="1" Margin="15,20,0,0" HorizontalAlignment="Right"/>
         <Label Height="23" Grid.Row="1" Margin="10">Sounds</Label>
         <ComboBox 
             SelectedValue="{Binding Path=Default.Sounds}" 
-            SelectedValuePath="Content"
-            Grid.Column="1" Grid.Row="1" Height="23" Margin="15,0,7,0">
+            SelectedValuePath="Content" Grid.Row="1" Height="23" Margin="70,10,7,0" Grid.ColumnSpan="2" VerticalAlignment="Top">
             <ComboBoxItem>None</ComboBoxItem>
             <ComboBoxItem>Laughter</ComboBoxItem>
             <ComboBoxItem>Speech</ComboBoxItem>
         </ComboBox>
-        <CheckBox Grid.Row="2" Grid.Column="1" Margin="15,0,0,0"
+        <CheckBox Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
                   IsChecked="{Binding Path=Default.ForceUppercase,Mode=TwoWay}" >
-            Force Uppercase
+            Force Letters to UPPERCASE
         </CheckBox>
-        <CheckBox Grid.Row="3" Grid.Column="1" Margin="15,0,0,0"
-                  IsChecked="{Binding Path=Default.FadeAway,Mode=TwoWay}" >
-            Fade Away
+        <CheckBox Grid.Row="3" Grid.ColumnSpan="2"  Grid.Column="0" Margin="15,0,0,0"
+                  IsChecked="{Binding Path=Default.FacesOnShapes,Mode=TwoWay}" >
+            Faces on Shapes
         </CheckBox>
-        <CheckBox Grid.Row="4" Grid.Column="1" Margin="15,0,0,0"
-                  IsChecked="{Binding Path=Default.BitmapEffects,Mode=TwoWay}" >
-            Bitmap Effects
+        <CheckBox Grid.Row="4" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
+                  IsChecked="{Binding Path=Default.BitmapEffects,Mode=TwoWay}" IsEnabled="False">
+            Effects (DISABLED FOR NOW)
         </CheckBox>
-        <CheckBox Grid.Row="5" Grid.Column="1" Margin="15,0,0,0"
+        <CheckBox Grid.Row="5" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
                   IsChecked="{Binding Path=Default.MouseDraw,Mode=TwoWay}" >
-            Mouse Draw
+            Clickless Mouse Drawing
         </CheckBox>
-        <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" 
+            Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+            <CheckBox  x:Name="FadeChecked" Margin="15,0,0,0"
+          IsChecked="{Binding Path=Default.FadeAway,Mode=TwoWay}" >
+                Fade Shapes Away in</CheckBox>
+            <TextBox Margin="5,0,0,0" 
+             Text="{Binding Path=Default.FadeAfter}" 
+             IsEnabled="{Binding ElementName=FadeChecked,Path=IsChecked,Mode=TwoWay}"
+         Height="20" Width="25" />
+            <TextBlock>secs.</TextBlock>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Right">
             <Button Name="okButton" IsDefault="True" Margin="0,7,10,7" Padding="30,0,30,0" Click="OK_Click" >OK</Button>
             <Button IsCancel="True" Margin="5,7,7,7" Padding="15,0,15,0" Click="Cancel_Click" Width="77">Cancel</Button>
         </StackPanel>

@@ -1,0 +1,49 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	x:Class="BabySmash.CoolStar"
+	x:Name="UserControl"
+	d:DesignWidth="6.667" d:DesignHeight="10">
+    <UserControl.Resources>
+        <Storyboard x:Key="Eyes">
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Eyes" Storyboard.TargetProperty="(UIElement.Opacity)" RepeatBehavior="Forever">
+                <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:10.300000" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource Eyes}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid x:Name="LayoutRoot">
+		<Canvas x:Name="Star">
+			<Path x:Name="Body" StrokeThickness="10" Stroke="#ff000000" StrokeMiterLimit="1" Data="F1 M 126.578613,11.297852 L 162.373535,83.825684 L 242.412598,95.456055 L 184.495605,151.911133 L 198.167480,231.626953 L 126.578613,193.990234 L 54.988770,231.626953 L 68.661621,151.911133 L 10.744629,95.456055 L 90.783691,83.825684 L 126.578613,11.297852 Z">
+				<Path.Fill>
+					<RadialGradientBrush MappingMode="Absolute" GradientOrigin="390.395508,448.130371" Center="390.395508,448.130371" RadiusX="113.034821" RadiusY="113.034821">
+						<RadialGradientBrush.Transform>
+							<MatrixTransform Matrix="1,0,-0,-1,-263.816895,569.592773" />
+						</RadialGradientBrush.Transform>
+						<GradientStop Offset="0" Color="#ff00ff00"/>
+						<GradientStop Offset="1" Color="#ff006736"/>
+					</RadialGradientBrush>
+				</Path.Fill>
+			</Path>
+            <Canvas x:Name="Face">
+                <Canvas x:Name="Eyes">
+                    <Path Fill="#ff000000" Data="F1 M 121.578613,114.592773 C 121.578613,120.943848 116.429199,126.092773 110.078613,126.092773 C 103.727051,126.092773 98.578613,120.943848 98.578613,114.592773 C 98.578613,108.241699 103.727051,103.092773 110.078613,103.092773 C 116.429199,103.092773 121.578613,108.241699 121.578613,114.592773 Z"/>
+                    <Path Fill="#ff000000" Data="F1 M 154.578613,114.592773 C 154.578613,120.943848 149.430176,126.092773 143.078613,126.092773 C 136.727051,126.092773 131.578613,120.943848 131.578613,114.592773 C 131.578613,108.241699 136.727051,103.092773 143.078613,103.092773 C 149.430176,103.092773 154.578613,108.241699 154.578613,114.592773 Z"/>
+                </Canvas>
+                <Path Fill="#ff000000" Data="F1 M 139.507324,154.020020 C 139.507324,161.159668 133.717773,166.948242 126.578125,166.948242 C 119.438477,166.948242 113.649902,161.159668 113.649902,154.020020 C 113.649902,146.879883 119.438477,154.020020 126.578125,154.020020 C 133.717773,154.020020 139.507324,146.879883 139.507324,154.020020 Z"/>
+            </Canvas>
+        </Canvas>
+	</Grid>
+</UserControl>

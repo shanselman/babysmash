@@ -1,0 +1,47 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	x:Class="BabySmash.CoolTrapezoid"
+	x:Name="UserControl"
+	d:DesignWidth="20" d:DesignHeight="20">
+    <UserControl.Resources>
+        <Storyboard x:Key="ParallelogramSB">
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ParallelEyes" Storyboard.TargetProperty="(UIElement.Opacity)" RepeatBehavior="Forever">
+                <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:10.300000" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource ParallelogramSB}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid x:Name="LayoutRoot">
+		<Canvas x:Name="Parellelogram">
+			<Path x:Name="Body" StrokeThickness="10" Stroke="#ff000000" StrokeMiterLimit="1" Data="F1 M 302.564941,159.833984 L 6.651855,159.833984 L 51.451172,5 L 257.766113,5 L 302.564941,159.833984 Z">
+				<Path.Fill>
+					<RadialGradientBrush MappingMode="Absolute" GradientOrigin="410.416016,182.5" Center="410.416016,182.5" RadiusX="118.077667" RadiusY="118.077667">
+						<RadialGradientBrush.Transform>
+							<MatrixTransform Matrix="1,0,-0,-1,-255.808105,264.916992" />
+						</RadialGradientBrush.Transform>
+						<GradientStop Offset="0" Color="#ff00ffff"/>
+						<GradientStop Offset="1" Color="#ff0000ff"/>
+					</RadialGradientBrush>
+				</Path.Fill>
+			</Path>
+            <Canvas x:Name="Face">
+                <Path Fill="#ff000000" Data="F1 M 172.153809,102.869141 C 172.137207,112.559570 164.296387,120.399414 154.608887,120.416016 L 154.608887,120.416016 C 144.918457,120.399414 137.077637,112.559570 137.061035,102.869141 L 137.061035,102.869141 C 137.061035,100.108398 134.821777,97.869141 132.061035,97.869141 L 132.061035,97.869141 C 129.300293,97.869141 127.061035,100.108398 127.061035,102.869141 L 127.061035,102.869141 C 127.064941,118.084961 139.393066,130.413086 154.608887,130.416992 L 154.608887,130.416992 C 169.822754,130.413086 182.151855,118.084961 182.154785,102.869141 L 182.154785,102.869141 C 182.154785,100.108398 179.916504,97.869141 177.153809,97.869141 L 177.153809,97.869141 C 174.393066,97.869141 172.153809,100.108398 172.153809,102.869141 L 172.153809,102.869141 Z" x:Name="mouth"/>
+                <Path Fill="#ff000000" Stretch="Fill" x:Name="ParallelEyes" Width="30" Height="34" Canvas.Left="139.608" Canvas.Top="34.417" Data="M23.5,0 C27.089844,0 30,2.9101563 30,6.5 L30,27.5 C30,31.089844 27.089844,34 23.5,34 19.910156,34 17,31.089844 17,27.5 L17,6.5 C17,2.9101563 19.910156,0 23.5,0 z M6.5,0 C10.089844,0 13,2.9101563 13,6.5 L13,27.5 C13,31.089844 10.089844,34 6.5,34 2.9101563,34 0,31.089844 0,27.5 L0,6.5 C0,2.9101563 2.9101563,0 6.5,0 z"/>
+            </Canvas>
+		</Canvas>
+	</Grid>
+</UserControl>

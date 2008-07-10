@@ -1,0 +1,55 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	x:Class="BabySmash.CoolHeart"
+	x:Name="UserControl"
+	d:DesignWidth="6.666" d:DesignHeight="10">
+    <UserControl.Resources>
+        <Storyboard x:Key="HeartSB">
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="HeartEyes" Storyboard.TargetProperty="(UIElement.Opacity)" RepeatBehavior="Forever">
+                <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:10.300000" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource HeartSB}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid x:Name="LayoutRoot">
+		<Canvas x:Name="Heart">
+			<Path  x:Name="Body" Stroke="#ff000000" StrokeMiterLimit="1" StrokeThickness="15"  Stretch="Fill" Data="F1 M 229,161.333C 306.333,88.6667 409,142.122 409,225.333C 409,308.544 229,462.667 229,462.667C 229,462.667 057,306.544 057,223.333C 057,140.123 156.138,88.4713 229,161.333 Z" Canvas.Top="-38" RenderTransformOrigin="0.5,0.5" Canvas.Left="-37">
+				<Path.RenderTransform>
+					<TransformGroup>
+						<ScaleTransform ScaleX="0.65" ScaleY="0.65"/>
+						<SkewTransform AngleX="0" AngleY="0"/>
+						<RotateTransform Angle="0"/>
+						<TranslateTransform X="0" Y="0"/>
+					</TransformGroup>
+				</Path.RenderTransform>
+				<Path.Fill>
+					<RadialGradientBrush>
+						<GradientStop Color="#FFFF0000" Offset="0"/>
+						<GradientStop Color="#FF980000" Offset="1"/>
+						<GradientStop Color="#FFC50000" Offset="0.531"/>
+					</RadialGradientBrush>
+				</Path.Fill>
+			</Path>
+            <Canvas x:Name="Face">
+                <Path Fill="#ff000000" Data="F1 M 124.545898,151.451172 C 124.529297,161.141602 116.688477,168.981445 107.000977,168.998047 L 107.000977,168.998047 C 97.310547,168.981445 89.469727,161.141602 89.453125,151.451172 L 89.453125,151.451172 C 89.453125,148.690430 87.213867,146.451172 84.453125,146.451172 L 84.453125,146.451172 C 81.692383,146.451172 79.453125,148.690430 79.453125,151.451172 L 79.453125,151.451172 C 79.457031,166.666992 91.785156,178.995117 107.000977,178.999023 L 107.000977,178.999023 C 122.214844,178.995117 134.543945,166.666992 134.546875,151.451172 L 134.546875,151.451172 C 134.546875,148.690430 132.308594,146.451172 129.545898,146.451172 L 129.545898,146.451172 C 126.785156,146.451172 124.545898,148.690430 124.545898,151.451172 L 124.545898,151.451172 Z" Canvas.Left="36.333" Canvas.Top="14"/>
+                <Canvas x:Name="HeartEyes">
+                    <Path Fill="#ff000000" Data="F1 M 121.578613,114.592773 C 121.578613,120.943848 116.429199,126.092773 110.078613,126.092773 C 103.727051,126.092773 98.578613,120.943848 98.578613,114.592773 C 98.578613,108.241699 103.727051,103.092773 110.078613,103.092773 C 116.429199,103.092773 121.578613,108.241699 121.578613,114.592773 Z" Canvas.Left="1" Canvas.Top="-31.134" d:LayoutOverrides="Width, Height, GridBox"/>
+                    <Path Fill="#ff000000" Data="F1 M 154.578613,114.592773 C 154.578613,120.943848 149.430176,126.092773 143.078613,126.092773 C 136.727051,126.092773 131.578613,120.943848 131.578613,114.592773 C 131.578613,108.241699 136.727051,103.092773 143.078613,103.092773 C 149.430176,103.092773 154.578613,108.241699 154.578613,114.592773 Z" Canvas.Left="31.333" Canvas.Top="-31.134" d:LayoutOverrides="Width, Height, GridBox"/>
+                </Canvas>
+            </Canvas>
+        </Canvas>
+	</Grid>
+</UserControl>

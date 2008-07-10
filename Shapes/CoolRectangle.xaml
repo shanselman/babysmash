@@ -1,0 +1,49 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	x:Class="BabySmash.CoolRectangle"
+	x:Name="UserControl"
+	d:DesignWidth="6.667" d:DesignHeight="10">
+    <UserControl.Resources>
+        <Storyboard x:Key="Eyes">
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Eyes" Storyboard.TargetProperty="(UIElement.Opacity)" RepeatBehavior="Forever">
+                <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="0"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:10.300000" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource Eyes}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid x:Name="LayoutRoot">
+		<Canvas x:Name="Square">
+			<Rectangle  x:Name="Body" StrokeThickness="10" Stroke="#ff000000" Width="407" Height="207">
+				<Rectangle.Fill>
+					<RadialGradientBrush MappingMode="Absolute" GradientOrigin="110.185547,455" Center="110.185547,455" RadiusX="98.5" RadiusY="98.5">
+						<RadialGradientBrush.Transform>
+							<MatrixTransform Matrix="1,0,-0,-1,-6.685547,558.5" />
+						</RadialGradientBrush.Transform>
+						<GradientStop Offset="0" Color="#ffff00ff"/>
+						<GradientStop Offset="1" Color="#ff9d005c"/>
+					</RadialGradientBrush>
+				</Rectangle.Fill>
+			</Rectangle>
+            <Canvas x:Name="Face">
+                <Canvas x:Name="Eyes">
+               <Path Fill="#ff000000" Data="F1 M 93.295410,58.927246 C 93.295410,55.992676 90.916504,53.613281 87.981445,53.613281 L 78.018066,53.613281 C 75.083496,53.613281 72.704590,55.992676 72.704590,58.927246 L 72.704590,91 L 93.295410,91 L 93.295410,58.927246 Z" Height="91" Canvas.Left="98" Canvas.Top="0" Width="93" />
+    			<Path Fill="#ff000000" Data="F1 M 134.295410,58.927246 C 134.295410,55.992676 131.916504,53.613281 128.981445,53.613281 L 119.018066,53.613281 C 116.083496,53.613281 113.704590,55.992676 113.704590,58.927246 L 113.704590,91 L 134.295410,91 L 134.295410,58.927246 Z" Height="91" Canvas.Left="98" Canvas.Top="0" Width="134.295" />
+                    </Canvas>
+			    <Path Fill="#ff000000" Data="F1 M 122.779297,145.530762 C 122.779297,156.178223 114.147461,164.810059 103.5,164.810059 C 92.852539,164.810059 84.220703,156.178223 84.220703,145.530762 C 84.220703,134.883301 92.852539,145.530762 103.5,145.530762 C 114.147461,145.530762 122.779297,134.883301 122.779297,145.530762 Z" Height="164.81" Canvas.Left="98" Canvas.Top="0" Width="122.779" />
+            </Canvas>
+        </Canvas>
+	</Grid>
+</UserControl>

@@ -31,12 +31,12 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>http://www.hanselman.com/BabySmash/</InstallUrl>
-    <SupportUrl>http://www.babysmash.com</SupportUrl>
+    <SupportUrl>http://www.hanselman.com/forum/forum21-babysmash-end-user-support.aspx</SupportUrl>
     <ProductName>BabySmash!</ProductName>
     <PublisherName>Scott Hanselman</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>30</ApplicationRevision>
+    <ApplicationRevision>36</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -89,17 +89,75 @@
     <Reference Include="PresentationFramework">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
+    <Page Include="Shapes\allShapes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Shapes\CoolCircle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Shapes\CoolHeart.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Shapes\CoolHexagon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Shapes\CoolSquare.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Shapes\CoolStar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Shapes\CoolTrapezoid.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="Shapes\CoolCircle.xaml.cs">
+      <DependentUpon>CoolCircle.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shapes\CoolHeart.xaml.cs">
+      <DependentUpon>CoolHeart.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shapes\CoolHexagon.xaml.cs">
+      <DependentUpon>CoolHexagon.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shapes\CoolSquare.xaml.cs">
+      <DependentUpon>CoolSquare.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shapes\CoolStar.xaml.cs">
+      <DependentUpon>CoolStar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shapes\CoolTrapezoid.xaml.cs">
+      <DependentUpon>CoolTrapezoid.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Shapes\CoolTriangle.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Shapes\CoolLetter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Options.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Shapes\CoolRectangle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -110,6 +168,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio.cs" />
+    <Compile Include="Controller.cs" />
+    <Compile Include="Shapes\AnimationBehaviors.cs" />
+    <Compile Include="Shapes\CoolTriangle.xaml.cs">
+      <DependentUpon>CoolTriangle.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shapes\CoolLetter.xaml.cs">
+      <DependentUpon>CoolLetter.xaml</DependentUpon>
+    </Compile>
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -131,9 +197,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="Shapes\Animation.cs" />
+    <Compile Include="Shapes\CoolRectangle.xaml.cs">
+      <DependentUpon>CoolRectangle.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Shapes\Figure.cs" />
     <Compile Include="Shapes\FigureGenerator.cs" />
-    <Compile Include="Shapes\Star.cs" />
     <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -189,6 +258,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Sounds\smallbumblebee.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Sounds\falling.wav" />
+    <EmbeddedResource Include="Resources\Sounds\rising.wav" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\Voices\Female\" />
