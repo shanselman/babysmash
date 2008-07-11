@@ -15,36 +15,21 @@
                 <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="0"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="0"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:10.300000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:7.300000" Value="1"/>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="CircleEye2" Storyboard.TargetProperty="(UIElement.Opacity)" RepeatBehavior="Forever">
                 <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="1"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="0"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="0"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:10.300000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:7.300000" Value="1"/>
             </DoubleAnimationUsingKeyFrames>
-        </Storyboard>
-        <Storyboard x:Key="CircleSpin">
-            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Circle" Storyboard.TargetProperty="(UIElement.Opacity)">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.6000000" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.7000000" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9000000" Value="1"/>
-            </DoubleAnimationUsingKeyFrames>
-            <!--<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Circle" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[2].(RotateTransform.Angle)">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-50"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.6000000" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.7000000" Value="5"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.9000000" Value="0"/>
-            </DoubleAnimationUsingKeyFrames>-->
         </Storyboard>
     </UserControl.Resources>
 
     <UserControl.Triggers>
         <EventTrigger RoutedEvent="FrameworkElement.Loaded">
             <BeginStoryboard Storyboard="{StaticResource CircleEyesSB}"/>
-            <BeginStoryboard Storyboard="{StaticResource CircleSpin}"/>
         </EventTrigger>
     </UserControl.Triggers>
 

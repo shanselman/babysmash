@@ -20,6 +20,7 @@ namespace BabySmash
         private readonly SpeechSynthesizer objSpeech = new SpeechSynthesizer();
         private readonly List<MainWindow> windows = new List<MainWindow>();
         private int FiguresCount = 0;
+        private readonly Win32Audio audio = new Win32Audio();
 
         public void Launch()
         {
@@ -109,9 +110,32 @@ namespace BabySmash
                     face.FaceVisible = Settings.Default.FacesOnShapes ? Visibility.Visible : Visibility.Hidden;
                 }
                 f.MouseLeftButtonDown += HandleMouseLeftButtonDown;
+                f.MouseEnter += f_MouseEnter;
+                f.MouseWheel += f_MouseWheel;
             }
             FiguresCount++;
             PlaySound(template);
+        }
+
+        void f_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if(lastEnteredUserControl != null)
+            {
+                if (e.Delta < 0)
+                {
+                    Animation.ApplyZoom(lastEnteredUserControl, new Duration(TimeSpan.FromSeconds(0.5)), 2.5);
+                }
+                else
+                {
+                    Animation.ApplyZoom(lastEnteredUserControl, new Duration(TimeSpan.FromSeconds(0.5)), 0.5);
+                }
+            }
+        }
+
+        private UserControl lastEnteredUserControl;
+        void f_MouseEnter(object sender, MouseEventArgs e)
+        {
+            lastEnteredUserControl = sender as UserControl;
         }
 
         void HandleMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -144,9 +168,9 @@ namespace BabySmash
             }
         }
 
-        private static void PlayLaughter()
+        private void PlayLaughter()
         {
-            Winmm.PlayWavResource(Utils.GetRandomSoundFile());
+            audio.PlayWavResource(Utils.GetRandomSoundFile());
         }
 
         private void SpeakString(string s)
@@ -186,18 +210,18 @@ namespace BabySmash
             isDrawing = true;
             main.CaptureMouse();
 
-            Winmm.PlayWavResource(".Resources.Sounds." + "smallbumblebee.wav");
+            audio.PlayWavResource(".Resources.Sounds." + "smallbumblebee.wav");
         }
 
         public void MouseWheel(MainWindow main, MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
             {
-                Winmm.PlayWavResource(".Resources.Sounds." + "rising.wav");
+                audio.PlayWavResourceYield(".Resources.Sounds." + "rising.wav");
             }
             else
             {
-                Winmm.PlayWavResource(".Resources.Sounds." + "falling.wav");
+                audio.PlayWavResourceYield(".Resources.Sounds." + "falling.wav");
             }
         }
 
@@ -243,7 +267,7 @@ namespace BabySmash
             Canvas.SetTop(shape, p.Y - 25);
 
             if (Settings.Default.MouseDraw)
-                Winmm.PlayWavResourceYield(".Resources.Sounds." + "smallbumblebee.wav");
+                audio.PlayWavResourceYield(".Resources.Sounds." + "smallbumblebee.wav");
         }
 
         public void LostMouseCapture(MainWindow main, MouseEventArgs e)

@@ -20,7 +20,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" MinHeight="43" />
+            <RowDefinition Height="Auto" MinHeight="20" />
             <RowDefinition Height="Auto" MinHeight="43" />
             <RowDefinition Height="Auto" MinHeight="20" />
             <RowDefinition Height="Auto" MinHeight="20" />
@@ -38,11 +38,14 @@
             <Bold>Welcome to BabySmash!</Bold><LineBreak/>We're adding new features weekly. 
             This week added click animations and all new graphics! 
             <LineBreak/>Try turning <Bold>OFF</Bold> Clickless Mouse <LineBreak/>and show your baby<LineBreak/> how to click on shapes!<LineBreak/>
-            <Italic>There's even more fun soon!</Italic>
+            <Italic>There's even more fun coming soon!</Italic>
         </TextBlock >
-        <Label Height="23" Margin="10,20,0,0" Grid.Row="0" Grid.ColumnSpan="1">Clear after x Shapes</Label>
-        <TextBox Text="{Binding Path=Default.ClearAfter}"  Grid.Row="0"
-                 Height="23" Width="40" Grid.Column="1" Margin="15,20,0,0" HorizontalAlignment="Right"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Height="43" VerticalAlignment="Top">
+            <Label Margin="10,20,0,0" >Clear screen after</Label>
+            <TextBox Text="{Binding Path=Default.ClearAfter}"  
+                 Height="20" Width="30" Margin="0,20,0,0" />
+            <Label  Margin="0,20,0,0" >Shapes</Label>
+        </StackPanel>
         <Label Height="23" Grid.Row="1" Margin="10">Sounds</Label>
         <ComboBox 
             SelectedValue="{Binding Path=Default.Sounds}" 
@@ -67,16 +70,16 @@
                   IsChecked="{Binding Path=Default.MouseDraw,Mode=TwoWay}" >
             Clickless Mouse Drawing
         </CheckBox>
-        <StackPanel Orientation="Horizontal" 
+        <StackPanel Orientation="Horizontal"  
             Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
-            <CheckBox  x:Name="FadeChecked" Margin="15,0,0,0"
+            <CheckBox  x:Name="FadeChecked" Margin="15,0,0,0" 
           IsChecked="{Binding Path=Default.FadeAway,Mode=TwoWay}" >
                 Fade Shapes Away in</CheckBox>
             <TextBox Margin="5,0,0,0" 
              Text="{Binding Path=Default.FadeAfter}" 
              IsEnabled="{Binding ElementName=FadeChecked,Path=IsChecked,Mode=TwoWay}"
-         Height="20" Width="25" />
-            <TextBlock>secs.</TextBlock>
+         Height="20" Width="30" />
+            <TextBlock Margin="5,0,0,0">secs.</TextBlock>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Right">

@@ -109,6 +109,25 @@ namespace BabySmash
          fe.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, da);
       }
 
+      public static void ApplyZoom(FrameworkElement fe, Duration duration, double scale)
+      {
+          var da = new DoubleAnimation
+          {
+              From = 1,
+              To = scale,
+              Duration = duration,
+              AutoReverse = true
+          };
+
+          da.AccelerationRatio = da.DecelerationRatio = 0.2;
+
+          fe.RenderTransformOrigin = new Point(0.5, 0.5);
+          fe.RenderTransform = new ScaleTransform(scale, scale);
+          fe.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, da);
+          fe.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, da);
+      }
+
+
       public static void ApplyRotate(FrameworkElement fe, Duration duration)
       {
          DoubleAnimationUsingKeyFrames da = new DoubleAnimationUsingKeyFrames();
@@ -143,6 +162,11 @@ namespace BabySmash
          fe.RenderTransformOrigin = new Point(0.5, 0.5);
          fe.RenderTransform = new ScaleTransform(1, 1);
          fe.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, da);
+      }
+
+      public static void DoZoom(FrameworkElement lastEnteredUserControl)
+      {
+          
       }
    }
 }

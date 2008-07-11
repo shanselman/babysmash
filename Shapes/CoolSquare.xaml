@@ -14,7 +14,7 @@
                 <SplineDoubleKeyFrame KeyTime="00:00:02.1000000" Value="0"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="0"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:02.300000" Value="1"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:10.300000" Value="1"/>
+                <SplineDoubleKeyFrame KeyTime="00:00:7.300000" Value="1"/>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </UserControl.Resources>
