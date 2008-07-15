@@ -32,7 +32,8 @@ namespace BabySmash
 		    this.letterPath.Fill = x;
 
 		    this.letterPath.Data = MakeCharacterGeometry(GetLetterCharacter(letter));
-		    this.Height = 400;
+          this.Width = this.letterPath.Data.Bounds.Width + this.letterPath.Data.Bounds.X + this.letterPath.StrokeThickness / 2;
+          this.Height = this.letterPath.Data.Bounds.Height + this.letterPath.Data.Bounds.Y + this.letterPath.StrokeThickness / 2;
 		}
 
         private static Geometry MakeCharacterGeometry(string t)

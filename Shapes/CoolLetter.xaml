@@ -9,7 +9,7 @@
 	d:DesignWidth="6.666" d:DesignHeight="10">
 
 	<Grid x:Name="LayoutRoot">
-		<Canvas x:Name="Letter" Height="400" Width="400">
+		<Canvas x:Name="Letter" >
 			<Path x:Name="letterPath" StrokeThickness="10" Stroke="#ff000000"  >
 				<Path.Fill>
 					<RadialGradientBrush MappingMode="Absolute" GradientOrigin="123,198" Center="123,198" RadiusX="102" RadiusY="102">

@@ -20,66 +20,55 @@ namespace BabySmash
         public static Dictionary<string, string> cachedWavs = new Dictionary<string, string>();
         public static object cachedWavsLock = new object();
 
-        [DllImport("winmm.dll", SetLastError = true)]
-        static extern bool PlaySound(string pszSound, IntPtr hmod, UInt32 fdwSound);
 
         [DllImport("winmm.dll")]
         public static extern bool PlaySound(byte[] data, IntPtr hMod, UInt32 dwFlags);
 
-        public void PlayWavResource(string wav)
+[DllImport("winmm.dll", SetLastError = true)]
+static extern bool PlaySound(string pszSound, IntPtr hmod, UInt32 fdwSound);
+
+public void PlayWavResource(string wav)
+{
+    string s = GetWavResource(wav);
+    PlaySound(s, IntPtr.Zero, SND_ASYNC);
+}
+
+public void PlayWavResourceYield(string wav)
+{
+    string s = GetWavResource(wav);
+    PlaySound(s, IntPtr.Zero, SND_ASYNC | SND_NOSTOP);
+}
+
+TempFileCollection tempFiles = new TempFileCollection();
+
+private string GetWavResource(string wav)
+{
+    //TODO: Is this valid double-check caching?
+    string retVal = null;
+    if (cachedWavs.ContainsKey(wav))
+        retVal = cachedWavs[wav];
+    if (retVal == null)
+    {
+        lock (cachedWavsLock)
         {
-            string s = GetWavResource(wav);
-            PlaySound(s, IntPtr.Zero, SND_ASYNC);
-        }
+            // get the namespace 
+            string strNameSpace = Assembly.GetExecutingAssembly().GetName().Name;
 
-        public void PlayWavResourceYield(string wav)
-        {
-            string s = GetWavResource(wav);
-            PlaySound(s, IntPtr.Zero, SND_ASYNC | SND_NOSTOP);
-        }
-
-        //public static void PlayWavResource(string wav)
-        //{
-        //    byte[] b = GetWavResource(wav);
-        //    PlaySound(b, IntPtr.Zero, SND_ASYNC | SND_MEMORY);
-        //}
-
-        //public static void PlayWavResourceYield(string wav)
-        //{
-        //    byte[] b = GetWavResource(wav);
-        //    PlaySound(b, IntPtr.Zero, SND_ASYNC | SND_MEMORY | SND_NOSTOP);
-        //}
-
-        TempFileCollection tempFiles = new TempFileCollection();
-
-        private string GetWavResource(string wav)
-        {
-            //TODO: Is this valid double-check caching?
-            string b = null;
-            if (cachedWavs.ContainsKey(wav))
-                b = cachedWavs[wav];
-            if (b == null)
+            // get the resource into a stream
+            using (Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(strNameSpace + wav))
             {
-                lock (cachedWavsLock)
-                {
-                    // get the namespace 
-                    string strNameSpace = Assembly.GetExecutingAssembly().GetName().Name;
-
-                    // get the resource into a stream
-                    using (Stream str = Assembly.GetExecutingAssembly().GetManifestResourceStream(strNameSpace + wav))
-                    {
-                        string tempfile = System.IO.Path.GetTempFileName();
-                        tempFiles.AddFile(tempfile,false);
-                        var bStr = new Byte[str.Length];
-                        str.Read(bStr, 0, (int)str.Length);
-                        File.WriteAllBytes(tempfile, bStr);
-                        cachedWavs.Add(wav, tempfile);
-                        return tempfile;
-                    }
-                }
+                string tempfile = System.IO.Path.GetTempFileName();
+                tempFiles.AddFile(tempfile,false);
+                var bStr = new Byte[str.Length];
+                str.Read(bStr, 0, (int)str.Length);
+                File.WriteAllBytes(tempfile, bStr);
+                cachedWavs.Add(wav, tempfile);
+                return tempfile;
             }
-            return b;
         }
+    }
+    return retVal;
+}
 
         //private static byte[] GetWavResource(string wav)
         //{

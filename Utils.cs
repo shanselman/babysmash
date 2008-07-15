@@ -52,9 +52,9 @@ namespace BabySmash
       {
          RadialGradientBrush myBrush = new RadialGradientBrush();
          myBrush.GradientOrigin = new Point(0.75, 0.25);
-         myBrush.GradientStops.Add(new GradientStop(color.LightenOrDarken(-50), 0.0));
+         myBrush.GradientStops.Add(new GradientStop(color.LightenOrDarken(50), 0.0));
          myBrush.GradientStops.Add(new GradientStop(color, 0.5));
-         myBrush.GradientStops.Add(new GradientStop(color.LightenOrDarken(50), 1.0));
+         myBrush.GradientStops.Add(new GradientStop(color.LightenOrDarken(-50), 1.0));
          return myBrush;
       }
 
