@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:BabySmash.Properties"
         xmlns:l="clr-namespace:BabySmash"
         Title="Baby Smash! - Options"
-        Height="261" Width="542"
+        Height="348" Width="542"
         ShowInTaskbar="True"
         Topmost="True"
         WindowStartupLocation="CenterScreen"
@@ -12,6 +12,7 @@
         ResizeMode="NoResize">
     <Window.Resources>
         <local:Settings x:Key="settings" />
+        <CollectionViewSource Source="{Binding Source={x:Static Fonts.SystemFontFamilies}}" x:Key="myFonts"/>
     </Window.Resources>
     <Grid DataContext="{StaticResource settings}" Width="Auto">
         <Grid.ColumnDefinitions>
@@ -21,6 +22,8 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" MinHeight="20" />
+            <RowDefinition Height="Auto" MinHeight="43" />
+            <RowDefinition Height="Auto" MinHeight="43" />
             <RowDefinition Height="Auto" MinHeight="43" />
             <RowDefinition Height="Auto" MinHeight="20" />
             <RowDefinition Height="Auto" MinHeight="20" />
@@ -54,24 +57,49 @@
             <ComboBoxItem>Laughter</ComboBoxItem>
             <ComboBoxItem>Speech</ComboBoxItem>
         </ComboBox>
-        <CheckBox Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
+        <Label Height="23" Grid.Row="2" Margin="10">Cursor</Label>
+        <ComboBox 
+            SelectedValue="{Binding Path=Default.CursorType}" 
+            SelectedValuePath="Content" Grid.Row="2" Height="23" Margin="70,10,7,0" Grid.ColumnSpan="2" VerticalAlignment="Top">
+            <ComboBoxItem>Hand</ComboBoxItem>
+            <ComboBoxItem>Arrow</ComboBoxItem>
+        </ComboBox>
+
+
+        <Label Height="23" Grid.Row="3" Margin="10">Font</Label>
+        <ComboBox MaxDropDownHeight="150" x:Name="FontChooser" Grid.Row="3" Margin="70,10,7,0" 
+          ItemsSource="{Binding Source={StaticResource myFonts}}" 
+          SelectedValue="{Binding Path=Default.FontFamily}" SelectedValuePath="Source" Height="23" VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <ComboBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </ComboBox.ItemsPanel>
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" FontFamily="{Binding}" Height="20"/>
+                 </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <CheckBox Grid.Row="4" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
                   IsChecked="{Binding Path=Default.ForceUppercase,Mode=TwoWay}" >
             Force Letters to UPPERCASE
         </CheckBox>
-        <CheckBox Grid.Row="3" Grid.ColumnSpan="2"  Grid.Column="0" Margin="15,0,0,0"
+        <CheckBox Grid.Row="5" Grid.ColumnSpan="2"  Grid.Column="0" Margin="15,0,0,0"
                   IsChecked="{Binding Path=Default.FacesOnShapes,Mode=TwoWay}" >
             Faces on Shapes
         </CheckBox>
-        <CheckBox Grid.Row="4" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
+        <CheckBox Grid.Row="6" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
                   IsChecked="{Binding Path=Default.BitmapEffects,Mode=TwoWay}" IsEnabled="False">
             Effects (DISABLED FOR NOW)
         </CheckBox>
-        <CheckBox Grid.Row="5" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
+        <CheckBox Grid.Row="7" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
                   IsChecked="{Binding Path=Default.MouseDraw,Mode=TwoWay}" >
             Clickless Mouse Drawing
         </CheckBox>
         <StackPanel Orientation="Horizontal"  
-            Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+            Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
             <CheckBox  x:Name="FadeChecked" Margin="15,0,0,0" 
           IsChecked="{Binding Path=Default.FadeAway,Mode=TwoWay}" >
                 Fade Shapes Away in</CheckBox>
@@ -82,7 +110,7 @@
             <TextBlock Margin="5,0,0,0">secs.</TextBlock>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Right">
             <Button Name="okButton" IsDefault="True" Margin="0,7,10,7" Padding="30,0,30,0" Click="OK_Click" >OK</Button>
             <Button IsCancel="True" Margin="5,7,7,7" Padding="15,0,15,0" Click="Cancel_Click" Width="77">Cancel</Button>
         </StackPanel>

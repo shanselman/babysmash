@@ -4,30 +4,56 @@
         xmlns:local="clr-namespace:BabySmash"
     Title="Baby Smash by Scott Hanselman - http://www.hanselman.com/babysmash"
     Height="500" Width="500"  WindowStyle="None" HorizontalAlignment="Center" VerticalAlignment="Center"
-        > 
+        >
+
+    <!--<Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <EventTrigger.Actions>
+                <BeginStoryboard>
+                    <Storyboard RepeatBehavior="Forever">
+                        <ColorAnimation
+                     AutoReverse="True"
+                     Duration="0:0:9"
+                     From="#00822121"
+                     Storyboard.TargetName="GradientStop1"
+                     Storyboard.TargetProperty="Color"
+                     Timeline.DesiredFrameRate="10"
+                     To="#FFFFFFFF"/>
+                        <ColorAnimation
+                     AutoReverse="True"
+                     Duration="0:0:9"
+                     From="AntiqueWhite"
+                     Storyboard.TargetName="GradientStop2"
+                     Storyboard.TargetProperty="Color"
+                     Timeline.DesiredFrameRate="10"
+                     To="LightCoral"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger.Actions>
+        </EventTrigger>
+    </Window.Triggers>
+
+    <Window.Background>
+        <RadialGradientBrush>
+            <RadialGradientBrush.RelativeTransform>
+                <TransformGroup>
+                    <ScaleTransform
+                  CenterX="0.5"
+                  CenterY="0.5"
+                  ScaleX="1.15"
+                  ScaleY="1.15"/>
+                    <TranslateTransform X="-0.08" Y="-0.08"/>
+                </TransformGroup>
+            </RadialGradientBrush.RelativeTransform>
+            <GradientStop x:Name="GradientStop1" Offset="0" Color="#0095B1FF"/>
+            <GradientStop x:Name="GradientStop2" Offset="1" Color="#FF719300"/>
+        </RadialGradientBrush>
+    </Window.Background>-->
+
     <Grid Name="mainGrid">
-         <TextBlock FontSize="10">
+        <TextBlock FontSize="10">
               <Bold>BabySmash!</Bold> by Scott Hanselman <Italic>with many community contributions!</Italic> - http://www.babysmash.com 
               <LineBreak /><Bold>Ctrl-Shift-Alt-O</Bold> for options, <Bold>ALT-F4</Bold> to exit</TextBlock>
         <Canvas Name="mainCanvas"/>
-        
-        <!--<ItemsControl Name="figuresControl" ItemsSource="{Binding Path=Figures}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <ContentPresenter />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Canvas />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemContainerStyle>
-                <Style>
-                    <Setter Property="Canvas.Left" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}},Path=ShapeLeft}"/>
-                    <Setter Property="Canvas.Top" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}},Path=ShapeTop}"/>
-                </Style>
-            </ItemsControl.ItemContainerStyle>
-        </ItemsControl>-->
     </Grid>
 </Window>

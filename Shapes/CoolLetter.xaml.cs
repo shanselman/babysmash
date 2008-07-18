@@ -43,14 +43,13 @@ namespace BabySmash
                 CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
                 new Typeface(
-                    new FontFamily("Arial"),
+                    new FontFamily(Properties.Settings.Default.FontFamily),
                     FontStyles.Normal,
                     FontWeights.Heavy,
                     FontStretches.Normal),
                 300,
                 Brushes.Black
                 );
-
             return fText.BuildGeometry(new Point(0, 0)).GetAsFrozen() as Geometry;
         }
 

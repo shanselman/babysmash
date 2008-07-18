@@ -91,5 +91,17 @@ namespace BabySmash
       {
          return lRandom.Next(min, max + 1);
       }
+
+      internal static System.Windows.Controls.UserControl GetCursor()
+      {
+         switch (Properties.Settings.Default.CursorType)
+         {
+            case "Hand":
+               return new FunCursor2();
+            case "Arrow":
+               return new FunCursor1();
+         }
+         return new FunCursor2();
+      }
    }
 }

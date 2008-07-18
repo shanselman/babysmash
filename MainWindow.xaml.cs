@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using BabySmash.Properties;
+using System.Windows.Media;
 
 namespace BabySmash
 {
@@ -19,16 +20,23 @@ namespace BabySmash
         private readonly Controller controller;
         public Controller Controller { get { return controller; } }
 
+        private UserControl customCursor;
+        public UserControl CustomCursor { get { return customCursor; } set { customCursor = value; } }
+
         public void AddUserControl(UserControl c)
         {
             this.mainCanvas.Children.Add(c);
         }
+
+        
 
         public MainWindow(Controller c)
         {
             this.controller = c;
             this.DataContext = controller;
             InitializeComponent();
+
+            ResetCanvas();
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
@@ -49,9 +57,31 @@ namespace BabySmash
            controller.MouseDown(this, e);
         }
 
+        protected override void OnMouseEnter(MouseEventArgs e)
+        {
+           base.OnMouseEnter(e);
+           CustomCursor.Visibility = Visibility.Visible;
+        }
+
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
+           base.OnMouseLeave(e);
+           CustomCursor.Visibility = Visibility.Hidden;
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
            base.OnMouseMove(e);
+           
+           CustomCursor.Visibility = Visibility.Visible;
+           Point p = e.GetPosition(mainCanvas);
+           double pX = p.X;
+           double pY = p.Y;
+           Cursor = Cursors.None;
+           Canvas.SetTop(CustomCursor, pY);
+           Canvas.SetLeft(CustomCursor, pX);
+           Canvas.SetZIndex(CustomCursor, int.MaxValue);
+
            controller.MouseMove(this, e);
         }
         
@@ -66,6 +96,24 @@ namespace BabySmash
         {
             base.OnLostMouseCapture(e);
             controller.LostMouseCapture(this, e);
+        }
+
+        internal void ResetCanvas()
+        {
+           try
+           {
+              mainCanvas.Children.Clear();
+              CustomCursor = Utils.GetCursor();
+              CustomCursor.RenderTransform = new ScaleTransform(0.5, 0.5);
+              CustomCursor.Name = "customCursor";
+              mainCanvas.Children.Insert(0, CustomCursor); //in front!
+              CustomCursor.Visibility = Visibility.Hidden;
+           }
+           catch (System.NotSupportedException)
+           {
+              //we can die here if we ALT-F4 while in the Options Dialog
+           }
+
         }
     }
 }

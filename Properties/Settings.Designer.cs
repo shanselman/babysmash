@@ -61,7 +61,7 @@ namespace BabySmash.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("65")]
+        [global::System.Configuration.DefaultSettingValueAttribute("35")]
         public int ClearAfter {
             get {
                 return ((int)(this["ClearAfter"]));
@@ -116,6 +116,30 @@ namespace BabySmash.Properties {
             }
             set {
                 this["Sounds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Hand")]
+        public string CursorType {
+            get {
+                return ((string)(this["CursorType"]));
+            }
+            set {
+                this["CursorType"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Arial")]
+        public string FontFamily {
+            get {
+                return ((string)(this["FontFamily"]));
+            }
+            set {
+                this["FontFamily"] = value;
             }
         }
     }

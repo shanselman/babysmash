@@ -163,10 +163,5 @@ namespace BabySmash
          fe.RenderTransform = new ScaleTransform(1, 1);
          fe.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, da);
       }
-
-      public static void DoZoom(FrameworkElement lastEnteredUserControl)
-      {
-          
-      }
    }
 }

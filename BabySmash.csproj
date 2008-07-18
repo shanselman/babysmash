@@ -36,7 +36,7 @@
     <PublisherName>Scott Hanselman</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>36</ApplicationRevision>
+    <ApplicationRevision>43</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -117,6 +117,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Shapes\FunCursor1.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Compile Include="Shapes\CoolCircle.xaml.cs">
       <DependentUpon>CoolCircle.xaml</DependentUpon>
     </Compile>
@@ -134,6 +138,9 @@
     </Compile>
     <Compile Include="Shapes\CoolTrapezoid.xaml.cs">
       <DependentUpon>CoolTrapezoid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Shapes\FunCursor1.xaml.cs">
+      <DependentUpon>FunCursor1.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -160,6 +167,10 @@
     <Page Include="Shapes\CoolRectangle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Shapes\FunCursor2.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -201,8 +212,14 @@
     <Compile Include="Shapes\CoolRectangle.xaml.cs">
       <DependentUpon>CoolRectangle.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Shapes\FunCursor2.xaml.cs">
+      <DependentUpon>FunCursor2.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Shapes\Figure.cs" />
     <Compile Include="Shapes\FigureGenerator.cs" />
+    <Compile Include="Tweening\Equations.cs" />
+    <Compile Include="Tweening\TransitionType.cs" />
+    <Compile Include="Tweening\Tween.cs" />
     <Compile Include="Utils.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

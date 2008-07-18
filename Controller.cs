@@ -56,7 +56,7 @@ namespace BabySmash
             //m.Height = 600;
             //m.Left = 900;
             //m.Top = 500;
-            //TODO: END - COMMENT IN for Debugging
+            ////TODO: END - COMMENT IN for Debugging
 
             //TODO: Start - COMMENT OUT for Debugging
             m.WindowState = WindowState.Maximized;
@@ -233,6 +233,7 @@ namespace BabySmash
          foreach (MainWindow m in this.windows)
          {
             m.Topmost = true;
+            m.ResetCanvas();
          }
          isOptionsDialogShown = false;
       }
@@ -288,7 +289,7 @@ namespace BabySmash
       private void MouseDraw(MainWindow main, Point p)
       {
          //sanity check
-         if (main.mainCanvas.Children.Count > 300) main.mainCanvas.Children.Clear();
+         if (main.mainCanvas.Children.Count > 300) ResetCanvas(main);
 
          //randomize at some point?
          Shape shape = new Ellipse
@@ -305,6 +306,11 @@ namespace BabySmash
 
          if (Settings.Default.MouseDraw)
             audio.PlayWavResourceYield(".Resources.Sounds." + "smallbumblebee.wav");
+      }
+
+      private static void ResetCanvas(MainWindow main)
+      {
+          main.ResetCanvas();
       }
 
       public void LostMouseCapture(MainWindow main, MouseEventArgs e)
