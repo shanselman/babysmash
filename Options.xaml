@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:BabySmash.Properties"
         xmlns:l="clr-namespace:BabySmash"
         Title="Baby Smash! - Options"
-        Height="348" Width="542"
+        Height="383" Width="638"
         ShowInTaskbar="True"
         Topmost="True"
         WindowStartupLocation="CenterScreen"
@@ -13,7 +13,28 @@
     <Window.Resources>
         <local:Settings x:Key="settings" />
         <CollectionViewSource Source="{Binding Source={x:Static Fonts.SystemFontFamilies}}" x:Key="myFonts"/>
+
+        <Storyboard x:Key="Timeline1">
+            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetName="updateButton" Storyboard.TargetProperty="(Panel.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)">
+                <SplineColorKeyFrame Value="#FFCDCDCD" KeyTime="00:00:00"/>
+                <SplineColorKeyFrame Value="#FFB92121" KeyTime="00:00:01"/>
+                <SplineColorKeyFrame Value="#FF2921B9" KeyTime="00:00:02"/>
+            </ColorAnimationUsingKeyFrames>
+            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetName="updateButton" Storyboard.TargetProperty="(Panel.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)">
+                <SplineColorKeyFrame Value="#FFCDCDCD" KeyTime="00:00:00"/>
+                <SplineColorKeyFrame Value="#FFB92121" KeyTime="00:00:01"/>
+                <SplineColorKeyFrame Value="#FF2921B9" KeyTime="00:00:02"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
     </Window.Resources>
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
+        </EventTrigger>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
+    </Window.Triggers>
+
     <Grid DataContext="{StaticResource settings}" Width="Auto">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" MinWidth="119" />
@@ -30,6 +51,7 @@
             <RowDefinition Height="Auto" MinHeight="20" />
             <RowDefinition Height="Auto" MinHeight="20" />
             <RowDefinition Height="Auto" MinHeight="20" />
+            <RowDefinition Height="Auto" MinHeight="20" />
             <RowDefinition Height="*" MinHeight="34" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Column="3" Grid.RowSpan="9" TextWrapping="Wrap" FontSize="18" TextAlignment="Center" Grid.ColumnSpan="1" >
@@ -40,14 +62,14 @@
             </TextBlock.BitmapEffect>
             <Bold>Welcome to BabySmash!</Bold><LineBreak/>We're adding new features weekly. 
             This week added click animations and all new graphics! 
-            <LineBreak/>Try turning <Bold>OFF</Bold> Clickless Mouse <LineBreak/>and show your baby<LineBreak/> how to click on shapes!<LineBreak/>
+            <LineBreak/><Bold>Try the many options and find the ones that are right for your baby!</Bold><LineBreak/>
             <Italic>There's even more fun coming soon!</Italic>
         </TextBlock >
         <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Height="43" VerticalAlignment="Top">
-            <Label Margin="10,20,0,0" >Clear screen after</Label>
+            <Label Margin="10,15,0,0" >Start removing after</Label>
             <TextBox Text="{Binding Path=Default.ClearAfter}"  
-                 Height="20" Width="30" Margin="0,20,0,0" />
-            <Label  Margin="0,20,0,0" >Shapes</Label>
+                 Height="20" Width="30" Margin="0,15,0,0" />
+            <Label  Margin="0,15,0,0" >Shapes</Label>
         </StackPanel>
         <Label Height="23" Grid.Row="1" Margin="10">Sounds</Label>
         <ComboBox 
@@ -92,27 +114,37 @@
         </CheckBox>
         <CheckBox Grid.Row="6" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
                   IsChecked="{Binding Path=Default.BitmapEffects,Mode=TwoWay}" IsEnabled="False">
-            Effects (DISABLED FOR NOW)
+            Hardware Effects (DISABLED FOR NOW)
         </CheckBox>
         <CheckBox Grid.Row="7" Grid.ColumnSpan="2" Grid.Column="0" Margin="15,0,0,0"
                   IsChecked="{Binding Path=Default.MouseDraw,Mode=TwoWay}" >
             Clickless Mouse Drawing
         </CheckBox>
+        <CheckBox x:Name="TransparentCheckBox" Grid.Row="8" Grid.ColumnSpan="3" Grid.Column="0" Margin="15,0,0,0"
+                  IsChecked="{Binding Path=Default.TransparentBackground,Mode=TwoWay}" >
+            Transparent Background (Requires Application Restart)
+        </CheckBox>
         <StackPanel Orientation="Horizontal"  
-            Grid.Row="8" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+            Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
             <CheckBox  x:Name="FadeChecked" Margin="15,0,0,0" 
           IsChecked="{Binding Path=Default.FadeAway,Mode=TwoWay}" >
                 Fade Shapes Away in</CheckBox>
             <TextBox Margin="5,0,0,0" 
              Text="{Binding Path=Default.FadeAfter}" 
-             IsEnabled="{Binding ElementName=FadeChecked,Path=IsChecked,Mode=TwoWay}"
+             IsEnabled="{Binding ElementName=FadeChecked,Path=IsChecked,Mode=OneWay}"
          Height="20" Width="30" />
             <TextBlock Margin="5,0,0,0">secs.</TextBlock>
         </StackPanel>
+        
+        <TextBlock Grid.Row="10" VerticalAlignment="Bottom" Margin="0,0,5,5" HorizontalAlignment="Right" Grid.Column="3"><Bold>Thoughts or ideas?<LineBreak/><Hyperlink x:Name="FeedbackLink" Hyperlink.Click="FeedbackLink_Click">http://feedback.babysmash.com</Hyperlink></Bold></TextBlock>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal" Grid.Row="10" Grid.ColumnSpan="2" HorizontalAlignment="Right">
             <Button Name="okButton" IsDefault="True" Margin="0,7,10,7" Padding="30,0,30,0" Click="OK_Click" >OK</Button>
             <Button IsCancel="True" Margin="5,7,7,7" Padding="15,0,15,0" Click="Cancel_Click" Width="77">Cancel</Button>
         </StackPanel>
+         <Button x:Name="updateButton" Visibility="Collapsed" Click="updateButton_Click" Grid.Row="4" Grid.Column="3" Grid.RowSpan="3" Margin="80,7,60,7" Padding="30,0,30,0"  >
+                    <Bold>Update BabySmash!</Bold>
+        </Button>
+        
     </Grid>
 </Window>

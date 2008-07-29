@@ -23,12 +23,15 @@ namespace BabySmash
         private UserControl customCursor;
         public UserControl CustomCursor { get { return customCursor; } set { customCursor = value; } }
 
-        public void AddUserControl(UserControl c)
+        public void AddFigure(UserControl c)
         {
-            this.mainCanvas.Children.Add(c);
+            this.figuresCanvas.Children.Add(c);
         }
 
-        
+        public void RemoveFigure(UserControl c)
+        {
+           this.figuresCanvas.Children.Remove(c);
+        }
 
         public MainWindow(Controller c)
         {
@@ -74,7 +77,7 @@ namespace BabySmash
            base.OnMouseMove(e);
            
            CustomCursor.Visibility = Visibility.Visible;
-           Point p = e.GetPosition(mainCanvas);
+           Point p = e.GetPosition(mouseDragCanvas);
            double pX = p.X;
            double pY = p.Y;
            Cursor = Cursors.None;
@@ -102,11 +105,11 @@ namespace BabySmash
         {
            try
            {
-              mainCanvas.Children.Clear();
+              mouseCursorCanvas.Children.Clear();
               CustomCursor = Utils.GetCursor();
               CustomCursor.RenderTransform = new ScaleTransform(0.5, 0.5);
               CustomCursor.Name = "customCursor";
-              mainCanvas.Children.Insert(0, CustomCursor); //in front!
+              mouseCursorCanvas.Children.Insert(0, CustomCursor); //in front!
               CustomCursor.Visibility = Visibility.Hidden;
            }
            catch (System.NotSupportedException)

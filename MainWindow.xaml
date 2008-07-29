@@ -4,7 +4,27 @@
         xmlns:local="clr-namespace:BabySmash"
     Title="Baby Smash by Scott Hanselman - http://www.hanselman.com/babysmash"
     Height="500" Width="500"  WindowStyle="None" HorizontalAlignment="Center" VerticalAlignment="Center"
-        >
+        AllowsTransparency="True">
+
+    <Window.Resources>
+        <Storyboard x:Key="Timeline1" Timeline.DesiredFrameRate="10">
+            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" 
+                                          AutoReverse="True" Storyboard.TargetName="UpdateGlow" 
+                                          Storyboard.TargetProperty="GlowColor" >
+                <SplineColorKeyFrame Value="#FFCDCDCD" KeyTime="00:00:00"/>
+                <SplineColorKeyFrame Value="#FFB92121" KeyTime="00:00:01"/>
+                <SplineColorKeyFrame Value="#FF2921B9" KeyTime="00:00:02"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+    </Window.Resources>
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
+        </EventTrigger>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
+    </Window.Triggers>
+
 
     <!--<Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
@@ -51,9 +71,28 @@
     </Window.Background>-->
 
     <Grid Name="mainGrid">
-        <TextBlock FontSize="10">
-              <Bold>BabySmash!</Bold> by Scott Hanselman <Italic>with many community contributions!</Italic> - http://www.babysmash.com 
-              <LineBreak /><Bold>Ctrl-Shift-Alt-O</Bold> for options, <Bold>ALT-F4</Bold> to exit</TextBlock>
-        <Canvas Name="mainCanvas"/>
+        <StackPanel>
+            <TextBlock Margin="15,15,0,0" FontSize="12">
+            <TextBlock.BitmapEffect>
+               <BitmapEffectGroup>
+                  <OuterGlowBitmapEffect GlowColor="Yellow" GlowSize="3"/>
+               </BitmapEffectGroup>
+            </TextBlock.BitmapEffect>
+            <Bold>BabySmash!</Bold> by Scott Hanselman <Italic>with community contributions!</Italic> - http://www.babysmash.com 
+            <LineBreak/>
+            <Bold>Ctrl-Shift-Alt-O</Bold> for options, <Bold>ALT-F4</Bold> to exit
+         </TextBlock>
+            <TextBlock x:Name="UpdateAvailableLabel" Visibility="Collapsed" Margin="15,0,0,0" FontSize="12">
+            <TextBlock.BitmapEffect>
+               <BitmapEffectGroup>
+                  <OuterGlowBitmapEffect x:Name="UpdateGlow" GlowColor="Red" GlowSize="3"/>
+               </BitmapEffectGroup>
+            </TextBlock.BitmapEffect>
+            <Bold>Update Available - Visit Options to Update BabySmash!</Bold>
+         </TextBlock>
+        </StackPanel>
+        <Canvas Name="figuresCanvas"/>
+        <Canvas Name="mouseDragCanvas"/>
+        <Canvas Name="mouseCursorCanvas"/>
     </Grid>
 </Window>

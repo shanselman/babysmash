@@ -46,7 +46,7 @@ namespace BabySmash
 
 
       public static Storyboard CreateDPAnimation(FrameworkElement container, UIElement shape,
-                                                          DependencyProperty dp, Duration duration)
+                                                          DependencyProperty dp, Duration duration, double from, double to)
       {
          var st = new Storyboard();
          NameScope.SetNameScope(container, new NameScope());
@@ -54,8 +54,8 @@ namespace BabySmash
 
          var d = new DoubleAnimation
          {
-            From = 1.0,
-            To = 0.0,
+            From = from,
+            To = to,
             Duration = duration,
             AutoReverse = false
          };
@@ -109,7 +109,7 @@ namespace BabySmash
          fe.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, da);
       }
 
-      public static void ApplyZoom(FrameworkElement fe, Duration duration, double scale)
+      public static Timeline ApplyZoom(FrameworkElement fe, Duration duration, double scale)
       {
           var da = new DoubleAnimation
           {
@@ -125,6 +125,7 @@ namespace BabySmash
           fe.RenderTransform = new ScaleTransform(scale, scale);
           fe.RenderTransform.BeginAnimation(ScaleTransform.ScaleXProperty, da);
           fe.RenderTransform.BeginAnimation(ScaleTransform.ScaleYProperty, da);
+          return da;
       }
 
 

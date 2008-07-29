@@ -23,7 +23,7 @@
     <PublishUrl>ftp://www.hanselman.com/babysmash/</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
-    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateEnabled>false</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
@@ -31,12 +31,13 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>http://www.hanselman.com/BabySmash/</InstallUrl>
-    <SupportUrl>http://www.hanselman.com/forum/forum21-babysmash-end-user-support.aspx</SupportUrl>
+    <UpdateUrl>http://www.hanselman.com/BabySmash/</UpdateUrl>
+    <SupportUrl>http://feedback.babysmash.com</SupportUrl>
     <ProductName>BabySmash!</ProductName>
-    <PublisherName>Scott Hanselman</PublisherName>
+    <PublisherName>BabySmash</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>43</ApplicationRevision>
+    <ApplicationRevision>57</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -64,6 +65,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Speech">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
@@ -279,6 +281,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Sounds\falling.wav" />
     <EmbeddedResource Include="Resources\Sounds\rising.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Sounds\EditedJackPlaysBabySmash.wav" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\Voices\Female\" />
