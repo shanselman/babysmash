@@ -6,24 +6,24 @@
     Height="500" Width="500"  WindowStyle="None" HorizontalAlignment="Center" VerticalAlignment="Center"
         AllowsTransparency="True">
 
-    <Window.Resources>
-        <Storyboard x:Key="Timeline1" Timeline.DesiredFrameRate="10">
-            <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" 
-                                          AutoReverse="True" Storyboard.TargetName="UpdateGlow" 
-                                          Storyboard.TargetProperty="GlowColor" >
-                <SplineColorKeyFrame Value="#FFCDCDCD" KeyTime="00:00:00"/>
-                <SplineColorKeyFrame Value="#FFB92121" KeyTime="00:00:01"/>
-                <SplineColorKeyFrame Value="#FF2921B9" KeyTime="00:00:02"/>
-            </ColorAnimationUsingKeyFrames>
-        </Storyboard>
-    </Window.Resources>
+<Window.Resources>
+    <Storyboard x:Key="Timeline1" Timeline.DesiredFrameRate="10">
+        <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" 
+                                      AutoReverse="True" Storyboard.TargetName="UpdateGlow" 
+                                      Storyboard.TargetProperty="GlowColor" >
+            <SplineColorKeyFrame Value="#FFCDCDCD" KeyTime="00:00:00"/>
+            <SplineColorKeyFrame Value="#FFB92121" KeyTime="00:00:01"/>
+            <SplineColorKeyFrame Value="#FF2921B9" KeyTime="00:00:02"/>
+        </ColorAnimationUsingKeyFrames>
+    </Storyboard>
+</Window.Resources>
 
-    <Window.Triggers>
-        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-            <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
-        </EventTrigger>
-        <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
-    </Window.Triggers>
+<Window.Triggers>
+    <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+        <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
+    </EventTrigger>
+    <EventTrigger RoutedEvent="FrameworkElement.Loaded"/>
+</Window.Triggers>
 
 
     <!--<Window.Triggers>
@@ -82,7 +82,7 @@
             <LineBreak/>
             <Bold>Ctrl-Shift-Alt-O</Bold> for options, <Bold>ALT-F4</Bold> to exit
          </TextBlock>
-            <TextBlock x:Name="UpdateAvailableLabel" Visibility="Collapsed" Margin="15,0,0,0" FontSize="12">
+         <TextBlock x:Name="UpdateAvailableLabel" Visibility="Collapsed" Margin="15,0,0,0" FontSize="12">
             <TextBlock.BitmapEffect>
                <BitmapEffectGroup>
                   <OuterGlowBitmapEffect x:Name="UpdateGlow" GlowColor="Red" GlowSize="3"/>

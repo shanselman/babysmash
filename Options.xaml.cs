@@ -2,6 +2,8 @@
 using BabySmash.Properties;
 using System.Diagnostics;
 using System.Deployment.Application;
+using System.Windows.Controls;
+using System;
 
 namespace BabySmash
 {
@@ -44,14 +46,26 @@ namespace BabySmash
                if (res == MessageBoxResult.Yes)
                {
                   // Do the update
-                  deployment.Update();
-                  MessageBoxResult res2 = MessageBox.Show("Update complete, do you want to restart the application to apply the update?",
-                     "Application Updater", MessageBoxButton.YesNo);
-                  if (res2 == MessageBoxResult.Yes)
+                  try
                   {
-                     // Restart the application to apply the update
-                     Application.Current.Shutdown();
-                     System.Windows.Forms.Application.Restart();
+
+                     deployment.UpdateProgressChanged += deployment_UpdateProgressChanged;
+                     deployment.UpdateCompleted += deployment_UpdateCompleted;
+
+                     Canvas.SetZIndex(updateProgress, (int)9999);
+                     Canvas.SetZIndex(updateButton, (int)1);
+                     updateProgress.Value = 0;
+                     updateButton.Visibility = Visibility.Collapsed;
+                     updateProgress.Visibility = Visibility.Visible;
+                     updateButton.IsEnabled = false;
+                     okButton.IsEnabled = false;
+
+                     deployment.UpdateAsync();
+                  }
+                  catch (Exception)
+                  {
+                     MessageBox.Show("Sorry, but an error has occurred while updating. Please try again or contact us a http://feedback.babysmash.com. We're still learning!",
+                        "Application Updater", MessageBoxButton.OK);
                   }
                }
             }
@@ -65,6 +79,38 @@ namespace BabySmash
             MessageBox.Show("Updates not allowed unless you are launched through ClickOnce from http://www.babysmash.com!");
          }
 
+      }
+
+      void deployment_UpdateCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+      {
+         MessageBoxResult res2 = MessageBoxResult.None;
+         if (e.Error == null)
+         {
+            res2 = MessageBox.Show("Update complete, do you want to restart the application to apply the update?",
+               "Application Updater", MessageBoxButton.YesNo);
+         }
+         else
+         {
+            MessageBox.Show("Sorry, but an error has occured while updating. Please try again or contact us a http://feedback.babysmash.com. We're still learning!",
+               "Application Updater", MessageBoxButton.OK);
+         }
+         if (res2 == MessageBoxResult.Yes)
+         {
+            // Restart the application to apply the update
+            Application.Current.Shutdown();
+            System.Windows.Forms.Application.Restart();
+         }
+         Canvas.SetZIndex(updateProgress, (int)1);
+         Canvas.SetZIndex(updateButton, (int)9999);
+         updateButton.Visibility = Visibility.Visible;
+         updateProgress.Visibility = Visibility.Collapsed;
+         updateButton.IsEnabled = true;
+         okButton.IsEnabled = true;
+      }
+
+      void deployment_UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
+      {
+         this.updateProgress.Value = e.ProgressPercentage;
       }
    }
 }

@@ -22,7 +22,7 @@ namespace BabySmash
 
         private UserControl customCursor;
         public UserControl CustomCursor { get { return customCursor; } set { customCursor = value; } }
-
+        
         public void AddFigure(UserControl c)
         {
             this.figuresCanvas.Children.Add(c);

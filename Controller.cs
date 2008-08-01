@@ -40,6 +40,12 @@ namespace BabySmash
 
       void deployment_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
       {
+         if (e.Error != null)
+         {
+            Debug.WriteLine(e.ToString());
+            return;
+         }
+
          ClickOnceUpdateAvailable = e.UpdateAvailable;
          if (ClickOnceUpdateAvailable)
          {
@@ -59,8 +65,15 @@ namespace BabySmash
          if (ApplicationDeployment.IsNetworkDeployed)
          {
             ApplicationDeployment deployment = ApplicationDeployment.CurrentDeployment;
-            deployment.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(deployment_CheckForUpdateCompleted);
-            deployment.CheckForUpdateAsync();
+            deployment.CheckForUpdateCompleted += deployment_CheckForUpdateCompleted;
+            try
+            {
+               deployment.CheckForUpdateAsync();
+            }
+            catch (InvalidOperationException e)
+            {
+               Debug.WriteLine(e.ToString());
+            }
          }
 
          foreach (WinForms.Screen s in WinForms.Screen.AllScreens)
@@ -91,7 +104,7 @@ namespace BabySmash
             //m.Height = 600;
             //m.Left = 900;
             //m.Top = 500;
-            //////TODO: END - COMMENT IN for Debugging
+            ////////TODO: END - COMMENT IN for Debugging
 
             //TODO: Start - COMMENT OUT for Debugging
             m.WindowState = WindowState.Maximized;
@@ -111,7 +124,7 @@ namespace BabySmash
             //if someone made us a screensaver, then don't show the options dialog.
             if ((args != null && args[0] != "/s") && String.CompareOrdinal(ext, ".SCR") != 0)
             {
-               ShowOptionsDialog(ClickOnceUpdateAvailable);
+               ShowOptionsDialog(!ApplicationDeployment.CurrentDeployment.IsFirstRun);
             }
          }
          timer.Start();
@@ -317,6 +330,7 @@ namespace BabySmash
          o.Topmost = true;
          o.Focus();
          o.updateButton.Visibility = UpdateAvailable ? Visibility.Visible : Visibility.Collapsed;
+         //o.updateProgress.Visibility = UpdateAvailable ? Visibility.Visible : Visibility.Collapsed;
          o.ShowDialog();
          Debug.Write("test");
          foreach (MainWindow m in this.windows)
