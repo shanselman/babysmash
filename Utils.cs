@@ -12,6 +12,10 @@ namespace BabySmash
    {
       private static readonly Dictionary<Color, string> brushToString;
       private static readonly Random lRandom = new Random();
+
+      private static readonly FunCursor1 fun1 = new FunCursor1();
+      private static readonly FunCursor2 fun2 = new FunCursor2();
+
       private static readonly Color[] someColors;
 
       private static readonly string[] sounds = {
@@ -97,11 +101,11 @@ namespace BabySmash
          switch (Properties.Settings.Default.CursorType)
          {
             case "Hand":
-               return new FunCursor2();
-            case "Arrow":
-               return new FunCursor1();
+               return fun2;
+             case "Arrow":
+               return fun1;
          }
-         return new FunCursor2();
+         return fun1;
       }
    }
 }

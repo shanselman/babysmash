@@ -4,19 +4,17 @@
 	x:Class="BabySmash.Options"
 	x:Name="Window"
 	Title="BabySmash! - Options"
-	Width="640" Height="480" 
+	Width="760" Height="480" 
      xmlns:local="clr-namespace:BabySmash.Properties"
      xmlns:l="clr-namespace:BabySmash"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Luna"
-            ShowInTaskbar="True"
+        ShowInTaskbar="True"
         Topmost="True"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="NoResize"
     AllowsTransparency="True"
-    Background="Transparent"
-    
-    >
+    Background="Transparent">
     <Window.Resources>
         <SolidColorBrush x:Key="Brush1" Color="#FF3F3F3F"/>
 
@@ -514,17 +512,13 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-
-
     </Window.Resources>
-
     <Grid DataContext="{StaticResource settings}" x:Name="LayoutRoot" Background="Transparent">
         <!-- #CC000000-->
 
 
 
-        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="600" Height="370" Background="{x:Null}">
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="720" Height="370" Background="{x:Null}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0.5*"/>
                 <ColumnDefinition Width="0.5*"/>
@@ -636,8 +630,10 @@
             <TextBlock HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Bottom" FontFamily="Segoe UI" FontSize="18" FontWeight="Bold" Foreground="#FFFFFFFF" Text="Welcome to BabySmash!" TextWrapping="Wrap"/>
 			<TextBlock FontFamily="Segoe UI" FontSize="18" FontWeight="Bold" Foreground="#FFFFFFFF" Text="Options" TextWrapping="Wrap" d:LayoutOverrides="Width, Height" HorizontalAlignment="Left" VerticalAlignment="Bottom" Grid.Column="1" Margin="20,0,0,0"/>
 			<TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Foreground="#FFD1D1D1" Grid.Row="1" Margin="20,10,20,0" FontSize="14" FontFamily="Segoe UI"><Run Text="We're adding new features weekly. "/><LineBreak/><Run Text="This week added click animations and all new graphics! "/><LineBreak/><Run Text=""/><LineBreak/><Run Text="Try the many options and find the ones that are right for your baby!"/><LineBreak/><Run Text=""/><LineBreak/><Run Text="There's even more fun coming soon!"/><LineBreak/><LineBreak/><Run Text=""/><Bold><Run Text="Thoughts or ideas?"/><LineBreak/><Hyperlink TextDecorations="" Click="FeedbackLink_Click"  x:Name="FeedbackLink"><Run Foreground="#FFeeeeee" Text="http://feedback.babysmash.com"/></Hyperlink></Bold></TextBlock>
-			<Button x:Name="updateButton" Visibility="Hidden" Click="updateButton_Click" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Content="Update BabySmash!" Grid.Row="1" Margin="20,0,20,8.723" Style="{DynamicResource ButtonStyle1}"/>
-            <ProgressBar x:Name="updateProgress" Minimum="0" Maximum="100" Visibility="Hidden" Grid.Row="1" Margin="20,0,20,8.723" VerticalAlignment="Bottom" Height="40" />
+            
+            <TextBlock x:Name="versionLabel" VerticalAlignment="Bottom" TextWrapping="Wrap" Foreground="#FFD1D1D1" Grid.Row="1" Margin="20,0,45.58,0" FontSize="9" FontFamily="Segoe UI" Height="50">Version</TextBlock>
+		
+            
 
 			<Grid HorizontalAlignment="Stretch" Margin="20,10,20,0" VerticalAlignment="Top" Width="Auto" Height="Auto" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2">
 				<Grid.ColumnDefinitions>

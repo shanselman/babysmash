@@ -16,7 +16,8 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Deployment.Application;
 using System.Windows.Media;
-
+using System.Threading;
+using System.ComponentModel;
 
 namespace BabySmash
 {
@@ -28,7 +29,7 @@ namespace BabySmash
       [DllImport("user32.dll")]
       private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-      private bool isOptionsDialogShown = false;
+      public bool isOptionsDialogShown { get; set; }
       private bool isDrawing = false;
       private readonly SpeechSynthesizer objSpeech = new SpeechSynthesizer();
       private readonly List<MainWindow> windows = new List<MainWindow>();
@@ -36,24 +37,44 @@ namespace BabySmash
       private DispatcherTimer timer = new DispatcherTimer();
       private Queue<Shape> ellipsesQueue = new Queue<Shape>();
       private Dictionary<string,Queue<UserControl>> ellipsesUserControlQueue = new Dictionary<string,Queue<UserControl>>();
-      private bool ClickOnceUpdateAvailable = false;
+      private ApplicationDeployment deployment = null;
 
       void deployment_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
+      {
+         if (e.Error == null && e.UpdateAvailable)
+         {
+            try
+            {
+               MainWindow w = this.windows[0];
+               w.updateProgress.Value = 0;
+               w.UpdateAvailableLabel.Visibility = Visibility.Visible;
+
+               deployment.UpdateAsync();
+            }
+            catch (InvalidOperationException ex)
+            {
+               Debug.WriteLine(ex.ToString());
+               MainWindow w = this.windows[0];
+               w.UpdateAvailableLabel.Visibility = Visibility.Hidden;
+            }
+         }
+      }
+      
+      void deployment_UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
+      {
+         MainWindow w = this.windows[0];
+         w.updateProgress.Value = e.ProgressPercentage;
+      }
+
+      void deployment_UpdateCompleted(object sender, AsyncCompletedEventArgs e)
       {
          if (e.Error != null)
          {
             Debug.WriteLine(e.ToString());
             return;
          }
-
-         ClickOnceUpdateAvailable = e.UpdateAvailable;
-         if (ClickOnceUpdateAvailable)
-         {
-            foreach (MainWindow m in this.windows)
-            {
-               m.UpdateAvailableLabel.Visibility = Visibility.Visible;
-            }
-         }
+         MainWindow w = this.windows[0];
+         w.UpdateAvailableLabel.Visibility = Visibility.Hidden;
       }
 
       public void Launch()
@@ -64,7 +85,9 @@ namespace BabySmash
 
          if (ApplicationDeployment.IsNetworkDeployed)
          {
-            ApplicationDeployment deployment = ApplicationDeployment.CurrentDeployment;
+            deployment = ApplicationDeployment.CurrentDeployment;
+            deployment.UpdateCompleted += new System.ComponentModel.AsyncCompletedEventHandler(deployment_UpdateCompleted);
+            deployment.UpdateProgressChanged += deployment_UpdateProgressChanged;
             deployment.CheckForUpdateCompleted += deployment_CheckForUpdateCompleted;
             try
             {
@@ -88,9 +111,11 @@ namespace BabySmash
                                   WindowStyle = WindowStyle.None,
                                   Topmost = true,
                                   AllowsTransparency = Settings.Default.TransparentBackground,
-                                  Background = (Settings.Default.TransparentBackground ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) : Brushes.WhiteSmoke),
+	                          Background = (Settings.Default.TransparentBackground ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) : Brushes.WhiteSmoke),
                                   Name = "Window" + Number++.ToString()
-                               };
+ 				};
+
+
 
             ellipsesUserControlQueue[m.Name] = new Queue<UserControl>();
 
@@ -98,19 +123,19 @@ namespace BabySmash
             m.MouseLeftButtonDown += HandleMouseLeftButtonDown;
             m.MouseWheel += HandleMouseWheel;
 
-            //HACK: IsAttached...
-            //TODO: Start - COMMENT IN for Debugging
-            //m.Width = 700;
-            //m.Height = 600;
-            //m.Left = 900;
-            //m.Top = 500;
-            ////////TODO: END - COMMENT IN for Debugging
-
-            //TODO: Start - COMMENT OUT for Debugging
+#if false
+            m.Width = 700;
+            m.Height = 600;
+            m.Left = 900;
+            m.Top = 500;
+#else
             m.WindowState = WindowState.Maximized;
-            //TODO: Start - COMMENT OUT for Debugging
+#endif
             windows.Add(m);
          }
+
+	    //Only show the info label on the FIRST monitor.
+         windows[0].infoLabel.Visibility = Visibility.Visible;
 
          //Startup sound
          audio.PlayWavResourceYield(".Resources.Sounds." + "EditedJackPlaysBabySmash.wav");
@@ -118,16 +143,17 @@ namespace BabySmash
          string[] args = Environment.GetCommandLineArgs();
          string ext = System.IO.Path.GetExtension(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
 
-         if (ApplicationDeployment.IsNetworkDeployed && (ApplicationDeployment.CurrentDeployment.IsFirstRun ||
-            ApplicationDeployment.CurrentDeployment.UpdatedVersion != ApplicationDeployment.CurrentDeployment.CurrentVersion))
+         if (ApplicationDeployment.IsNetworkDeployed && (ApplicationDeployment.CurrentDeployment.IsFirstRun || ApplicationDeployment.CurrentDeployment.UpdatedVersion != ApplicationDeployment.CurrentDeployment.CurrentVersion))            
          {
             //if someone made us a screensaver, then don't show the options dialog.
             if ((args != null && args[0] != "/s") && String.CompareOrdinal(ext, ".SCR") != 0)
             {
-               ShowOptionsDialog(!ApplicationDeployment.CurrentDeployment.IsFirstRun);
+               ShowOptionsDialog();
             }
          }
+#if !false
          timer.Start();
+#endif
       }
 
       void timer_Tick(object sender, EventArgs e)
@@ -158,7 +184,7 @@ namespace BabySmash
          //TODO: Might be able to remove this: http://www.ageektrapped.com/blog/using-commands-in-babysmash/
          if (Alt && Control && Shift && e.Key == Key.O)
          {
-            ShowOptionsDialog(ClickOnceUpdateAvailable);
+            ShowOptionsDialog();
             e.Handled = true;
             return;
          }
@@ -317,7 +343,7 @@ namespace BabySmash
          }
       }
 
-      private void ShowOptionsDialog(bool UpdateAvailable)
+      private void ShowOptionsDialog()
       {
          bool foo = Settings.Default.TransparentBackground;
          isOptionsDialogShown = true;
@@ -329,14 +355,12 @@ namespace BabySmash
          }
          o.Topmost = true;
          o.Focus();
-         o.updateButton.Visibility = UpdateAvailable ? Visibility.Visible : Visibility.Collapsed;
-         //o.updateProgress.Visibility = UpdateAvailable ? Visibility.Visible : Visibility.Collapsed;
          o.ShowDialog();
          Debug.Write("test");
          foreach (MainWindow m in this.windows)
          {
             m.Topmost = true;
-            m.ResetCanvas();
+            //m.ResetCanvas();
          }
          isOptionsDialogShown = false;
 
@@ -387,8 +411,15 @@ namespace BabySmash
 
       public void MouseMove(MainWindow main, MouseEventArgs e)
       {
-         if (Settings.Default.MouseDraw && main.IsMouseCaptured == false)
+          if (isOptionsDialogShown)
+          {
+              main.ReleaseMouseCapture();
+              return;
+          }
+          if (Settings.Default.MouseDraw && main.IsMouseCaptured == false)
             main.CaptureMouse();
+
+          Debug.WriteLine(String.Format("MouseMove! {0} {1} {2}", Settings.Default.MouseDraw, main.IsMouseCaptured, isOptionsDialogShown));
 
          if (isDrawing || Settings.Default.MouseDraw)
          {
@@ -428,10 +459,10 @@ namespace BabySmash
          }
       }
 
-      private static void ResetCanvas(MainWindow main)
-      {
-         main.ResetCanvas();
-      }
+      //private static void ResetCanvas(MainWindow main)
+      //{
+      //   main.ResetCanvas();
+      //}
 
       public void LostMouseCapture(MainWindow main, MouseEventArgs e)
       {

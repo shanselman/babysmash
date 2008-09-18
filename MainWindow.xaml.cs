@@ -39,7 +39,7 @@ namespace BabySmash
             this.DataContext = controller;
             InitializeComponent();
 
-            ResetCanvas();
+            //ResetCanvas();
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
@@ -63,6 +63,7 @@ namespace BabySmash
         protected override void OnMouseEnter(MouseEventArgs e)
         {
            base.OnMouseEnter(e);
+           AssertCursor();
            CustomCursor.Visibility = Visibility.Visible;
         }
 
@@ -75,16 +76,17 @@ namespace BabySmash
         protected override void OnMouseMove(MouseEventArgs e)
         {
            base.OnMouseMove(e);
-           
-           CustomCursor.Visibility = Visibility.Visible;
-           Point p = e.GetPosition(mouseDragCanvas);
-           double pX = p.X;
-           double pY = p.Y;
-           Cursor = Cursors.None;
-           Canvas.SetTop(CustomCursor, pY);
-           Canvas.SetLeft(CustomCursor, pX);
-           Canvas.SetZIndex(CustomCursor, int.MaxValue);
-
+           if (controller.isOptionsDialogShown == false)
+           {
+               CustomCursor.Visibility = Visibility.Visible;
+               Point p = e.GetPosition(mouseDragCanvas);
+               double pX = p.X;
+               double pY = p.Y;
+               Cursor = Cursors.None;
+               Canvas.SetTop(CustomCursor, pY);
+               Canvas.SetLeft(CustomCursor, pX);
+               Canvas.SetZIndex(CustomCursor, int.MaxValue);
+           }
            controller.MouseMove(this, e);
         }
         
@@ -101,12 +103,16 @@ namespace BabySmash
             controller.LostMouseCapture(this, e);
         }
 
-        internal void ResetCanvas()
+        internal void AssertCursor()
         {
            try
            {
               mouseCursorCanvas.Children.Clear();
               CustomCursor = Utils.GetCursor();
+              if (CustomCursor.Parent != null)
+              {
+                 ((Canvas)CustomCursor.Parent).Children.Remove(CustomCursor);
+              }
               CustomCursor.RenderTransform = new ScaleTransform(0.5, 0.5);
               CustomCursor.Name = "customCursor";
               mouseCursorCanvas.Children.Insert(0, CustomCursor); //in front!
