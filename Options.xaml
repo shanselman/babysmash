@@ -58,6 +58,97 @@
             <GradientStop Offset="1" Color="#ff980000"/>
         </RadialGradientBrush>
 
+        <Style x:Key="CheckBoxFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Border>
+                            <Rectangle Margin="15,0,0,0" Stroke="#60000000" StrokeThickness="1" StrokeDashArray="1 2"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- NormalBrush is used as the Background for SimpleButton, SimpleRepeatButton -->
+        <LinearGradientBrush x:Key="NormalBrush" EndPoint="0,1" StartPoint="0,0">
+            <GradientStop Color="#EEE" Offset="0.0"/>
+            <GradientStop Color="#CCC" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="NormalBorderBrush" EndPoint="0,1" StartPoint="0,0">
+            <GradientStop Color="#CCC" Offset="0.0"/>
+            <GradientStop Color="#444" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <!-- Used for Checkmark, Radio button, TreeViewItem, Expander ToggleButton glyphs -->
+        <!--<SolidColorBrush x:Key="GlyphBrush" Color="Green"/>-->
+        
+        <LinearGradientBrush x:Key="GlyphBrush" EndPoint="0,1" StartPoint="0,0">
+            <GradientStop Color="Green" Offset="0.0"/>
+            <GradientStop Color="DarkGreen" Offset="1.0"/>
+        </LinearGradientBrush>
+
+
+        <!-- PressedBrush is used for Pressed in Button, Radio Button, CheckBox -->
+        <LinearGradientBrush x:Key="PressedBrush" EndPoint="0,1" StartPoint="0,0">
+            <GradientStop Color="#BBB" Offset="0.0"/>
+            <GradientStop Color="#EEE" Offset="0.1"/>
+            <GradientStop Color="#EEE" Offset="0.9"/>
+            <GradientStop Color="#FFF" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="PressedBorderBrush" EndPoint="0,1" StartPoint="0,0">
+            <GradientStop Color="#444" Offset="0.0"/>
+            <GradientStop Color="#888" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="#EEE"/>
+        <SolidColorBrush x:Key="DisabledBorderBrush" Color="#AAA"/>
+
+        <!-- Simple CheckBox -->
+        <Style x:Key="SimpleCheckBox" TargetType="{x:Type CheckBox}">
+            <Setter Property="SnapsToDevicePixels" Value="true"/>
+            <Setter Property="FocusVisualStyle" Value="{DynamicResource CheckBoxFocusVisual}"/>
+            <Setter Property="Background" Value="{DynamicResource NormalBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource NormalBorderBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+
+                        <!-- BulletDecorator is used to provide baseline alignment between the checkmark and the Content -->
+                        <BulletDecorator Background="Transparent">
+                            <BulletDecorator.Bullet>
+                                <Grid Width="18" Height="18">
+                                    <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                                    <Path x:Name="CheckMark" Stroke="{DynamicResource GlyphBrush}" StrokeThickness="4" SnapsToDevicePixels="False" Data="M 3 3 L 15 15 M 3 15 L 15 3"/>
+                                </Grid>
+                            </BulletDecorator.Bullet>
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True"/>
+                        </BulletDecorator>
+
+                        <!-- This uses Visibility to hide and show the CheckMark on IsChecked -->
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="false">
+                                <Setter Property="Visibility" Value="Collapsed" TargetName="CheckMark"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" Value="{DynamicResource MouseOverBrush}" TargetName="Border"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" Value="{DynamicResource PressedBrush}" TargetName="Border"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource PressedBorderBrush}" TargetName="Border"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" Value="{DynamicResource DisabledBackgroundBrush}" TargetName="Border"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource DisabledBorderBrush}" TargetName="Border"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
 
         <!-- DROPDOWN based on SimpleStyles -->
 
@@ -698,19 +789,19 @@
 					        </ComboBox>
 							
 							
-							  <CheckBox Grid.Row="4" Grid.ColumnSpan="2" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
+							  <CheckBox Style="{DynamicResource SimpleCheckBox}" Grid.Row="4" Grid.ColumnSpan="2" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
 					                  IsChecked="{Binding Path=Default.ForceUppercase, Mode=TwoWay}" Content="Force Letters to UPPERCASE" />
-					        <CheckBox Grid.Row="5" Grid.ColumnSpan="2"  Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
+					        <CheckBox Style="{DynamicResource SimpleCheckBox}" Grid.Row="5" Grid.ColumnSpan="2"  Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
 					                  IsChecked="{Binding Path=Default.FacesOnShapes, Mode=TwoWay}" Content="Faces on Shapes" />
-					        <CheckBox Grid.Row="6" Grid.ColumnSpan="2" Grid.Column="0" Foreground="#4CD1D1D1" FontSize="14" FontFamily="Segoe UI"
+					        <CheckBox Style="{DynamicResource SimpleCheckBox}" Grid.Row="6" Grid.ColumnSpan="2" Grid.Column="0" Foreground="#4CD1D1D1" FontSize="14" FontFamily="Segoe UI"
 					                  IsChecked="{Binding Path=Default.BitmapEffects, Mode=TwoWay}" IsEnabled="False" Content="Hardware Effects (DISABLED FOR NOW)"/>
-					        <CheckBox Grid.Row="7" Grid.ColumnSpan="2" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
+					        <CheckBox Style="{DynamicResource SimpleCheckBox}" Grid.Row="7" Grid.ColumnSpan="2" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
 					                  IsChecked="{Binding Path=Default.MouseDraw, Mode=TwoWay}" Content="Clickless Mouse Drawing" />
-					        <CheckBox x:Name="TransparentCheckBox" Grid.Row="8" Grid.ColumnSpan="3" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
+					        <CheckBox Style="{DynamicResource SimpleCheckBox}" x:Name="TransparentCheckBox" Grid.Row="8" Grid.ColumnSpan="3" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
 					                  IsChecked="{Binding Path=Default.TransparentBackground, Mode=TwoWay}" Content="Transparent Background (Requires App Restart)" />
 					        <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top">
 							
-					            <CheckBox  x:Name="FadeChecked" Margin="0,0,0,0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI" 
+					            <CheckBox Style="{DynamicResource SimpleCheckBox}"  x:Name="FadeChecked" Margin="0,0,0,0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI" 
 					          IsChecked="{Binding Path=Default.FadeAway, Mode=TwoWay}" Content="Fade Shapes Away in" VerticalAlignment="Center" />
 					          
 							   <TextBox Foreground="#FF252525" FontSize="14" FontFamily="Segoe UI" Width="40" Style="{DynamicResource BSTextBoxStyle1}" Background="#FF3A3A3A" FontWeight="Bold"  Text="{Binding Path=Default.FadeAfter}" 
