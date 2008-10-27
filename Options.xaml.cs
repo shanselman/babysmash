@@ -44,7 +44,7 @@ namespace BabySmash
       }
       protected override void OnMouseMove(MouseEventArgs e)
       {
-          Mouse.Capture(null);
+          //Mouse.Capture(null);
           base.OnMouseMove(e);
       }
 
