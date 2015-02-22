@@ -111,9 +111,9 @@ namespace BabySmash
                                   WindowStyle = WindowStyle.None,
                                   Topmost = true,
                                   AllowsTransparency = Settings.Default.TransparentBackground,
-	                          Background = (Settings.Default.TransparentBackground ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) : Brushes.WhiteSmoke),
+                                  Background = (Settings.Default.TransparentBackground ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) : Brushes.WhiteSmoke),
                                   Name = "Window" + Number++.ToString()
- 				};
+                                };
 
 
 
@@ -134,7 +134,7 @@ namespace BabySmash
             windows.Add(m);
          }
 
-	    //Only show the info label on the FIRST monitor.
+         //Only show the info label on the FIRST monitor.
          windows[0].infoLabel.Visibility = Visibility.Visible;
 
          //Startup sound
@@ -190,7 +190,10 @@ namespace BabySmash
          }
 
          string s = e.Key.ToString();
-         if (s.Length == 2 && s[0] == 'D') s = s[1].ToString(); //HACK: WTF? Numbers start with a "D?" as in D1?
+
+         // Handle number keys, whose values are prefixed by "D" or "NumPad" (because enum names can't start with a digit)
+         if (s.StartsWith("NumPad")) s = s.Substring(6);
+         if ((s.Length == 2) && s.StartsWith("D")) s = s.Substring(1);
          AddFigure(uie, s);
       }
 
