@@ -3,21 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.CodeDom.Compiler;
 
 namespace BabySmash
 {
-    public class Win32Audio
+    public static class Win32Audio
     {
         /// <summary>
         /// Collection of soundname->WAV bytes mappings
         /// </summary>
-        public static Dictionary<string, byte[]> cachedWavs = new Dictionary<string, byte[]>();
+        private static Dictionary<string, byte[]> cachedWavs = new Dictionary<string, byte[]>();
 
         /// <summary>
         /// Lock this object to protect against concurrent writes to the cachedWavs collection.
         /// </summary>
-        public static object cachedWavsLock = new object();
+        private static object cachedWavsLock = new object();
 
         #region NativeAPI
         private const UInt32 SND_ASYNC = 0x0001;
@@ -30,20 +29,22 @@ namespace BabySmash
 
         #endregion NativeAPI
 
-        public void PlayWavResource(string wav)
+        public static void PlayWavResource(string wav)
         {
             byte[] arrWav = GetWavResource(wav);
             PlaySound(arrWav, IntPtr.Zero, SND_ASYNC | SND_MEMORY);
         }
 
-        public void PlayWavResourceYield(string wav)
+        public static void PlayWavResourceYield(string wav)
         {
             byte[] arrWav = GetWavResource(wav);
             PlaySound(arrWav, IntPtr.Zero, SND_ASYNC | SND_NOSTOP | SND_MEMORY);
         }
 
-        private byte[] GetWavResource(string wav)
+        private static byte[] GetWavResource(string wav)
         {
+            wav = ".Resources.Sounds." + wav;
+
             if (cachedWavs.ContainsKey(wav))
             {
                 return cachedWavs[wav];
