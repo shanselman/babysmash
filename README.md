@@ -22,7 +22,7 @@ Used in conjunction with a tool like AutoHotkey, you can essentially create a "b
 * Download and install, if you don't already have it. Available for free at: http://www.autohotkey.com/
 * Run AutoHotkey; for the first time, it will prompt if you want to edit the script. You do.
 * If the script is not open, right-click the AutoHotkey taskbar icon (an 'H' icon) and select 'Edit This Script'.
-* Choose and a hotkey. Avoid relying on the Windows key, as it will be held while BabySmash starts and may be buggy when you exit BabySmash due to the way the key is intercepted. I like to Control+Shift+Z.
+* Choose a hotkey. Avoid relying on the Windows key, as it will be held while BabySmash starts and may be buggy when you exit BabySmash due to the way the key is intercepted. I like to use Control+Shift+Z.
 * Code the hotkey. If you're using Control+Shift+Z, you can add "^+z::Run D:\GIT\babysmash\bin\Release\BabySmash.exe" right after the line "#z::Run www.autohotkey.com" (without quotes); Obviously your path to BabySmash.exe will vary depending on where you installed or built the code.
 * Save the file and close your text editor.
 * Right-click the AutoHotkey taskbar, and select 'Reload This Script'.
