@@ -50,12 +50,12 @@ namespace BabySmash.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool BitmapEffects {
+        public bool UseEffects {
             get {
-                return ((bool)(this["BitmapEffects"]));
+                return ((bool)(this["UseEffects"]));
             }
             set {
-                this["BitmapEffects"] = value;
+                this["UseEffects"] = value;
             }
         }
         

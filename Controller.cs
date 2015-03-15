@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Deployment.Application;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Speech.Synthesis;
 using System.Windows;
@@ -35,8 +36,9 @@ namespace BabySmash
 
         private DispatcherTimer timer = new DispatcherTimer();
         private Queue<Shape> ellipsesQueue = new Queue<Shape>();
-        private Dictionary<string, Queue<UserControl>> ellipsesUserControlQueue = new Dictionary<string, Queue<UserControl>>();
+        private Dictionary<string, List<UserControl>> figuresUserControlQueue = new Dictionary<string, List<UserControl>>();
         private ApplicationDeployment deployment = null;
+        private WordFinder wordFinder = new WordFinder("Words.txt");
 
         void deployment_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
         {
@@ -101,35 +103,25 @@ namespace BabySmash
             foreach (WinForms.Screen s in WinForms.Screen.AllScreens)
             {
                 MainWindow m = new MainWindow(this)
-                                   {
-                                       WindowStartupLocation = WindowStartupLocation.Manual,
-                                       Left = s.WorkingArea.Left,
-                                       Top = s.WorkingArea.Top,
-                                       Width = s.WorkingArea.Width,
-                                       Height = s.WorkingArea.Height,
-                                       WindowStyle = WindowStyle.None,
-                                       Topmost = true,
-                                       AllowsTransparency = Settings.Default.TransparentBackground,
-                                       Background = (Settings.Default.TransparentBackground ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) : Brushes.WhiteSmoke),
-                                       Name = "Window" + Number++.ToString()
-                                   };
+                {
+                    WindowStartupLocation = WindowStartupLocation.Manual,
+                    Left = s.WorkingArea.Left,
+                    Top = s.WorkingArea.Top,
+                    Width = s.WorkingArea.Width,
+                    Height = s.WorkingArea.Height,
+                    WindowStyle = WindowStyle.None,
+                    Topmost = true,
+                    AllowsTransparency = Settings.Default.TransparentBackground,
+                    Background = (Settings.Default.TransparentBackground ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) : Brushes.WhiteSmoke),
+                    Name = "Window" + Number++.ToString()
+                };
 
-
-
-                ellipsesUserControlQueue[m.Name] = new Queue<UserControl>();
+                figuresUserControlQueue[m.Name] = new List<UserControl>();
 
                 m.Show();
                 m.MouseLeftButtonDown += HandleMouseLeftButtonDown;
                 m.MouseWheel += HandleMouseWheel;
-
-#if false
-            m.Width = 700;
-            m.Height = 600;
-            m.Left = 900;
-            m.Top = 500;
-#else
                 m.WindowState = WindowState.Maximized;
-#endif
                 windows.Add(m);
             }
 
@@ -188,29 +180,54 @@ namespace BabySmash
                 return;
             }
 
-            string s = e.Key.ToString();
-
-            // Handle number keys, whose values are prefixed by "D" or "NumPad" (because enum names can't start with a digit)
-            if (s.StartsWith("NumPad")) s = s.Substring(6);
-            if ((s.Length == 2) && s.StartsWith("D")) s = s.Substring(1);
-            AddFigure(uie, s);
+            char displayChar = GetDisplayChar(e.Key);
+            AddFigure(uie, displayChar);
         }
 
-        private void AddFigure(FrameworkElement uie, string s)
+        private char GetDisplayChar(Key key)
         {
-            FigureTemplate template = FigureGenerator.GenerateFigureTemplate(s);
-            foreach (MainWindow m in this.windows)
+            // If a letter was pressed, display the letter.
+            if (key >= Key.A && key <= Key.Z)
+            {
+                return (char)('A' + key - Key.A);
+            }
+
+            // If a number on the normal number track is pressed, display the number.
+            if (key >= Key.D0 && key <= Key.D9)
+            {
+                return (char)('0' + key - Key.D0);
+            }
+
+            // If a number on the numpad is pressed, display the number.
+            if (key >= Key.NumPad0 && key <= Key.NumPad9)
+            {
+                return (char)('0' + key - Key.NumPad0);
+            }
+
+            // Otherwise, display a random shape.
+            return '*';
+        }
+
+        private void AddFigure(FrameworkElement uie, char c)
+        {
+            FigureTemplate template = FigureGenerator.GenerateFigureTemplate(c);
+            foreach (MainWindow window in this.windows)
             {
                 UserControl f = FigureGenerator.NewUserControlFrom(template);
-                m.AddFigure(f);
+                window.AddFigure(f);
 
-                var queue = ellipsesUserControlQueue[m.Name];
-                queue.Enqueue(f);
+                var queue = figuresUserControlQueue[window.Name];
+                queue.Add(f);
 
-                f.Width = 300;
-                f.Height = 300;
-                Canvas.SetLeft(f, Utils.RandomBetweenTwoNumbers(0, Convert.ToInt32(m.ActualWidth - f.Width)));
-                Canvas.SetTop(f, Utils.RandomBetweenTwoNumbers(0, Convert.ToInt32(m.ActualHeight - f.Height)));
+                // Letters should already have accurate width and height, but others may them assigned.
+                if (double.IsNaN(f.Width) || double.IsNaN(f.Height))
+                {
+                    f.Width = 300;
+                    f.Height = 300;
+                }
+
+                Canvas.SetLeft(f, Utils.RandomBetweenTwoNumbers(0, Convert.ToInt32(window.ActualWidth - f.Width)));
+                Canvas.SetTop(f, Utils.RandomBetweenTwoNumbers(0, Convert.ToInt32(window.ActualHeight - f.Height)));
 
                 Storyboard storyboard = Animation.CreateDPAnimation(uie, f,
                         UIElement.OpacityProperty,
@@ -225,12 +242,26 @@ namespace BabySmash
 
                 if (queue.Count > Settings.Default.ClearAfter)
                 {
-                    UserControl u = queue.Dequeue() as UserControl;
-                    m.RemoveFigure(u);
+                    window.RemoveFigure(queue[0]);
+                    queue.RemoveAt(0);
                 }
             }
 
-            PlaySound(template);
+            // Find the last word typed, if applicable.
+            string lastWord = this.wordFinder.LastWord(figuresUserControlQueue.Values.First());
+            if (lastWord != null)
+            {
+                foreach (MainWindow window in this.windows)
+                {
+                    this.wordFinder.AnimateLettersIntoWord(figuresUserControlQueue[window.Name], lastWord);
+                }
+
+                SpeakString(lastWord);
+            }
+            else
+            {
+                PlaySound(template);
+            }
         }
 
         //private static DoubleAnimationUsingKeyFrames ApplyZoomOut(UserControl u)
@@ -421,14 +452,12 @@ namespace BabySmash
             if (Settings.Default.MouseDraw && main.IsMouseCaptured == false)
                 main.CaptureMouse();
 
-            Debug.WriteLine(String.Format("MouseMove! {0} {1} {2}", Settings.Default.MouseDraw, main.IsMouseCaptured, isOptionsDialogShown));
-
             if (isDrawing || Settings.Default.MouseDraw)
             {
                 MouseDraw(main, e.GetPosition(main));
             }
 
-            //Cheesy, but hotkeys are ignored when the mouse is captured. 
+            // Cheesy, but hotkeys are ignored when the mouse is captured.
             // However, if we don't capture and release, the shapes will draw forever.
             if (Settings.Default.MouseDraw && main.IsMouseCaptured)
                 main.ReleaseMouseCapture();

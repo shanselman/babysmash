@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
@@ -17,9 +18,10 @@ namespace BabySmash
             this.InitializeComponent();
         }
 
-        public CoolLetter(Brush x, string letter)
+        public CoolLetter(Brush x, char letter)
             : this()
         {
+            this.Character = letter;
             this.letterPath.Fill = x;
 
             this.letterPath.Data = MakeCharacterGeometry(GetLetterCharacter(letter));
@@ -27,35 +29,33 @@ namespace BabySmash
             this.Height = this.letterPath.Data.Bounds.Height + this.letterPath.Data.Bounds.Y + this.letterPath.StrokeThickness / 2;
         }
 
-        private static Geometry MakeCharacterGeometry(string t)
+        public char Character { get; private set; }
+
+        private static Geometry MakeCharacterGeometry(char character)
         {
-            var fText = new FormattedText(
-                t,
+            var fontFamily = new FontFamily(Settings.Default.FontFamily);
+            var typeface = new Typeface(fontFamily, FontStyles.Normal, FontWeights.Heavy, FontStretches.Normal);
+            var formattedText = new FormattedText(
+                character.ToString(),
                 CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
-                new Typeface(
-                    new FontFamily(Properties.Settings.Default.FontFamily),
-                    FontStyles.Normal,
-                    FontWeights.Heavy,
-                    FontStretches.Normal),
+                typeface,
                 300,
-                Brushes.Black
-                );
-            return fText.BuildGeometry(new Point(0, 0)).GetAsFrozen() as Geometry;
+                Brushes.Black);
+            return formattedText.BuildGeometry(new Point(0, 0)).GetAsFrozen() as Geometry;
         }
 
-        private static string GetLetterCharacter(string name)
+        private static char GetLetterCharacter(char name)
         {
-            string nameToDisplay;
+            Debug.Assert(name == char.ToUpperInvariant(name), "Always provide uppercase character names to this method.");
+
             if (Settings.Default.ForceUppercase)
             {
-                nameToDisplay = name;
+                return name;
             }
-            else
-            {
-                nameToDisplay = Utils.GetRandomBoolean() ? name : name.ToLowerInvariant();
-            }
-            return nameToDisplay;
+
+            // Return a random uppercase or lowercase letter.
+            return Utils.GetRandomBoolean() ? name : char.ToLowerInvariant(name);
         }
     }
 }

@@ -68,6 +68,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="WordFinder.cs" />
     <Reference Include="PresentationFramework.Luna">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -345,6 +346,11 @@
   <ItemGroup>
     <Folder Include="Resources\Voices\Female\" />
     <Folder Include="Resources\Voices\Male\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Words.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

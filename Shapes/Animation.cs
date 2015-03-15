@@ -7,21 +7,33 @@ namespace BabySmash
 {
     class Animation
     {
-        public static BitmapEffect GetRandomBitmapEffect()
+        public static Effect GetRandomBitmapEffect()
         {
             int e = Utils.RandomBetweenTwoNumbers(0, 3);
             switch (e)
             {
                 case 0:
-                    return new BevelBitmapEffect();
+                    // Just makes the figure blurry; maybe do this one less frequently?
+                    return new BlurEffect
+                    {
+                        Radius = Utils.RandomBetweenTwoNumbers(5, 20),
+                        RenderingBias = RenderingBias.Performance,
+                    };
                 case 1:
-                    return new DropShadowBitmapEffect();
+                // TODO: Maybe add a replacement for the deprecated EmbossBitmapEffect?  For now, just fallthrough.
                 case 2:
-                    return new EmbossBitmapEffect();
+                // TODO: Maybe add a replacement for the deprecated BevelBitmapEffect?  For now, just fallthrough.
                 case 3:
-                    return new OuterGlowBitmapEffect();
+                    return new DropShadowEffect
+                    {
+                        ShadowDepth = 0,
+                        Color = Utils.GetRandomColor(),
+                        BlurRadius = Utils.RandomBetweenTwoNumbers(10, 50),
+                        RenderingBias = RenderingBias.Performance,
+                    };
             }
-            return new BevelBitmapEffect();
+
+            return new DropShadowEffect();
         }
 
         public static void ApplyRandomAnimationEffect(FrameworkElement fe, Duration duration)
