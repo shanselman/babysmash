@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using BrushControlFunc = System.Func<System.Windows.Media.Brush, System.Windows.Controls.UserControl>;
-using System.Windows;
 
 namespace BabySmash
 {
@@ -23,6 +23,7 @@ namespace BabySmash
       private static readonly List<KeyValuePair<string, BrushControlFunc>> hashTableOfFigureGenerators = new List<KeyValuePair<string, BrushControlFunc>>
        {
            new KeyValuePair<string, BrushControlFunc>("Circle", x => new CoolCircle(x) ),
+           new KeyValuePair<string, BrushControlFunc>("Oval", x => new CoolOval(x) ),
            new KeyValuePair<string, BrushControlFunc>("Rectangle", x => new CoolRectangle(x) ),
            new KeyValuePair<string, BrushControlFunc>("Hexagon", x => new CoolHexagon(x) ),
            new KeyValuePair<string, BrushControlFunc>("Trapezoid", x => new CoolTrapezoid(x) ),
