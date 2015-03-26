@@ -35,6 +35,8 @@ namespace BabySmash
          {
             versionLabel.Text = "Version " + ApplicationDeployment.CurrentDeployment.CurrentVersion;
          }
+         else
+             versionLabel.Text = "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
       }
 
       protected override void OnDeactivated(EventArgs e)

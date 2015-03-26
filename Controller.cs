@@ -33,7 +33,7 @@ namespace BabySmash
       private bool isDrawing = false;
       private readonly SpeechSynthesizer objSpeech = new SpeechSynthesizer();
       private readonly List<MainWindow> windows = new List<MainWindow>();
-      private readonly Win32Audio audio = new Win32Audio();
+
       private DispatcherTimer timer = new DispatcherTimer();
       private Queue<Shape> ellipsesQueue = new Queue<Shape>();
       private Dictionary<string,Queue<UserControl>> ellipsesUserControlQueue = new Dictionary<string,Queue<UserControl>>();
@@ -111,9 +111,9 @@ namespace BabySmash
                                   WindowStyle = WindowStyle.None,
                                   Topmost = true,
                                   AllowsTransparency = Settings.Default.TransparentBackground,
-	                          Background = (Settings.Default.TransparentBackground ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) : Brushes.WhiteSmoke),
+                                  Background = (Settings.Default.TransparentBackground ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) : Brushes.WhiteSmoke),
                                   Name = "Window" + Number++.ToString()
- 				};
+                                };
 
 
 
@@ -134,11 +134,11 @@ namespace BabySmash
             windows.Add(m);
          }
 
-	    //Only show the info label on the FIRST monitor.
+         //Only show the info label on the FIRST monitor.
          windows[0].infoLabel.Visibility = Visibility.Visible;
 
          //Startup sound
-         audio.PlayWavResourceYield(".Resources.Sounds." + "EditedJackPlaysBabySmash.wav");
+         Win32Audio.PlayWavResourceYield("EditedJackPlaysBabySmash.wav");
 
          string[] args = Environment.GetCommandLineArgs();
          string ext = System.IO.Path.GetExtension(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
@@ -190,7 +190,10 @@ namespace BabySmash
          }
 
          string s = e.Key.ToString();
-         if (s.Length == 2 && s[0] == 'D') s = s[1].ToString(); //HACK: WTF? Numbers start with a "D?" as in D1?
+
+         // Handle number keys, whose values are prefixed by "D" or "NumPad" (because enum names can't start with a digit)
+         if (s.StartsWith("NumPad")) s = s.Substring(6);
+         if ((s.Length == 2) && s.StartsWith("D")) s = s.Substring(1);
          AddFigure(uie, s);
       }
 
@@ -305,7 +308,7 @@ namespace BabySmash
 
       private void PlayLaughter()
       {
-         audio.PlayWavResource(Utils.GetRandomSoundFile());
+          Win32Audio.PlayWavResource(Utils.GetRandomSoundFile());
       }
 
       private void SpeakString(string s)
@@ -387,18 +390,18 @@ namespace BabySmash
          isDrawing = true;
          main.CaptureMouse();
 
-         audio.PlayWavResource(".Resources.Sounds." + "smallbumblebee.wav");
+         Win32Audio.PlayWavResource("smallbumblebee.wav");
       }
 
       public void MouseWheel(MainWindow main, MouseWheelEventArgs e)
       {
          if (e.Delta > 0)
          {
-            audio.PlayWavResourceYield(".Resources.Sounds." + "rising.wav");
+             Win32Audio.PlayWavResourceYield("rising.wav");
          }
          else
          {
-            audio.PlayWavResourceYield(".Resources.Sounds." + "falling.wav");
+             Win32Audio.PlayWavResourceYield("falling.wav");
          }
       }
 
@@ -450,7 +453,7 @@ namespace BabySmash
          Canvas.SetTop(shape, p.Y - 25);
 
          if (Settings.Default.MouseDraw)
-            audio.PlayWavResourceYield(".Resources.Sounds." + "smallbumblebee.wav");
+            Win32Audio.PlayWavResourceYield("smallbumblebee.wav");
 
          if (ellipsesQueue.Count > 30) //this is arbitrary
          {

@@ -11,7 +11,8 @@ namespace BabySmash
    internal static class Utils
    {
       private static readonly Dictionary<Color, string> brushToString;
-      private static readonly Random lRandom = new Random();
+
+      private static readonly Random lRandom = new Random(); // BUG BUG: Believe it or not, Random is NOT THREAD SAFE!
 
       private static readonly FunCursor1 fun1 = new FunCursor1();
       private static readonly FunCursor2 fun2 = new FunCursor2();
@@ -80,8 +81,7 @@ namespace BabySmash
 
       public static string GetRandomSoundFile()
       {
-         string retVal = sounds[lRandom.Next(0, sounds.Length)];
-         return ".Resources.Sounds." + retVal;
+         return sounds[lRandom.Next(0, sounds.Length)];
       }
 
       public static bool GetRandomBoolean()

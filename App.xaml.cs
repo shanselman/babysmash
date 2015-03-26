@@ -22,15 +22,29 @@ namespace BabySmash
       public App()
       {
          ShutdownMode = ShutdownMode.OnExplicitShutdown;
+         Application.Current.Exit += new ExitEventHandler(Current_Exit);
          try
          {
             _hookID = InterceptKeys.SetHook(_proc);
          }
          catch
          {
-            if (_hookID != IntPtr.Zero)
-               InterceptKeys.UnhookWindowsHookEx(_hookID);
+             DetachKeyboardHook();
          }
+      }
+
+      void Current_Exit(object sender, ExitEventArgs e)
+      {
+          DetachKeyboardHook();
+      }
+
+      /// <summary>
+      /// Detach the keyboard hook; call during shutdown to prevent calls as we unload
+      /// </summary>
+      private static void DetachKeyboardHook()
+      {
+          if (_hookID != IntPtr.Zero)
+              InterceptKeys.UnhookWindowsHookEx(_hookID);
       }
 
       public static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
