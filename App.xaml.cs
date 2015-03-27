@@ -15,8 +15,7 @@ namespace BabySmash
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            Controller c = new Controller();
-            c.Launch();
+            Controller.Instance.Launch();
         }
 
         public App()

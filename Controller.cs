@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Speech.Synthesis;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -29,6 +30,8 @@ namespace BabySmash
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
+        private static Controller instance = new Controller();
+        
         public bool isOptionsDialogShown { get; set; }
         private bool isDrawing = false;
         private readonly SpeechSynthesizer objSpeech = new SpeechSynthesizer();
@@ -39,6 +42,14 @@ namespace BabySmash
         private Dictionary<string, List<UserControl>> figuresUserControlQueue = new Dictionary<string, List<UserControl>>();
         private ApplicationDeployment deployment = null;
         private WordFinder wordFinder = new WordFinder("Words.txt");
+
+        /// <summary>Prevents a default instance of the Controller class from being created.</summary>
+        private Controller() { }
+
+        public static Controller Instance
+        {
+            get { return instance; }
+        }
 
         void deployment_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
         {
@@ -149,7 +160,10 @@ namespace BabySmash
 
         void timer_Tick(object sender, EventArgs e)
         {
-            if (isOptionsDialogShown) return;
+            if (isOptionsDialogShown)
+            {
+                return;
+            }
 
             try
             {
@@ -170,7 +184,9 @@ namespace BabySmash
             bool Shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
 
             if (uie.IsMouseCaptured)
+            {
                 uie.ReleaseMouseCapture();
+            }
 
             //TODO: Might be able to remove this: http://www.ageektrapped.com/blog/using-commands-in-babysmash/
             if (Alt && Control && Shift && e.Key == Key.O)
@@ -349,7 +365,7 @@ namespace BabySmash
 
         private class ThreadedSpeak
         {
-            string Word = null;
+            private string Word = null;
             SpeechSynthesizer SpeechSynth = new SpeechSynthesizer();
             public ThreadedSpeak(string Word)
             {
@@ -359,7 +375,7 @@ namespace BabySmash
             }
             public void Speak()
             {
-                System.Threading.Thread oThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.Start));
+                Thread oThread = new Thread(new ThreadStart(this.Start));
                 oThread.Start();
             }
             private void Start()
@@ -372,7 +388,6 @@ namespace BabySmash
                 {
                     System.Diagnostics.Trace.WriteLine(e.ToString());
                 }
-
             }
         }
 
