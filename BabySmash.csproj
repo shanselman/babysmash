@@ -361,7 +361,7 @@
   </Target>
   -->
   
-  <!---- THIS IS WHERE I ACTUALLY RELEASE IT TO PRODUCTION -->
+  <!-- THIS IS WHERE I ACTUALLY RELEASE IT TO PRODUCTION -->
   <!--<Target Name="BeforePublish">
     <Exec Command="&quot;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe&quot; sign /f &quot;$(ProjectDir)\private.pfx&quot; /p PASSWORD /v &quot;$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)&quot;" />
   </Target>-->
