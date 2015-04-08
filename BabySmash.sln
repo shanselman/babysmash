@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BabySmash", "BabySmash.csproj", "{FB378E07-FDE4-4FC7-9210-68F80B561164}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BabySmashScreenSaver", "..\BabySmashScreensaver\BabySmashScreenSaver\BabySmashScreenSaver.csproj", "{8548BCE3-8FE7-4EF9-8EB7-3D0CC256D53D}"
