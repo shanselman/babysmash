@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Speech.Synthesis;
+﻿
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using BabySmash.Properties;
+
 using System.Windows.Media;
 
 namespace BabySmash
