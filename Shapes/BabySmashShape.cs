@@ -1,15 +1,15 @@
 ﻿namespace BabySmash.Shapes
 {
-	public enum BabySmashShape
-	{
-		Circle,
-		Oval,
-		Rectangle,
-		Hexagon,
-		Trapezoid,
-		Star,
-		Square,
-		Triangle,
-		Heart
-	}
+    public enum BabySmashShape
+    {
+        Circle,
+        Oval,
+        Rectangle,
+        Hexagon,
+        Trapezoid,
+        Star,
+        Square,
+        Triangle,
+        Heart
+    }
 }
