@@ -113,5 +113,10 @@ namespace BabySmash
                 //we can die here if we ALT-F4 while in the Options Dialog
             }
         }
+
+        private void Properties_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            controller.ShowOptionsDialog();
+        }
     }
 }
