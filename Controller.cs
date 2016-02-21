@@ -473,8 +473,8 @@ namespace BabySmash
                 if (neededVoice == null)
                 {
                     //http://superuser.com/questions/590779/how-to-install-more-voices-to-windows-speech
-                    https://msdn.microsoft.com/en-us/library/windows.media.speechsynthesis.speechsynthesizer.voice.aspx
-                    http://stackoverflow.com/questions/34776593/speechsynthesizer-selectvoice-fails-with-no-matching-voice-is-installed-or-th
+                    //https://msdn.microsoft.com/en-us/library/windows.media.speechsynthesis.speechsynthesizer.voice.aspx
+                    //http://stackoverflow.com/questions/34776593/speechsynthesizer-selectvoice-fails-with-no-matching-voice-is-installed-or-th
                     this.Word = "Unsupported Language";
                 }
                 else if (!neededVoice.Enabled)
