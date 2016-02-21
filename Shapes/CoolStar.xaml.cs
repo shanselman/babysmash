@@ -19,9 +19,7 @@ namespace BabySmash
         {
             this.InitializeComponent();
         }
-
-        #region IHasFace Members
-
+        
         public Visibility FaceVisible
         {
             get
@@ -33,7 +31,5 @@ namespace BabySmash
                 Face.Visibility = value;
             }
         }
-
-        #endregion
     }
 }

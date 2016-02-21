@@ -18,8 +18,7 @@ namespace BabySmash
             this.InitializeComponent();
         }
 
-        public CoolLetter(Brush x, char letter)
-            : this()
+        public CoolLetter(Brush x, char letter) : this()
         {
             this.Character = letter;
             this.letterPath.Fill = x;
