@@ -185,23 +185,11 @@ namespace BabySmash
 
         public void ProcessKey(FrameworkElement uie, KeyEventArgs e)
         {
-            bool Alt = (Keyboard.Modifiers & ModifierKeys.Alt) != 0;
-            bool Control = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
-            bool Shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
-
             if (uie.IsMouseCaptured)
             {
                 uie.ReleaseMouseCapture();
             }
-
-            //TODO: Might be able to remove this: http://www.ageektrapped.com/blog/using-commands-in-babysmash/
-            if (Alt && Control && Shift && e.Key == Key.O)
-            {
-                ShowOptionsDialog();
-                e.Handled = true;
-                return;
-            }
-
+            
             char displayChar = GetDisplayChar(e.Key);
             AddFigure(uie, displayChar);
         }
@@ -514,7 +502,7 @@ namespace BabySmash
             }
         }
 
-        private void ShowOptionsDialog()
+        public void ShowOptionsDialog()
         {
             bool foo = Settings.Default.TransparentBackground;
             isOptionsDialogShown = true;
