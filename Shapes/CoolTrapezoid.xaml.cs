@@ -10,8 +10,7 @@ namespace BabySmash
     [Serializable]
     public partial class CoolTrapezoid : IHasFace
     {
-        public CoolTrapezoid(Brush x)
-           : this()
+        public CoolTrapezoid(Brush x) : this()
         {
             Body.Fill = x;
         }
@@ -20,9 +19,7 @@ namespace BabySmash
         {
             this.InitializeComponent();
         }
-
-        #region IHasFace Members
-
+        
         public Visibility FaceVisible
         {
             get
@@ -34,7 +31,5 @@ namespace BabySmash
                 Face.Visibility = value;
             }
         }
-
-        #endregion
     }
 }

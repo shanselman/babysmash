@@ -10,8 +10,7 @@ namespace BabySmash
     [Serializable]
     public partial class CoolCircle : IHasFace
     {
-        public CoolCircle(Brush x)
-            : this()
+        public CoolCircle(Brush x) : this()
         {
             this.Body.Fill = x;
         }
@@ -20,9 +19,7 @@ namespace BabySmash
         {
             this.InitializeComponent();
         }
-
-        #region IHasFace Members
-
+        
         public Visibility FaceVisible
         {
             get
@@ -34,7 +31,5 @@ namespace BabySmash
                 Face.Visibility = value;
             }
         }
-
-        #endregion
     }
 }

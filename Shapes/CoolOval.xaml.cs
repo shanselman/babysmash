@@ -10,8 +10,7 @@
     [Serializable]
     public partial class CoolOval : IHasFace
     {
-        public CoolOval(Brush x)
-            : this()
+        public CoolOval(Brush x) : this()
         {
             this.Body.Fill = x;
         }
@@ -20,9 +19,7 @@
         {
             this.InitializeComponent();
         }
-
-        #region IHasFace Members
-
+        
         public Visibility FaceVisible
         {
             get
@@ -34,7 +31,5 @@
                 Face.Visibility = value;
             }
         }
-
-        #endregion
     }
 }
