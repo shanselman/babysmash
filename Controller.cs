@@ -41,7 +41,7 @@ namespace BabySmash
         private Queue<Shape> ellipsesQueue = new Queue<Shape>();
         private Dictionary<string, List<UserControl>> figuresUserControlQueue = new Dictionary<string, List<UserControl>>();
         private ApplicationDeployment deployment = null;
-        private WordFinder wordFinder = new WordFinder("Words.txt");
+        private WordFinder wordFinder = new WordFinder("BabySmashWords.txt");
 
         /// <summary>Prevents a default instance of the Controller class from being created.</summary>
         private Controller() { }
