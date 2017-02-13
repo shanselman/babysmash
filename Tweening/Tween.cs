@@ -45,13 +45,15 @@
         {
             DoubleAnimationUsingKeyFrames animation = o as DoubleAnimationUsingKeyFrames;
 
-            if (animation != null && animation.Duration.HasTimeSpan) {
+            if (animation != null && animation.Duration.HasTimeSpan)
+            {
                 TransitionType type = GetTransitionType(animation);
                 double from = GetFrom(animation);
                 double to = GetTo(animation);
                 double fps = GetFps(animation);
 
-                if (fps <= 0) {
+                if (fps <= 0)
+                {
                     fps = DefaultFps;
                 }
 
@@ -69,7 +71,8 @@
             // clear animation
             animation.KeyFrames.Clear();
 
-            for (double i = 0; i < total; i += step) {
+            for (double i = 0; i < total; i += step)
+            {
                 LinearDoubleKeyFrame frame = new LinearDoubleKeyFrame();
                 frame.KeyTime = KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(i));
                 frame.Value = equation(i, from, to - from, total);

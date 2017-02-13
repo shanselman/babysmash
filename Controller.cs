@@ -5,7 +5,6 @@ using System.Deployment.Application;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Speech.Synthesis;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,6 +21,13 @@ using WinForms = System.Windows.Forms;
 
 namespace BabySmash
 {
+    using System.Globalization;
+    using System.IO;
+    using System.Speech.Synthesis;
+    using System.Text;
+
+    using Newtonsoft.Json;
+
     public class Controller
     {
         [DllImport("user32.dll")]
@@ -31,7 +37,7 @@ namespace BabySmash
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         private static Controller instance = new Controller();
-        
+
         public bool isOptionsDialogShown { get; set; }
         private bool isDrawing = false;
         private readonly SpeechSynthesizer objSpeech = new SpeechSynthesizer();
@@ -179,35 +185,17 @@ namespace BabySmash
 
         public void ProcessKey(FrameworkElement uie, KeyEventArgs e)
         {
-            bool Alt = (Keyboard.Modifiers & ModifierKeys.Alt) != 0;
-            bool Control = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
-            bool Shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
-
             if (uie.IsMouseCaptured)
             {
                 uie.ReleaseMouseCapture();
             }
-
-            //TODO: Might be able to remove this: http://www.ageektrapped.com/blog/using-commands-in-babysmash/
-            if (Alt && Control && Shift && e.Key == Key.O)
-            {
-                ShowOptionsDialog();
-                e.Handled = true;
-                return;
-            }
-
+            
             char displayChar = GetDisplayChar(e.Key);
             AddFigure(uie, displayChar);
         }
 
         private char GetDisplayChar(Key key)
         {
-            // If a letter was pressed, display the letter.
-            if (key >= Key.A && key <= Key.Z)
-            {
-                return (char)('A' + key - Key.A);
-            }
-
             // If a number on the normal number track is pressed, display the number.
             if (key >= Key.D0 && key <= Key.D9)
             {
@@ -220,8 +208,71 @@ namespace BabySmash
                 return (char)('0' + key - Key.NumPad0);
             }
 
-            // Otherwise, display a random shape.
-            return '*';
+            try
+            {
+                return char.ToUpperInvariant(TryGetLetter(key));
+            }
+            catch (Exception ex)
+            {
+                Debug.Assert(false, ex.ToString());
+                return '*';
+            }
+        }
+
+        public enum MapType : uint
+        {
+            MAPVK_VK_TO_VSC = 0x0,
+            MAPVK_VSC_TO_VK = 0x1,
+            MAPVK_VK_TO_CHAR = 0x2,
+            MAPVK_VSC_TO_VK_EX = 0x3,
+        }
+
+        [DllImport("user32.dll")]
+        public static extern int ToUnicode(
+                uint wVirtKey,
+                uint wScanCode,
+                byte[] lpKeyState,
+                [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 4)]
+                        StringBuilder pwszBuff,
+                int cchBuff,
+                uint wFlags);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetKeyboardState(byte[] lpKeyState);
+
+        [DllImport("user32.dll")]
+        public static extern uint MapVirtualKey(uint uCode, MapType uMapType);
+
+        private static char TryGetLetter(Key key)
+        {
+            char ch = ' ';
+
+            int virtualKey = KeyInterop.VirtualKeyFromKey(key);
+            byte[] keyboardState = new byte[256];
+            GetKeyboardState(keyboardState);
+
+            uint scanCode = MapVirtualKey((uint)virtualKey, MapType.MAPVK_VK_TO_VSC);
+            StringBuilder stringBuilder = new StringBuilder(2);
+
+            int result = ToUnicode((uint)virtualKey, scanCode, keyboardState, stringBuilder, stringBuilder.Capacity, 0);
+            switch (result)
+            {
+                case -1:
+                    break;
+                case 0:
+                    break;
+                case 1:
+                    {
+                        ch = stringBuilder[0];
+                        break;
+                    }
+                default:
+                    {
+                        ch = stringBuilder[0];
+                        break;
+                    }
+            }
+            return ch;
         }
 
         private void AddFigure(FrameworkElement uie, char c)
@@ -246,8 +297,8 @@ namespace BabySmash
                 Canvas.SetTop(f, Utils.RandomBetweenTwoNumbers(0, Convert.ToInt32(window.ActualHeight - f.Height)));
 
                 Storyboard storyboard = Animation.CreateDPAnimation(uie, f,
-                        UIElement.OpacityProperty,
-                        new Duration(TimeSpan.FromSeconds(Settings.Default.FadeAfter)), 1, 0);
+                                UIElement.OpacityProperty,
+                                new Duration(TimeSpan.FromSeconds(Settings.Default.FadeAfter)), 1, 0);
                 if (Settings.Default.FadeAway) storyboard.Begin(uie);
 
                 IHasFace face = f as IHasFace;
@@ -347,9 +398,44 @@ namespace BabySmash
                 }
                 else
                 {
-                    SpeakString(Utils.ColorToString(template.Color) + " " + template.Name);
+                    SpeakString(GetLocalizedString(Utils.ColorToString(template.Color)) + " " + template.Name);
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns <param name="key"></param> if value or culture is not found.
+        /// </summary>
+        public static string GetLocalizedString(string key)
+        {
+            CultureInfo keyboardLanguage = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture;
+            string culture = keyboardLanguage.Name;
+            string path = $@"Resources\Strings\{culture}.json";
+            string path2 = @"Resources\Strings\en-EN.json";
+            string jsonConfig = null;
+            if (File.Exists(path))
+            {
+                jsonConfig = File.ReadAllText(path);
+            }
+            else if (File.Exists(path2))
+            {
+                jsonConfig = File.ReadAllText(path2);
+            }
+
+            if (jsonConfig != null)
+            {
+                Dictionary<string, object> config = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonConfig);
+                if (config.ContainsKey(key))
+                {
+                    return config[key].ToString();
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.Assert(false, "No file");
+            }
+
+            return key;
         }
 
         private void PlayLaughter()
@@ -370,6 +456,31 @@ namespace BabySmash
             public ThreadedSpeak(string Word)
             {
                 this.Word = Word;
+                CultureInfo keyboardLanguage = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture;
+                InstalledVoice neededVoice = this.SpeechSynth.GetInstalledVoices(keyboardLanguage).FirstOrDefault();
+                if (neededVoice == null)
+                {
+                    //http://superuser.com/questions/590779/how-to-install-more-voices-to-windows-speech
+                    //https://msdn.microsoft.com/en-us/library/windows.media.speechsynthesis.speechsynthesizer.voice.aspx
+                    //http://stackoverflow.com/questions/34776593/speechsynthesizer-selectvoice-fails-with-no-matching-voice-is-installed-or-th
+                    this.Word = "Unsupported Language";
+                }
+                else if (!neededVoice.Enabled)
+                {
+                    this.Word = "Voice Disabled";
+                }
+                else
+                {
+                    try
+                    {
+                        this.SpeechSynth.SelectVoice(neededVoice.VoiceInfo.Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Assert(false, ex.ToString());
+                    }
+                }
+
                 SpeechSynth.Rate = -1;
                 SpeechSynth.Volume = 100;
             }
@@ -391,7 +502,7 @@ namespace BabySmash
             }
         }
 
-        private void ShowOptionsDialog()
+        public void ShowOptionsDialog()
         {
             bool foo = Settings.Default.TransparentBackground;
             isOptionsDialogShown = true;
@@ -415,8 +526,8 @@ namespace BabySmash
             if (foo != Settings.Default.TransparentBackground)
             {
                 MessageBoxResult result = MessageBox.Show(
-                    "You've changed the Window Transparency Option. We'll need to restart BabySmash! for you to see the change. Pressing YES will restart BabySmash!. Is that OK?",
-                    "Need to Restart", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        "You've changed the Window Transparency Option. We'll need to restart BabySmash! for you to see the change. Pressing YES will restart BabySmash!. Is that OK?",
+                        "Need to Restart", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
                     Application.Current.Shutdown();

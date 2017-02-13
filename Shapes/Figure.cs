@@ -1,8 +1,4 @@
-using System.Globalization;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Shapes;
-using BabySmash.Properties;
 
 namespace BabySmash
 {
@@ -10,5 +6,4 @@ namespace BabySmash
     {
         Visibility FaceVisible { get; set; }
     }
-
 }

@@ -1,6 +1,5 @@
 ﻿namespace Tweener
 {
-
     using System;
 
     /// <summary>
@@ -31,12 +30,12 @@
     */
 
     public static class Equations
-    {	
-	// ==================================================================================================================================
-	// TWEENING EQUATIONS functions -----------------------------------------------------------------------------------------------------
-	// (the original equations are Robert Penner's work as mentioned on the disclaimer)
+    {
+        // ==================================================================================================================================
+        // TWEENING EQUATIONS functions -----------------------------------------------------------------------------------------------------
+        // (the original equations are Robert Penner's work as mentioned on the disclaimer)
 
-		/**
+        /**
 		 * Easing equation function for a simple linear tweening, with no easing.
 		 *
 		 * @param t		Current time (in seconds).
@@ -50,9 +49,9 @@
             double t; double b; double c; double d;
             t = args[0]; b = args[1]; c = args[2]; d = args[3];
             return c * t / d + b;
-		}
-	
-		/**
+        }
+
+        /**
 		 * Easing equation function for a quadratic (t^2) easing in: accelerating from zero velocity.
 		 *
 		 * @param t		Current time (in seconds).
@@ -66,7 +65,7 @@
             double t; double b; double c; double d;
             t = args[0]; b = args[1]; c = args[2]; d = args[3];
             return c * (t /= d) * t + b;
-		}
+        }
 
         /**
          * Easing equation function for a quadratic (t^2) easing out: decelerating to zero velocity.
@@ -793,6 +792,6 @@
             if (t < d / 2) return EaseOutBounce(t * 2, b, c / 2, d);
             return EaseInBounce((t * 2) - d, b + c / 2, c / 2, d);
         }
-	
-	}
+
+    }
 }
