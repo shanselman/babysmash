@@ -1,0 +1,21 @@
+﻿{
+	"Circle": "Kreis",
+	"Oval": "Oval",
+	"Rectangle": "Rechteck",
+	"Hexagon": "Sechseck",
+	"Trapezoid": "Trapez",
+	"Star": "Stern",
+	"Square": "Viereck",
+	"Triangle": "Dreieck",
+	"Heart": "Herz",
+
+	"Red": "Rotes",
+	"Blue": "Blaues",
+	"Yellow": "Gelbes",
+	"Green": "Grünes",
+	"Purple": "Lilanes",
+	"Pink": "Pinkes",
+	"Orange": "Oranges",
+	"Tan": "Braunes",
+	"Gray": "Graues"
+}
