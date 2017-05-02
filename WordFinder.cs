@@ -23,14 +23,14 @@ namespace BabySmash
         public WordFinder(string wordsFilePath)
         {
             // File path provided should be relative to our running location, so combine for full path safety.
-            string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string dir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             wordsFilePath = Path.Combine(dir, wordsFilePath);
 
             // Bail if the source word file is not found.
             if (!File.Exists(wordsFilePath))
             {
-                // Source word file was not found; place a 'words.txt' file next to BabySmash.exe to enable combining 
-                // letters into typed words. Some common names may work too (but successful OS speech synth may vary).
+                //Create the file for the user so they can start adding their own words
+                System.IO.File.Create(wordsFilePath);
                 return;
             }
 
