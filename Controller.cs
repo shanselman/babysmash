@@ -127,6 +127,7 @@ namespace BabySmash
                     Width = s.WorkingArea.Width,
                     Height = s.WorkingArea.Height,
                     WindowStyle = WindowStyle.None,
+                    ResizeMode = ResizeMode.NoResize,
                     Topmost = true,
                     AllowsTransparency = Settings.Default.TransparentBackground,
                     Background = (Settings.Default.TransparentBackground ? new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)) : Brushes.WhiteSmoke),
