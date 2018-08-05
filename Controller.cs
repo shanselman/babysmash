@@ -324,7 +324,8 @@ namespace BabySmash
                     this.wordFinder.AnimateLettersIntoWord(figuresUserControlQueue[window.Name], lastWord);
                 }
 
-                SpeakString(lastWord);
+                PlaySound(template);
+                SpeakString(lastWord, 500);
             }
             else
             {
@@ -444,10 +445,10 @@ namespace BabySmash
             Win32Audio.PlayWavResource(Utils.GetRandomSoundFile());
         }
 
-        private void SpeakString(string s)
+        private void SpeakString(string s, int delayStart = 0)
         {
             ThreadedSpeak ts = new ThreadedSpeak(s);
-            ts.Speak();
+            ts.Speak(delayStart);
         }
 
         private class ThreadedSpeak
@@ -485,15 +486,16 @@ namespace BabySmash
                 SpeechSynth.Rate = -1;
                 SpeechSynth.Volume = 100;
             }
-            public void Speak()
+            public void Speak(int delayStart = 0)
             {
-                Thread oThread = new Thread(new ThreadStart(this.Start));
-                oThread.Start();
+                Thread oThread = new Thread(new ParameterizedThreadStart(this.Start));
+                oThread.Start(delayStart);
             }
-            private void Start()
+            private void Start(object delayStart)
             {
                 try
                 {
+                    Thread.Sleep((int)delayStart);
                     SpeechSynth.Speak(Word);
                 }
                 catch (Exception e)
