@@ -613,7 +613,12 @@ namespace BabySmash
             if (ellipsesQueue.Count > 30) //this is arbitrary
             {
                 Shape shapeToRemove = ellipsesQueue.Dequeue();
-                main.mouseDragCanvas.Children.Remove(shapeToRemove);
+
+                // Remove this shape from all connected monitors
+                foreach (MainWindow window in windows)
+                {
+                    window.mouseDragCanvas.Children.Remove(shapeToRemove);
+                }
             }
         }
 
