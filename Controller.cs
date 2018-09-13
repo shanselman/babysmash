@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Deployment.Application;
@@ -242,7 +242,10 @@ namespace BabySmash
         public static extern bool GetKeyboardState(byte[] lpKeyState);
 
         [DllImport("user32.dll")]
-        public static extern uint MapVirtualKey(uint uCode, MapType uMapType);
+        public static extern uint MapVirtualKeyEx(uint uCode, MapType uMapType, IntPtr dwhkl);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetKeyboardLayout(int idThread);
 
         private static char TryGetLetter(Key key)
         {
@@ -252,7 +255,8 @@ namespace BabySmash
             byte[] keyboardState = new byte[256];
             GetKeyboardState(keyboardState);
 
-            uint scanCode = MapVirtualKey((uint)virtualKey, MapType.MAPVK_VK_TO_VSC);
+            IntPtr hkl = GetKeyboardLayout(0);
+            uint scanCode = MapVirtualKeyEx((uint)virtualKey, MapType.MAPVK_VK_TO_VSC, hkl);
             StringBuilder stringBuilder = new StringBuilder(2);
 
             int result = ToUnicode((uint)virtualKey, scanCode, keyboardState, stringBuilder, stringBuilder.Capacity, 0);
