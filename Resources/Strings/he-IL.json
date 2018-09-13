@@ -1,0 +1,21 @@
+﻿{
+  "Circle": "עיגול",
+  "Oval": "אליפסה",
+  "Rectangle": "מלבן",
+  "Hexagon": "משושה",
+  "Trapezoid": "טרפז",
+  "Star": "כוכב",
+  "Square": "ריבוע",
+  "Triangle": "משולש",
+  "Heart": "לב",
+
+  "Red": "אדום",
+  "Blue": "כחול",
+  "Yellow": "צהוב",
+  "Green": "ירוק",
+  "Purple": "סגול",
+  "Pink": "וורוד",
+  "Orange": "כתום",
+  "Tan": "חום",
+  "Gray": "אפור"
+}
