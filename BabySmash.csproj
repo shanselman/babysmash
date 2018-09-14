@@ -260,7 +260,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="Resources\Strings\he-IL.json" />
+    <None Include="Resources\Strings\he-IL.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\Strings\ru-RU.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
