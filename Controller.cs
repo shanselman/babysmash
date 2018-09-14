@@ -403,7 +403,9 @@ namespace BabySmash
                 }
                 else
                 {
-                    SpeakString(GetLocalizedString(Utils.ColorToString(template.Color)) + " " + template.Name);
+                    string colorToSpeak = GetLocalizedString(Utils.ColorToString(template.Color));
+                    string colorAndShapeToSpeak = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture.TextInfo.IsRightToLeft ? $"{template.Name} {colorToSpeak}" : $"{colorToSpeak} {template.Name}";
+                    SpeakString(colorAndShapeToSpeak);
                 }
             }
         }
