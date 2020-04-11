@@ -70,6 +70,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Globalization\LvCultureHelper.cs" />
     <Compile Include="Shapes\BabySmashShape.cs" />
     <Compile Include="WordFinder.cs" />
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
