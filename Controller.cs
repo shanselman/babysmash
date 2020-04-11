@@ -25,7 +25,7 @@ namespace BabySmash
     using System.IO;
     using System.Speech.Synthesis;
     using System.Text;
-
+    using BabySmash.Globalization;
     using Newtonsoft.Json;
 
     public class Controller
@@ -399,7 +399,7 @@ namespace BabySmash
                 }
                 else
                 {
-                    SpeakString(GetLocalizedString(Utils.ColorToString(template.Color)) + " " + template.Name);
+                    SpeakString(GetLocalizedString(Utils.ColorToString(template.Color), template.Name) + " " + template.Name);
                 }
             }
         }
@@ -407,7 +407,7 @@ namespace BabySmash
         /// <summary>
         /// Returns <param name="key"></param> if value or culture is not found.
         /// </summary>
-        public static string GetLocalizedString(string key)
+        public static string GetLocalizedString(string key, string template = null)
         {
             CultureInfo keyboardLanguage = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture;
             string culture = keyboardLanguage.Name;
@@ -428,6 +428,11 @@ namespace BabySmash
                 Dictionary<string, object> config = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonConfig);
                 if (config.ContainsKey(key))
                 {
+                    if (keyboardLanguage.IsLatvian())
+                    {
+                        return LvCultureHelper.GenderizeTemplate(config[key].ToString(), template);
+                    }
+
                     return config[key].ToString();
                 }
             }

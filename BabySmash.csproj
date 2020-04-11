@@ -70,6 +70,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Globalization\LvCultureHelper.cs" />
     <Compile Include="Shapes\BabySmashShape.cs" />
     <Compile Include="WordFinder.cs" />
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -260,6 +261,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="Resources\Strings\lv-LV.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\Strings\ru-RU.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
