@@ -17,7 +17,7 @@
     <ManifestCertificateThumbprint>E4355A6B46BE61300D217B56C346651E03BEB47F</ManifestCertificateThumbprint>
     <ManifestKeyFile>private.pfx</ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <ApplicationIcon>App.ico</ApplicationIcon>
     <FileUpgradeFlags>
