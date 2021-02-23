@@ -1,5 +1,5 @@
-﻿using System;
-using System.Deployment.Application;
+using System;
+//using System.Deployment.Application;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
@@ -30,11 +30,11 @@ namespace BabySmash
         {
             base.OnActivated(e);
             Mouse.Capture(this, CaptureMode.SubTree);
-            if (ApplicationDeployment.IsNetworkDeployed)
-            {
-                versionLabel.Text = "Version " + ApplicationDeployment.CurrentDeployment.CurrentVersion;
-            }
-            else
+            //if (ApplicationDeployment.IsNetworkDeployed)
+            //{
+            //    versionLabel.Text = "Version " + ApplicationDeployment.CurrentDeployment.CurrentVersion;
+            //}
+            //else
                 versionLabel.Text = "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
