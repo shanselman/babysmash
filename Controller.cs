@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Deployment.Application;
@@ -46,7 +46,7 @@ namespace BabySmash
         private DispatcherTimer timer = new DispatcherTimer();
         private Queue<Shape> ellipsesQueue = new Queue<Shape>();
         private Dictionary<string, List<UserControl>> figuresUserControlQueue = new Dictionary<string, List<UserControl>>();
-        private ApplicationDeployment deployment = null;
+        //private ApplicationDeployment deployment = null;
         private WordFinder wordFinder = new WordFinder("Words.txt");
 
         /// <summary>Prevents a default instance of the Controller class from being created.</summary>
@@ -57,32 +57,32 @@ namespace BabySmash
             get { return instance; }
         }
 
-        void deployment_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
-        {
-            if (e.Error == null && e.UpdateAvailable)
-            {
-                try
-                {
-                    MainWindow w = this.windows[0];
-                    w.updateProgress.Value = 0;
-                    w.UpdateAvailableLabel.Visibility = Visibility.Visible;
+        //void deployment_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
+        //{
+        //    if (e.Error == null && e.UpdateAvailable)
+        //    {
+        //        try
+        //        {
+        //            MainWindow w = this.windows[0];
+        //            w.updateProgress.Value = 0;
+        //            w.UpdateAvailableLabel.Visibility = Visibility.Visible;
 
-                    deployment.UpdateAsync();
-                }
-                catch (InvalidOperationException ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                    MainWindow w = this.windows[0];
-                    w.UpdateAvailableLabel.Visibility = Visibility.Hidden;
-                }
-            }
-        }
+        //            deployment.UpdateAsync();
+        //        }
+        //        catch (InvalidOperationException ex)
+        //        {
+        //            Debug.WriteLine(ex.ToString());
+        //            MainWindow w = this.windows[0];
+        //            w.UpdateAvailableLabel.Visibility = Visibility.Hidden;
+        //        }
+        //    }
+        //}
 
-        void deployment_UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
-        {
-            MainWindow w = this.windows[0];
-            w.updateProgress.Value = e.ProgressPercentage;
-        }
+        //void deployment_UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
+        //{
+        //    MainWindow w = this.windows[0];
+        //    w.updateProgress.Value = e.ProgressPercentage;
+        //}
 
         void deployment_UpdateCompleted(object sender, AsyncCompletedEventArgs e)
         {
@@ -101,21 +101,21 @@ namespace BabySmash
             timer.Interval = new TimeSpan(0, 0, 1);
             int Number = 0;
 
-            if (ApplicationDeployment.IsNetworkDeployed)
-            {
-                deployment = ApplicationDeployment.CurrentDeployment;
-                deployment.UpdateCompleted += new System.ComponentModel.AsyncCompletedEventHandler(deployment_UpdateCompleted);
-                deployment.UpdateProgressChanged += deployment_UpdateProgressChanged;
-                deployment.CheckForUpdateCompleted += deployment_CheckForUpdateCompleted;
-                try
-                {
-                    deployment.CheckForUpdateAsync();
-                }
-                catch (InvalidOperationException e)
-                {
-                    Debug.WriteLine(e.ToString());
-                }
-            }
+            //if (ApplicationDeployment.IsNetworkDeployed)
+            //{
+            //    deployment = ApplicationDeployment.CurrentDeployment;
+            //    deployment.UpdateCompleted += new System.ComponentModel.AsyncCompletedEventHandler(deployment_UpdateCompleted);
+            //    deployment.UpdateProgressChanged += deployment_UpdateProgressChanged;
+            //    deployment.CheckForUpdateCompleted += deployment_CheckForUpdateCompleted;
+            //    try
+            //    {
+            //        deployment.CheckForUpdateAsync();
+            //    }
+            //    catch (InvalidOperationException e)
+            //    {
+            //        Debug.WriteLine(e.ToString());
+            //    }
+            //}
 
             foreach (WinForms.Screen s in WinForms.Screen.AllScreens)
             {
