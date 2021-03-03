@@ -1,0 +1,69 @@
+2021-03-03 12:13:47.730 -08:00 [INF] MSBuild registered from C:\Program Files\dotnet\sdk\5.0.103\
+2021-03-03 12:13:47.844 -08:00 [INF] Registered 1 extensions:
+	Default extension
+2021-03-03 12:13:52.472 -08:00 [INF] Initializing migration step Select an entrypoint
+2021-03-03 12:13:52.477 -08:00 [INF] Setting entrypoint to only project in solution: C:\Users\cathys\source\repos\babysmash\BabySmash.csproj
+2021-03-03 12:13:52.481 -08:00 [INF] Initializing migration step Select project to upgrade
+2021-03-03 12:13:52.484 -08:00 [INF] Setting only project in solution as the current project: C:\Users\cathys\source\repos\babysmash\BabySmash.csproj
+2021-03-03 12:13:52.488 -08:00 [INF] Initializing migration step Backup project
+2021-03-03 12:13:54.922 -08:00 [INF] Skipping migration step Backup project
+2021-03-03 12:13:54.924 -08:00 [INF] Migration step Backup project skipped
+2021-03-03 12:13:55.541 -08:00 [INF] Initializing migration step Convert project file to SDK style
+2021-03-03 12:13:56.691 -08:00 [INF] Applying migration step Convert project file to SDK style
+2021-03-03 12:13:56.696 -08:00 [INF] Converting project file format with try-convert
+2021-03-03 12:14:04.166 -08:00 [INF] [try-convert] Conversion complete!
+2021-03-03 12:14:05.175 -08:00 [INF] Project file converted successfully! The project may require additional changes to build successfully against the new .NET target.
+2021-03-03 12:14:11.460 -08:00 [INF] [dotnet-restore]   Determining projects to restore...
+2021-03-03 12:14:12.634 -08:00 [INF] [dotnet-restore] C:\Users\cathys\source\repos\babysmash\BabySmash.csproj : error NU1202: Package System.Data.DataSetExtensions 4.5.0 is not compatible with net35 (.NETFramework,Version=v3.5). Package System.Data.DataSetExtensions 4.5.0 supports:
+2021-03-03 12:14:12.637 -08:00 [INF] [dotnet-restore] C:\Users\cathys\source\repos\babysmash\BabySmash.csproj : error NU1202:   - net45 (.NETFramework,Version=v4.5)
+2021-03-03 12:14:12.649 -08:00 [INF] [dotnet-restore] C:\Users\cathys\source\repos\babysmash\BabySmash.csproj : error NU1202:   - netstandard2.0 (.NETStandard,Version=v2.0)
+2021-03-03 12:14:12.665 -08:00 [INF] [dotnet-restore] C:\Users\cathys\source\repos\babysmash\BabySmash.csproj : error NU1202: Package System.Data.DataSetExtensions 4.5.0 is not compatible with net35 (.NETFramework,Version=v3.5) / win7-x86. Package System.Data.DataSetExtensions 4.5.0 supports:
+2021-03-03 12:14:12.689 -08:00 [INF] [dotnet-restore] C:\Users\cathys\source\repos\babysmash\BabySmash.csproj : error NU1202:   - net45 (.NETFramework,Version=v4.5)
+2021-03-03 12:14:12.694 -08:00 [INF] [dotnet-restore] C:\Users\cathys\source\repos\babysmash\BabySmash.csproj : error NU1202:   - netstandard2.0 (.NETStandard,Version=v2.0)
+2021-03-03 12:14:12.758 -08:00 [INF] [dotnet-restore]   Failed to restore C:\Users\cathys\source\repos\babysmash\BabySmash.csproj (in 565 ms).
+2021-03-03 12:14:12.944 -08:00 [ERR] [dotnet-restore] Exited with non-success code: 1
+2021-03-03 12:14:14.262 -08:00 [INF] Migration step Convert project file to SDK style applied successfully
+2021-03-03 12:14:14.422 -08:00 [INF] Initializing migration step Update TFM
+2021-03-03 12:14:14.945 -08:00 [INF] Applying migration step Update TFM
+2021-03-03 12:14:22.013 -08:00 [INF] [dotnet-restore]   Determining projects to restore...
+2021-03-03 12:14:25.782 -08:00 [INF] [dotnet-restore]   Restored C:\Users\cathys\source\repos\babysmash\BabySmash.csproj (in 2.62 sec).
+2021-03-03 12:14:27.633 -08:00 [INF] Migration step Update TFM applied successfully
+2021-03-03 12:15:09.549 -08:00 [INF] Initializing migration step Update NuGet packages
+2021-03-03 12:15:13.472 -08:00 [INF] [dotnet-restore]   Determining projects to restore...
+2021-03-03 12:15:14.424 -08:00 [INF] [dotnet-restore]   All projects are up-to-date for restore.
+2021-03-03 12:15:16.980 -08:00 [INF] Reference to .NET Upgrade Assistant analyzer package (Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers, version 0.2.211942) needs added
+2021-03-03 12:15:17.924 -08:00 [INF] Adding Microsoft.Windows.Compatibility 5.0.2
+2021-03-03 12:15:17.928 -08:00 [INF] Packages to be addded:
+Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers, Version=0.2.211942
+Microsoft.Windows.Compatibility, Version=5.0.2
+2021-03-03 12:15:36.305 -08:00 [INF] Applying migration step Update NuGet packages
+2021-03-03 12:15:36.387 -08:00 [INF] Adding package reference: Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers, Version=0.2.211942
+2021-03-03 12:15:36.402 -08:00 [INF] Adding package reference: Microsoft.Windows.Compatibility, Version=5.0.2
+2021-03-03 12:15:41.300 -08:00 [INF] [dotnet-restore]   Determining projects to restore...
+2021-03-03 12:15:45.168 -08:00 [INF] [dotnet-restore]   Restored C:\Users\cathys\source\repos\babysmash\BabySmash.csproj (in 2.78 sec).
+2021-03-03 12:15:50.929 -08:00 [INF] Marking package System.Data.DataSetExtensions for removal because it appears to be a transitive dependency
+2021-03-03 12:15:51.654 -08:00 [INF] Removing outdated package reference: System.Data.DataSetExtensions, Version=4.5.0
+2021-03-03 12:16:00.780 -08:00 [INF] [dotnet-restore]   Determining projects to restore...
+2021-03-03 12:16:05.797 -08:00 [INF] [dotnet-restore]   Restored C:\Users\cathys\source\repos\babysmash\BabySmash.csproj (in 3.36 sec).
+2021-03-03 12:16:08.261 -08:00 [INF] Migration step Update NuGet packages applied successfully
+2021-03-03 12:16:10.523 -08:00 [INF] Initializing migration step Add template files
+2021-03-03 12:16:10.613 -08:00 [INF] 0 expected template items needed
+2021-03-03 12:16:10.617 -08:00 [INF] Initializing migration step Migrate app config files
+2021-03-03 12:16:10.695 -08:00 [INF] Found 0 app settings for migration: 
+2021-03-03 12:16:10.706 -08:00 [INF] system.diagnostics is not supported in .NET 5. See https://github.com/dotnet/runtime/issues/23937 for details. For now, it will be disabled.
+2021-03-03 12:16:10.752 -08:00 [INF] 0 web page namespace imports need migrated: 
+2021-03-03 12:16:11.770 -08:00 [INF] Applying migration step Disable unsupported configuration sections
+2021-03-03 12:16:11.781 -08:00 [INF] system.diagnostics is not supported in .NET 5. See https://github.com/dotnet/runtime/issues/23937 for details. For now, it will be disabled.
+2021-03-03 12:16:11.797 -08:00 [INF] Configuration file C:\Users\cathys\source\repos\babysmash\app.config has been updated
+2021-03-03 12:16:11.860 -08:00 [INF] Migration step Disable unsupported configuration sections applied successfully
+2021-03-03 12:16:11.865 -08:00 [INF] Applying migration step Migrate app config files
+2021-03-03 12:16:11.872 -08:00 [INF] Migration step Migrate app config files applied successfully
+2021-03-03 12:16:13.008 -08:00 [INF] Initializing migration step Update C# source
+2021-03-03 12:16:20.730 -08:00 [INF] Initializing migration step Move to next project
+2021-03-03 12:16:21.425 -08:00 [INF] Applying migration step Move to next project
+2021-03-03 12:16:21.429 -08:00 [INF] Migration step Move to next project applied successfully
+2021-03-03 12:16:22.264 -08:00 [INF] Initializing migration step Complete Solution
+2021-03-03 12:16:23.463 -08:00 [INF] Applying migration step Complete Solution
+2021-03-03 12:16:23.466 -08:00 [INF] Migration step Complete Solution applied successfully
+2021-03-03 12:16:24.083 -08:00 [INF] Migration has completed. Please review any changes.
+2021-03-03 12:16:24.087 -08:00 [INF] Saving migration progress file at C:\Users\cathys\source\repos\babysmash\.upgrade-assistant
