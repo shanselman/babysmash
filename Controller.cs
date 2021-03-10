@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Deployment.Application;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -46,7 +45,6 @@ namespace BabySmash
         private DispatcherTimer timer = new DispatcherTimer();
         private Queue<Shape> ellipsesQueue = new Queue<Shape>();
         private Dictionary<string, List<UserControl>> figuresUserControlQueue = new Dictionary<string, List<UserControl>>();
-        private ApplicationDeployment deployment = null;
         private WordFinder wordFinder = new WordFinder("Words.txt");
 
         /// <summary>Prevents a default instance of the Controller class from being created.</summary>
@@ -55,33 +53,6 @@ namespace BabySmash
         public static Controller Instance
         {
             get { return instance; }
-        }
-
-        void deployment_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
-        {
-            if (e.Error == null && e.UpdateAvailable)
-            {
-                try
-                {
-                    MainWindow w = this.windows[0];
-                    w.updateProgress.Value = 0;
-                    w.UpdateAvailableLabel.Visibility = Visibility.Visible;
-
-                    deployment.UpdateAsync();
-                }
-                catch (InvalidOperationException ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                    MainWindow w = this.windows[0];
-                    w.UpdateAvailableLabel.Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
-        void deployment_UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
-        {
-            MainWindow w = this.windows[0];
-            w.updateProgress.Value = e.ProgressPercentage;
         }
 
         void deployment_UpdateCompleted(object sender, AsyncCompletedEventArgs e)
@@ -100,22 +71,6 @@ namespace BabySmash
             timer.Tick += new EventHandler(timer_Tick);
             timer.Interval = new TimeSpan(0, 0, 1);
             int Number = 0;
-
-            if (ApplicationDeployment.IsNetworkDeployed)
-            {
-                deployment = ApplicationDeployment.CurrentDeployment;
-                deployment.UpdateCompleted += new System.ComponentModel.AsyncCompletedEventHandler(deployment_UpdateCompleted);
-                deployment.UpdateProgressChanged += deployment_UpdateProgressChanged;
-                deployment.CheckForUpdateCompleted += deployment_CheckForUpdateCompleted;
-                try
-                {
-                    deployment.CheckForUpdateAsync();
-                }
-                catch (InvalidOperationException e)
-                {
-                    Debug.WriteLine(e.ToString());
-                }
-            }
 
             foreach (WinForms.Screen s in WinForms.Screen.AllScreens)
             {
@@ -152,14 +107,6 @@ namespace BabySmash
             string[] args = Environment.GetCommandLineArgs();
             string ext = System.IO.Path.GetExtension(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
 
-            if (ApplicationDeployment.IsNetworkDeployed && (ApplicationDeployment.CurrentDeployment.IsFirstRun || ApplicationDeployment.CurrentDeployment.UpdatedVersion != ApplicationDeployment.CurrentDeployment.CurrentVersion))
-            {
-                //if someone made us a screensaver, then don't show the options dialog.
-                if ((args != null && args[0] != "/s") && String.CompareOrdinal(ext, ".SCR") != 0)
-                {
-                    ShowOptionsDialog();
-                }
-            }
 #if !false
             timer.Start();
 #endif
