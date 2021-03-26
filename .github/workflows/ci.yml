@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         dotnet: [ '5.0.201', '5.0.x' ] # 5.0.201 is the latest at the time of commit, but 5.0.x will test the latest 5.0 iteration.
-        runtime: [ 'win-x64', 'win-x86', 'win10-x64', 'win10-x86' ]
+        runtime: [ 'win-x64', 'win-x86' ]
 
     steps:
     - uses: actions/checkout@v2
