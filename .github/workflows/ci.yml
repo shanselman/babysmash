@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        dotnet: [ '5.0.x' ]
+        dotnet: [ '5.0.201', '5.0.x' ] # 5.0.201 is the latest at the time of commit, but 5.0.x will test the latest 5.0 iteration.
 
     steps:
     - uses: actions/checkout@v2
