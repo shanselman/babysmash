@@ -105,7 +105,6 @@ namespace BabySmash
             Win32Audio.PlayWavResourceYield("EditedJackPlaysBabySmash.wav");
 
             string[] args = Environment.GetCommandLineArgs();
-            string ext = System.IO.Path.GetExtension(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
 
 #if !false
             timer.Start();
