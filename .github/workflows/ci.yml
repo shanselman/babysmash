@@ -25,7 +25,7 @@ jobs:
       run: dotnet build --no-restore
     
     - name: Publish
-      run: dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --output ./publish -p:PublishReadyToRun=true -p:PublishSingleFile=true --self-contained true -p:DebugType=None
+      run: dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --output ./publish -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --self-contained true -p:DebugType=None
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v2
