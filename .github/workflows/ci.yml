@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        dotnet: [ '5.0.201', '5.0.x' ] # 5.0.201 is the latest at the time of commit, but 5.0.x will test the latest 5.0 iteration.
+        dotnet: [ '5.0.x' ]
         runtime: [ 'win-x64', 'win-x86' ]
 
     steps:
@@ -25,4 +25,11 @@ jobs:
       run: dotnet build --no-restore
     
     - name: Publish
-      run: dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --output ./publish -p:PublishReadyToRun=true -p:PublishSingleFile=true --self-contained true -p:DebugType=None --no-build --no-restore
+      run: dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --output ./publish -p:PublishReadyToRun=true -p:PublishSingleFile=true --self-contained true -p:DebugType=None
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: BabySmash-${{ matrix.runtime }}-${{ matrix.dotnet }}
+        path: ./publish
+        if-no-files-found: error
