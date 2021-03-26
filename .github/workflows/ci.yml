@@ -1,4 +1,4 @@
-name: .NET
+name: Continuous Integration Pipeline
 
 on: [push, pull_request]
 

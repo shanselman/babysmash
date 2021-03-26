@@ -1,6 +1,16 @@
 BabySmash
 =========
 
+  - [Overview](#overview)
+  - [Enhancements](#enhancements)
+  - [AutoHotkey](#autohotkey)
+  - [Local Development](#local-development)
+    - [Prerequisites](#prerequisites)
+    - [Compile](#compile)
+    - [Debug](#debug)
+    - [Publish](#publish)
+  - [Custom Words](#custom-words)
+
 ## Overview
 The BabySmash game for small kids.  
 
@@ -29,3 +39,34 @@ Used in conjunction with a tool like AutoHotkey, you can essentially create a "b
 * Try out your new hotkey to make sure it works.  If not, go back to 'Edit This Script' and try again.
 
 For more advanced customization, see also: http://ahkscript.org/docs/Tutorial.htm
+
+## Local Development
+
+### Prerequisites
+
+- [.NET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
+
+### Compile
+
+The BabySmash solution can be built by running the .NET CLI command ```dotnet build``` in the root directory or alternatively via Visual Studio. 
+
+### Debug
+
+Developers can run the BabySmash code by running the .NET CLI command ```dotnet run``` in the root directory or alternatively via Visual Studio.
+
+### Publish
+
+Build artifacts are included in the [```Continuous Integration Pipeline``` GitHub Action](./.github/workflows/ci.yml). View the summary of a successful build in order to retrieve uploaded artifacts.
+
+In order to run a local publish run the following command from the root directory
+```
+dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --output ./publish -p:PublishReadyToRun=true -p:PublishSingleFile=true --self-contained true
+```
+
+If you encounter issues in a locally published BabySmash executable, there are logs published to the Windows Event Viewer under Windows Logs > Application.
+
+## Custom Words
+
+Along with any deployment of BabySmash.exe is a [```Words.txt``` file](./Words.txt). This file determines what combination of letters is constructed into words for the application smasher. Simply adjust the file by adding words on new lines to add to the library.
+
+There are additionally custom regional definitions in [./Resources/Strings/](./Resources/Strings/) which may be contributed to to adjust the words used for speaking shape and color names.
