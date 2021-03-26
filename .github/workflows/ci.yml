@@ -1,0 +1,35 @@
+name: Continuous Integration Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        dotnet: [ '5.0.x' ]
+        runtime: [ 'win-x64', 'win-x86' ]
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore
+    
+    - name: Publish
+      run: dotnet publish --configuration Release --runtime ${{ matrix.runtime }} --output ./publish -p:PublishReadyToRun=true -p:PublishSingleFile=true --self-contained true -p:DebugType=None
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: BabySmash-${{ matrix.runtime }}-${{ matrix.dotnet }}
+        path: ./publish
+        if-no-files-found: error
