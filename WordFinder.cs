@@ -23,7 +23,7 @@ namespace BabySmash
         public WordFinder(string wordsFilePath)
         {
             // File path provided should be relative to our running location, so combine for full path safety.
-            string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string dir = Path.GetDirectoryName(AppContext.BaseDirectory);
             wordsFilePath = Path.Combine(dir, wordsFilePath);
 
             // Bail if the source word file is not found.

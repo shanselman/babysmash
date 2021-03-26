@@ -29,13 +29,9 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Update="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Update="System.Core"/>
     <Reference Include="System.Speech" />
-    <Reference Update="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Update="System.Xml.Linq"/>
   </ItemGroup>
   <ItemGroup>
     <None Include="private.pfx" />
