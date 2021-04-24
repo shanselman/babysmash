@@ -61,7 +61,7 @@ namespace BabySmash
             group.Children[0].BeginAnimation(ScaleTransform.ScaleYProperty, ani1);
             group.Children[1].BeginAnimation(RotateTransform.AngleProperty, ani2);
 
-            if (Settings.Default.BitmapEffects)
+            if (Settings.Default.UseEffects)
             {
                 retVal.Effect = template.Effect.Clone();
             }
