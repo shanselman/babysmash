@@ -50,12 +50,12 @@ namespace BabySmash.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool BitmapEffects {
+        public bool UseEffects {
             get {
-                return ((bool)(this["BitmapEffects"]));
+                return ((bool)(this["UseEffects"]));
             }
             set {
-                this["BitmapEffects"] = value;
+                this["UseEffects"] = value;
             }
         }
         
@@ -152,6 +152,18 @@ namespace BabySmash.Properties {
             }
             set {
                 this["TransparentBackground"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MuteAllSounds {
+            get {
+                return ((bool)(this["MuteAllSounds"]));
+            }
+            set {
+                this["MuteAllSounds"] = value;
             }
         }
     }

@@ -147,7 +147,10 @@ namespace BabySmash
             windows[0].infoLabel.Visibility = Visibility.Visible;
 
             //Startup sound
-            Win32Audio.PlayWavResourceYield("EditedJackPlaysBabySmash.wav");
+            if (!Settings.Default.MuteAllSounds)
+            {
+                Win32Audio.PlayWavResourceYield("EditedJackPlaysBabySmash.wav");
+            }
 
             string[] args = Environment.GetCommandLineArgs();
             string ext = System.IO.Path.GetExtension(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
@@ -441,13 +444,19 @@ namespace BabySmash
 
         private void PlayLaughter()
         {
-            Win32Audio.PlayWavResource(Utils.GetRandomSoundFile());
+            if (!Settings.Default.MuteAllSounds)
+            {
+                Win32Audio.PlayWavResource(Utils.GetRandomSoundFile());
+            }
         }
 
         private void SpeakString(string s)
         {
-            ThreadedSpeak ts = new ThreadedSpeak(s);
-            ts.Speak();
+            if (!Settings.Default.MuteAllSounds)
+            {
+                ThreadedSpeak ts = new ThreadedSpeak(s);
+                ts.Speak();
+            }
         }
 
         private class ThreadedSpeak
@@ -547,18 +556,24 @@ namespace BabySmash
             isDrawing = true;
             main.CaptureMouse();
 
-            Win32Audio.PlayWavResource("smallbumblebee.wav");
+            if (!Settings.Default.MuteAllSounds)
+            {
+                Win32Audio.PlayWavResource("smallbumblebee.wav");
+            }
         }
 
         public void MouseWheel(MainWindow main, MouseWheelEventArgs e)
         {
-            if (e.Delta > 0)
+            if (!Settings.Default.MuteAllSounds)
             {
-                Win32Audio.PlayWavResourceYield("rising.wav");
-            }
-            else
-            {
-                Win32Audio.PlayWavResourceYield("falling.wav");
+                if (e.Delta > 0)
+                {
+                    Win32Audio.PlayWavResourceYield("rising.wav");
+                }
+                else
+                {
+                    Win32Audio.PlayWavResourceYield("falling.wav");
+                }
             }
         }
 
@@ -607,7 +622,7 @@ namespace BabySmash
             Canvas.SetLeft(shape, p.X - 25);
             Canvas.SetTop(shape, p.Y - 25);
 
-            if (Settings.Default.MouseDraw)
+            if (Settings.Default.MouseDraw && !Settings.Default.MuteAllSounds)
                 Win32Audio.PlayWavResourceYield("smallbumblebee.wav");
 
             if (ellipsesQueue.Count > 30) //this is arbitrary

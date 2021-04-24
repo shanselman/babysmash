@@ -8,7 +8,7 @@
     <Setting Name="FadeAway" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="BitmapEffects" Type="System.Boolean" Scope="User">
+    <Setting Name="UseEffects" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="ClearAfter" Type="System.Int32" Scope="User">
@@ -33,6 +33,9 @@
       <Value Profile="(Default)">Arial</Value>
     </Setting>
     <Setting Name="TransparentBackground" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="MuteAllSounds" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
