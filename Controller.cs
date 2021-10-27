@@ -400,10 +400,11 @@ namespace BabySmash
         {
             private string Word = null;
             SpeechSynthesizer SpeechSynth = new SpeechSynthesizer();
+            CultureInfo keyboardLanguage;
             public ThreadedSpeak(string Word)
             {
                 this.Word = Word;
-                CultureInfo keyboardLanguage = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture;
+                keyboardLanguage = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture;
                 InstalledVoice neededVoice = this.SpeechSynth.GetInstalledVoices(keyboardLanguage).FirstOrDefault();
                 if (neededVoice == null)
                 {
@@ -440,7 +441,18 @@ namespace BabySmash
             {
                 try
                 {
-                    SpeechSynth.Speak(Word);
+                    if(Word.Length > 1)
+                    {
+                        SpeechSynth.Speak(Word);
+                    }
+                    else
+                    {
+                        //This ssml is needed for single letters to support better spelling in non-English languages.
+                        //E.g. without this, the Greek letter 'K' (Κάππα / Kappa) is spoken by the synth as 'Mr.' (Κύριος) as in 'Mr. Scott' (κ. Σκοτ)
+                        SpeechSynth.SpeakSsml($"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"{keyboardLanguage.Name}\">" +
+                            $"<say-as interpret-as=\"characters\">{Word}</say-as>" +
+                            $"</speak>");
+                    }
                 }
                 catch (Exception e)
                 {
