@@ -448,7 +448,7 @@ namespace BabySmash
                     else
                     {
                         //This ssml is needed for single letters to support better spelling in non-English languages.
-                        //E.g. without this, the Greek letter 'K' (Κάππα / Kappa) is spoken by the synth as 'Mr.' (Κύριος) as in 'Mr. Scott' (κ. Σκοτ)
+                        //E.g. without this, the Greek letter 'K' (ΞΞ¬Ο€Ο€Ξ± / Kappa) is spoken by the synth as 'Mr.' (ΞΟΟΞΉΞΏΟ‚) as in 'Mr. Scott' (ΞΊ. Ξ£ΞΊΞΏΟ„)
                         SpeechSynth.SpeakSsml($"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"{keyboardLanguage.Name}\">" +
                             $"<say-as interpret-as=\"characters\">{Word}</say-as>" +
                             $"</speak>");
