@@ -341,7 +341,7 @@ namespace BabySmash
             {
                 if (template.Letter != null && template.Letter.Length == 1 && Char.IsLetterOrDigit(template.Letter[0]))
                 {
-                    SpeakString(template.Letter);
+                    SpeakString(GetLocalizedString(template.Letter));
                 }
                 else
                 {

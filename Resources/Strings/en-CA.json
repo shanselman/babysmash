@@ -1,0 +1,23 @@
+﻿{
+	"Circle": "Circle",
+	"Oval": "Oval",
+	"Rectangle": "Rectangle",
+	"Hexagon": "Hexagon",
+	"Trapezoid": "Trapezoid",
+	"Star": "Star",
+	"Square": "Square",
+	"Triangle": "Triangle",
+	"Heart": "Heart",
+
+	"Red": "Red",
+	"Blue": "Blue",
+	"Yellow": "Yellow",
+	"Green": "Green",
+	"Purple": "Purple",
+	"Pink": "Pink",
+	"Orange": "Orange",
+	"Tan": "Tan",
+	"Gray": "Gray",
+
+	"Z": "Zed"
+}
