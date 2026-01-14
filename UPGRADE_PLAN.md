@@ -1,5 +1,25 @@
 # BabySmash! Upgrade Plan: .NET 3.5 → .NET 10
 
+## Current Status: ✅ Phases 1-5 Complete, Phase 8 Partial
+
+**Branch**: `copilot-upgrade`  
+**Latest Tag**: `v3.0.0`
+
+### Completed
+- ✅ Phase 1: SDK-style csproj
+- ✅ Phase 2: XAML compatibility (BitmapEffect still works, Luna removed not needed yet)
+- ✅ Phase 3: C# code updates (ClickOnce removed, type ambiguities fixed)
+- ✅ Phase 4: Resources embedded (Words.txt auto-extracts, JSON localization embedded)
+- ✅ Phase 5: Build & Test - **App runs!**
+- ✅ Phase 8 (partial): GitHub Actions CI - builds and creates releases
+
+### Remaining
+- ⏳ Phase 6: Updatum auto-update integration
+- ⏳ Phase 7: Azure Trusted Signing
+- ⏳ Phase 8: Add signing to GitHub Actions
+
+---
+
 ## Overview
 BabySmash! is an ~18-year-old WPF application targeting .NET Framework 3.5. This plan outlines the migration to .NET 10 with modern features including single-file deployment, auto-update via **Updatum**, and **Azure Trusted Signing**.
 
