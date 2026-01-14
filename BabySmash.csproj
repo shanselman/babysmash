@@ -36,7 +36,11 @@
     <!-- Suppress expected warnings -->
     <!-- WFO0003: Using Windows Forms in WPF app - intentional for Screen API -->
     <!-- IL3000: Assembly.Location in single-file - we handle this -->
-    <NoWarn>$(NoWarn);WFO0003;IL3000</NoWarn>
+    <!-- CA1416: Platform compatibility - this is a Windows-only WPF app -->
+    <NoWarn>$(NoWarn);WFO0003;IL3000;CA1416</NoWarn>
+    
+    <!-- Nullable - disable for legacy code migration -->
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <!-- Exclude old TFS build templates -->

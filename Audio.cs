@@ -64,7 +64,7 @@ namespace BabySmash
                 using (Stream strm = Assembly.GetExecutingAssembly().GetManifestResourceStream(strName))
                 {
                     var arrWav = new Byte[strm.Length];
-                    strm.Read(arrWav, 0, (int)strm.Length);
+                    strm.ReadExactly(arrWav, 0, (int)strm.Length);
                     cachedWavs.Add(wav, arrWav);
                     return arrWav;
                 }
