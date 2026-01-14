@@ -68,6 +68,7 @@ jobs:
           /p:AssemblyVersion=$env:ASSEMBLY_VERSION `
           /p:FileVersion=$env:ASSEMBLY_VERSION `
           /p:AssemblyInformationalVersion=$env:FULLVERSION `
+          /p:PublishReadyToRun=true `
           --self-contained
           
     - name: Prepare artifacts
