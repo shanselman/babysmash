@@ -1,0 +1,92 @@
+name: Build BabySmash
+
+on:
+  push:
+    branches: [ main, master, copilot-upgrade ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore BabySmash.csproj
+
+    - name: Build
+      run: dotnet build BabySmash.csproj -c Release --no-restore
+
+    - name: Publish x64
+      run: |
+        dotnet publish BabySmash.csproj `
+          -c Release `
+          -r win-x64 `
+          /p:DebugType=None `
+          /p:DebugSymbols=false `
+          --self-contained
+          
+    - name: Prepare artifacts
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Path artifacts -Force
+        
+        # Create ZIP with exe, config, and README
+        New-Item -ItemType Directory -Path "temp-x64" -Force
+        Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe" -Destination "temp-x64/"
+        Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.dll.config" -Destination "temp-x64/"
+        Copy-Item "README.md" -Destination "temp-x64/"
+        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-win-x64.zip"
+        
+        Remove-Item "temp-x64" -Recurse -Force
+                  
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: BabySmash-Release
+        path: artifacts/*.zip
+        
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: artifacts/*.zip
+        generate_release_notes: true
+        body: |
+          ## BabySmash! ${{ github.ref_name }}
+          
+          A game for babies who like to bang on the keyboard!
+          
+          ### 📦 Download
+          
+          | File | Platform |
+          |------|----------|
+          | `BabySmash-win-x64.zip` | Intel/AMD 64-bit Windows |
+          
+          **Self-contained** - Extract and run, no .NET installation required.
+          
+          ### ⌨️ Usage
+          - Press keys and watch shapes and letters appear!
+          - `Ctrl+Shift+Alt+O` - Options
+          - `Alt+F4` - Exit
+          
+          ---
+        append_body: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
