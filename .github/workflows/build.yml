@@ -30,6 +30,30 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore BabySmash.csproj
 
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v4
+      with:
+        versionSpec: '6.4.x'
+
+    - name: GitVersion
+      uses: gittools/actions/gitversion/execute@v4
+      id: gitversion
+
+    - name: Set version environment variables
+      shell: pwsh
+      run: |
+        $version = '${{ steps.gitversion.outputs.semVer }}'
+        $fullVersion = '${{ steps.gitversion.outputs.fullSemVer }}'
+        $assemblyVersion = "${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }}.${{ steps.gitversion.outputs.patch }}.0"
+
+        Write-Host "SemVer: $version"
+        Write-Host "FullSemVer: $fullVersion"
+        Write-Host "AssemblyVersion: $assemblyVersion"
+
+        echo "VERSION=$version" >> $env:GITHUB_ENV
+        echo "FULLVERSION=$fullVersion" >> $env:GITHUB_ENV
+        echo "ASSEMBLY_VERSION=$assemblyVersion" >> $env:GITHUB_ENV
+
     - name: Build
       run: dotnet build BabySmash.csproj -c Release --no-restore
 
@@ -40,19 +64,24 @@ jobs:
           -r win-x64 `
           /p:DebugType=None `
           /p:DebugSymbols=false `
+          /p:Version=$env:VERSION `
+          /p:AssemblyVersion=$env:ASSEMBLY_VERSION `
+          /p:FileVersion=$env:ASSEMBLY_VERSION `
+          /p:AssemblyInformationalVersion=$env:FULLVERSION `
           --self-contained
           
     - name: Prepare artifacts
       shell: pwsh
       run: |
         New-Item -ItemType Directory -Path artifacts -Force
+        $version = $env:VERSION
         
         # Create ZIP with exe, config, and README
         New-Item -ItemType Directory -Path "temp-x64" -Force
         Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe" -Destination "temp-x64/"
         Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.dll.config" -Destination "temp-x64/"
         Copy-Item "README.md" -Destination "temp-x64/"
-        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-win-x64.zip"
+        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-v$version-win-x64.zip"
         
         Remove-Item "temp-x64" -Recurse -Force
                   
