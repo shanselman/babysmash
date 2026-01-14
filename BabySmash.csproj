@@ -1,350 +1,71 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FB378E07-FDE4-4FC7-9210-68F80B561164}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationIcon>App.ico</ApplicationIcon>
     <RootNamespace>BabySmash</RootNamespace>
     <AssemblyName>BabySmash</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <ManifestCertificateThumbprint>E4355A6B46BE61300D217B56C346651E03BEB47F</ManifestCertificateThumbprint>
-    <ManifestKeyFile>private.pfx</ManifestKeyFile>
-    <GenerateManifests>true</GenerateManifests>
-    <SignManifests>true</SignManifests>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <ApplicationIcon>App.ico</ApplicationIcon>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
-    <TargetFrameworkProfile />
-    <PublishUrl>C:\Users\Scott\Desktop\babysmashWithEric\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>true</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <UpdateUrl>http://www.hanselman.com/BabySmash/</UpdateUrl>
-    <SupportUrl>http://feedback.babysmash.com</SupportUrl>
-    <ProductName>BabySmash!</ProductName>
-    <PublisherName>BabySmash</PublisherName>
-    <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>99</ApplicationRevision>
-    <ApplicationVersion>1.1.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <PublishWizardCompleted>true</PublishWizardCompleted>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
+    
+    <!-- Assembly Information -->
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
+    <Authors>Scott Hanselman</Authors>
+    <Company>Scott Hanselman</Company>
+    <Product>BabySmash!</Product>
+    <Description>A game for babies who like to bang on the keyboard</Description>
+    <Copyright>Copyright © 2008-2026 Scott Hanselman</Copyright>
+    
+    <!-- Publishing Options - Single-file self-contained -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    
+    <!-- Nullable and implicit usings -->
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    
+    <!-- Don't auto-generate assembly info - we have AssemblyInfo.cs -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    
+    <!-- Suppress expected warnings -->
+    <!-- WFO0003: Using Windows Forms in WPF app - intentional for Screen API -->
+    <!-- IL3000: Assembly.Location in single-file - we handle this -->
+    <NoWarn>$(NoWarn);WFO0003;IL3000</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
+  <!-- Exclude old TFS build templates -->
   <ItemGroup>
-    <Compile Include="Extensions\ObjectExtensions.cs" />
-    <Compile Include="Shapes\BabySmashShape.cs" />
-    <Compile Include="WordFinder.cs" />
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.9.0.1\lib\net35\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="PresentationFramework.Luna">
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Speech" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="UIAutomationProvider">
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase">
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="PresentationCore">
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="PresentationFramework">
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
-    <Page Include="Shapes\allShapes.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\CoolCircle.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\CoolHeart.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\CoolHexagon.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\CoolOval.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\CoolSquare.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\CoolStar.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\CoolTrapezoid.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\FunCursor1.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="Shapes\CoolCircle.xaml.cs">
-      <DependentUpon>CoolCircle.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\CoolHeart.xaml.cs">
-      <DependentUpon>CoolHeart.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\CoolHexagon.xaml.cs">
-      <DependentUpon>CoolHexagon.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\CoolOval.xaml.cs">
-      <DependentUpon>CoolOval.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\CoolSquare.xaml.cs">
-      <DependentUpon>CoolSquare.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\CoolStar.xaml.cs">
-      <DependentUpon>CoolStar.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\CoolTrapezoid.xaml.cs">
-      <DependentUpon>CoolTrapezoid.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\FunCursor1.xaml.cs">
-      <DependentUpon>FunCursor1.xaml</DependentUpon>
-    </Compile>
+    <None Remove="BuildProcessTemplates\**" />
+    <Page Remove="BuildProcessTemplates\**" />
+    <Compile Remove="BuildProcessTemplates\**" />
   </ItemGroup>
+
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Page Include="Shapes\CoolTriangle.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\CoolLetter.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Options.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\CoolRectangle.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Shapes\FunCursor2.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <!-- NuGet packages -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Speech" Version="9.0.0" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Audio.cs" />
-    <Compile Include="Controller.cs" />
-    <Compile Include="Shapes\AnimationBehaviors.cs" />
-    <Compile Include="Shapes\CoolTriangle.xaml.cs">
-      <DependentUpon>CoolTriangle.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\CoolLetter.xaml.cs">
-      <DependentUpon>CoolLetter.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="KeyboardHook.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Options.xaml.cs">
-      <DependentUpon>Options.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Settings.cs" />
-    <Compile Include="Shapes\Animation.cs" />
-    <Compile Include="Shapes\CoolRectangle.xaml.cs">
-      <DependentUpon>CoolRectangle.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\FunCursor2.xaml.cs">
-      <DependentUpon>FunCursor2.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Shapes\Figure.cs" />
-    <Compile Include="Shapes\FigureGenerator.cs" />
-    <Compile Include="Tweening\Equations.cs" />
-    <Compile Include="Tweening\TransitionType.cs" />
-    <Compile Include="Tweening\Tween.cs" />
-    <Compile Include="Utils.cs" />
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <None Include="app.config" />
-    <None Include="BabySmash_TemporaryKey.pfx" />
-    <None Include="packages.config" />
-    <None Include="private.pfx" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <AppDesigner Include="Properties\" />
-    <None Include="Resources\Strings\ru-RU.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\Strings\en-EN.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 4.5</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Sounds\babylaugh.wav" />
-    <EmbeddedResource Include="Resources\Sounds\giggle.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Sounds\babygigl2.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Sounds\laughingmice.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Sounds\ccgiggle.wav" />
-    <EmbeddedResource Include="Resources\Sounds\scooby2.wav" />
-  </ItemGroup>
-  <ItemGroup>
+    <!-- Embedded sound resources -->
+    <EmbeddedResource Include="Resources\Sounds\*.wav" />
     <EmbeddedResource Include="App.ico" />
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Sounds\smallbumblebee.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Sounds\falling.wav" />
-    <EmbeddedResource Include="Resources\Sounds\rising.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Sounds\EditedJackPlaysBabySmash.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\Voices\Female\" />
-    <Folder Include="Resources\Voices\Male\" />
-  </ItemGroup>
-  <ItemGroup>
+    <!-- Content files that copy to output -->
     <Content Include="Words.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\Strings\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <!-- THIS IS WHERE I ACTUALLY RELEASE IT TO PRODUCTION -->
-  <!--<Target Name="BeforePublish">
-    <Exec Command="&quot;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin\signtool.exe&quot; sign /f &quot;$(ProjectDir)\private.pfx&quot; /p PASSWORD /v &quot;$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)&quot;" />
-  </Target>-->
+
 </Project>

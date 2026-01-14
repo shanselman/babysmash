@@ -3,6 +3,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
+using FontFamily = System.Windows.Media.FontFamily;
+using Point = System.Windows.Point;
 using BabySmash.Properties;
 
 namespace BabySmash
@@ -37,10 +41,11 @@ namespace BabySmash
             var formattedText = new FormattedText(
                 character.ToString(),
                 CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
+                System.Windows.FlowDirection.LeftToRight,
                 typeface,
                 300,
-                Brushes.Black);
+                Brushes.Black,
+                1.0); // pixelsPerDip
             return formattedText.BuildGeometry(new Point(0, 0)).GetAsFrozen() as Geometry;
         }
 

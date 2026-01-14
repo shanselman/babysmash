@@ -7,6 +7,10 @@ using System.Windows.Media.Effects;
 using BrushControlFunc = System.Func<System.Windows.Media.Brush, System.Windows.Controls.UserControl>;
 using BabySmash.Properties;
 using BabySmash.Shapes;
+using Brush = System.Windows.Media.Brush;
+using Color = System.Windows.Media.Color;
+using Point = System.Windows.Point;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace BabySmash
 {

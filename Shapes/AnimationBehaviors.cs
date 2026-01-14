@@ -86,6 +86,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 using System.Collections.Generic;
 using System.Windows.Threading;
+using Point = System.Windows.Point;
 
 namespace AnimationBehaviors
 {

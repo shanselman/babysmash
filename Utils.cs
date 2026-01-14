@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
+using Brush = System.Windows.Media.Brush;
+using Color = System.Windows.Media.Color;
+using Point = System.Windows.Point;
 
 namespace BabySmash
 {

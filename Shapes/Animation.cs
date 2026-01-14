@@ -2,6 +2,7 @@
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
+using Point = System.Windows.Point;
 
 namespace BabySmash
 {

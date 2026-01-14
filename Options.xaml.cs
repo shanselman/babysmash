@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Deployment.Application;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using BabySmash.Properties;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 namespace BabySmash
 {
@@ -30,12 +30,8 @@ namespace BabySmash
         {
             base.OnActivated(e);
             Mouse.Capture(this, CaptureMode.SubTree);
-            if (ApplicationDeployment.IsNetworkDeployed)
-            {
-                versionLabel.Text = "Version " + ApplicationDeployment.CurrentDeployment.CurrentVersion;
-            }
-            else
-                versionLabel.Text = "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            // Get version from assembly
+            versionLabel.Text = "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "2.0.0";
         }
 
         protected override void OnDeactivated(EventArgs e)
@@ -65,7 +61,7 @@ namespace BabySmash
 
         private void FeedbackLink_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("http://feedback.babysmash.com");
+            Process.Start(new ProcessStartInfo("http://feedback.babysmash.com") { UseShellExecute = true });
         }
     }
 }

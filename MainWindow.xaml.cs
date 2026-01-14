@@ -2,6 +2,11 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Cursors = System.Windows.Input.Cursors;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using Point = System.Windows.Point;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace BabySmash
 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Deployment.Application;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -15,8 +14,15 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using BabySmash.Properties;
+using Application = System.Windows.Application;
+using Brushes = System.Windows.Media.Brushes;
+using Color = System.Windows.Media.Color;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using Point = System.Windows.Point;
+using SystemColors = System.Windows.SystemColors;
+using UserControl = System.Windows.Controls.UserControl;
 using WinForms = System.Windows.Forms;
 
 namespace BabySmash
@@ -46,7 +52,6 @@ namespace BabySmash
         private DispatcherTimer timer = new DispatcherTimer();
         private Queue<Shape> ellipsesQueue = new Queue<Shape>();
         private Dictionary<string, List<UserControl>> figuresUserControlQueue = new Dictionary<string, List<UserControl>>();
-        private ApplicationDeployment deployment = null;
         private WordFinder wordFinder = new WordFinder("Words.txt");
 
         /// <summary>Prevents a default instance of the Controller class from being created.</summary>
@@ -57,65 +62,13 @@ namespace BabySmash
             get { return instance; }
         }
 
-        void deployment_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
-        {
-            if (e.Error == null && e.UpdateAvailable)
-            {
-                try
-                {
-                    MainWindow w = this.windows[0];
-                    w.updateProgress.Value = 0;
-                    w.UpdateAvailableLabel.Visibility = Visibility.Visible;
-
-                    deployment.UpdateAsync();
-                }
-                catch (InvalidOperationException ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                    MainWindow w = this.windows[0];
-                    w.UpdateAvailableLabel.Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
-        void deployment_UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
-        {
-            MainWindow w = this.windows[0];
-            w.updateProgress.Value = e.ProgressPercentage;
-        }
-
-        void deployment_UpdateCompleted(object sender, AsyncCompletedEventArgs e)
-        {
-            if (e.Error != null)
-            {
-                Debug.WriteLine(e.ToString());
-                return;
-            }
-            MainWindow w = this.windows[0];
-            w.UpdateAvailableLabel.Visibility = Visibility.Hidden;
-        }
-
         public void Launch()
         {
             timer.Tick += new EventHandler(timer_Tick);
             timer.Interval = new TimeSpan(0, 0, 1);
             int Number = 0;
 
-            if (ApplicationDeployment.IsNetworkDeployed)
-            {
-                deployment = ApplicationDeployment.CurrentDeployment;
-                deployment.UpdateCompleted += new System.ComponentModel.AsyncCompletedEventHandler(deployment_UpdateCompleted);
-                deployment.UpdateProgressChanged += deployment_UpdateProgressChanged;
-                deployment.CheckForUpdateCompleted += deployment_CheckForUpdateCompleted;
-                try
-                {
-                    deployment.CheckForUpdateAsync();
-                }
-                catch (InvalidOperationException e)
-                {
-                    Debug.WriteLine(e.ToString());
-                }
-            }
+            // TODO: Updatum auto-update will be added here in Phase 6
 
             foreach (WinForms.Screen s in WinForms.Screen.AllScreens)
             {
@@ -150,19 +103,11 @@ namespace BabySmash
             Win32Audio.PlayWavResourceYield("EditedJackPlaysBabySmash.wav");
 
             string[] args = Environment.GetCommandLineArgs();
-            string ext = System.IO.Path.GetExtension(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
+            string ext = System.IO.Path.GetExtension(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
-            if (ApplicationDeployment.IsNetworkDeployed && (ApplicationDeployment.CurrentDeployment.IsFirstRun || ApplicationDeployment.CurrentDeployment.UpdatedVersion != ApplicationDeployment.CurrentDeployment.CurrentVersion))
-            {
-                //if someone made us a screensaver, then don't show the options dialog.
-                if ((args != null && args[0] != "/s") && String.CompareOrdinal(ext, ".SCR") != 0)
-                {
-                    ShowOptionsDialog();
-                }
-            }
-#if !false
+            // Show options on first run (will be enhanced with Updatum in Phase 6)
+            // For now, just start the timer
             timer.Start();
-#endif
         }
 
         void timer_Tick(object sender, EventArgs e)
