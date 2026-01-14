@@ -29,6 +29,7 @@ namespace BabySmash
 {
     using System.Globalization;
     using System.IO;
+    using System.Reflection;
     using System.Speech.Synthesis;
     using System.Text;
 
@@ -352,20 +353,20 @@ namespace BabySmash
         /// <summary>
         /// Returns <param name="key"></param> if value or culture is not found.
         /// </summary>
+        /// <summary>
+        /// Returns <param name="key"></param> if value or culture is not found.
+        /// Loads localization from embedded resources for single-file deployment.
+        /// </summary>
         public static string GetLocalizedString(string key)
         {
             CultureInfo keyboardLanguage = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture;
             string culture = keyboardLanguage.Name;
-            string path = $@"Resources\Strings\{culture}.json";
-            string path2 = @"Resources\Strings\en-EN.json";
-            string jsonConfig = null;
-            if (File.Exists(path))
+            
+            string jsonConfig = LoadEmbeddedLocalization(culture);
+            if (jsonConfig == null)
             {
-                jsonConfig = File.ReadAllText(path);
-            }
-            else if (File.Exists(path2))
-            {
-                jsonConfig = File.ReadAllText(path2);
+                // Fallback to English
+                jsonConfig = LoadEmbeddedLocalization("en-EN");
             }
 
             if (jsonConfig != null)
@@ -376,12 +377,32 @@ namespace BabySmash
                     return config[key].ToString();
                 }
             }
-            else
-            {
-                System.Diagnostics.Debug.Assert(false, "No file");
-            }
 
             return key;
+        }
+
+        /// <summary>
+        /// Loads a localization JSON file from embedded resources.
+        /// </summary>
+        private static string LoadEmbeddedLocalization(string culture)
+        {
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                // Resource name format: {Namespace}.Resources.Strings.{culture}.json
+                string resourceName = $"BabySmash.Resources.Strings.{culture}.json";
+                using var stream = assembly.GetManifestResourceStream(resourceName);
+                if (stream != null)
+                {
+                    using var reader = new StreamReader(stream);
+                    return reader.ReadToEnd();
+                }
+            }
+            catch
+            {
+                // Silently fail
+            }
+            return null;
         }
 
         private void PlayLaughter()

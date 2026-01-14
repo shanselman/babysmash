@@ -53,19 +53,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Embedded sound resources -->
+    <!-- All resources embedded for single-file deployment -->
     <EmbeddedResource Include="Resources\Sounds\*.wav" />
+    <EmbeddedResource Include="Resources\Strings\*.json" />
+    <EmbeddedResource Include="Words.txt" />
     <EmbeddedResource Include="App.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Content files that copy to output -->
-    <Content Include="Words.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="Resources\Strings\*.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

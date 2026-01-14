@@ -24,15 +24,19 @@ namespace BabySmash
 
         public WordFinder(string wordsFilePath)
         {
-            // File path provided should be relative to our running location, so combine for full path safety.
-            string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            wordsFilePath = Path.Combine(dir, wordsFilePath);
+            // Get the directory where the exe is running
+            string exeDir = AppContext.BaseDirectory;
+            string fullPath = Path.Combine(exeDir, wordsFilePath);
 
-            // Bail if the source word file is not found.
-            if (!File.Exists(wordsFilePath))
+            // If Words.txt doesn't exist, extract the default from embedded resources
+            if (!File.Exists(fullPath))
             {
-                // Source word file was not found; place a 'words.txt' file next to BabySmash.exe to enable combining 
-                // letters into typed words. Some common names may work too (but successful OS speech synth may vary).
+                ExtractDefaultWordsFile(fullPath);
+            }
+
+            // Bail if still not found (extraction failed or no embedded resource)
+            if (!File.Exists(fullPath))
+            {
                 return;
             }
 
@@ -41,7 +45,7 @@ namespace BabySmash
             {
                 // Read through the word file and create a hashtable entry for each one with some 
                 // further parsed word data (such as various game scores, etc)
-                StreamReader sr = new StreamReader(wordsFilePath);
+                StreamReader sr = new StreamReader(fullPath);
                 string s = sr.ReadLine();
                 while (s != null)
                 {
@@ -62,6 +66,28 @@ namespace BabySmash
             });
             t.IsBackground = true;
             t.Start();
+        }
+
+        /// <summary>
+        /// Extracts the default Words.txt from embedded resources so users can customize it.
+        /// </summary>
+        private static void ExtractDefaultWordsFile(string targetPath)
+        {
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                // Resource name format: {DefaultNamespace}.{Filename}
+                using var stream = assembly.GetManifestResourceStream("BabySmash.Words.txt");
+                if (stream != null)
+                {
+                    using var fileStream = File.Create(targetPath);
+                    stream.CopyTo(fileStream);
+                }
+            }
+            catch
+            {
+                // Silently fail - words feature just won't be available
+            }
         }
 
         public string LastWord(List<UserControl> figuresQueue)
