@@ -124,14 +124,14 @@ jobs:
         New-Item -ItemType Directory -Path artifacts -Force
         $version = $env:VERSION
         
-        # Rename and copy installer
-        Copy-Item "Output/BabySmash-Setup.exe" -Destination "artifacts/BabySmash-v$version-Setup.exe"
+        # Copy installer with consistent name (for direct download links)
+        Copy-Item "Output/BabySmash-Setup.exe" -Destination "artifacts/BabySmash-Setup.exe"
         
         # Create portable ZIP with exe and README (Updatum needs 2+ files for portable app handling)
         New-Item -ItemType Directory -Path "temp-x64" -Force
         Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe" -Destination "temp-x64/"
         Copy-Item "README.md" -Destination "temp-x64/"
-        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-v$version-Portable.zip"
+        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-Portable.zip"
         
         Remove-Item "temp-x64" -Recurse -Force
                   
