@@ -42,7 +42,7 @@ namespace BabySmash
             _showFps = showFps;
             InitializeComponent();
 
-            // Initialize cursor early to prevent NullReferenceException in mouse events
+            // Initialize cursor early to prevent NullReferenceException in mouse events (OnMouseEnter, OnMouseLeave, OnMouseMove)
             AssertCursor();
 
             if (_showFps)
