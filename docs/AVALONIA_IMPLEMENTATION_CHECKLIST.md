@@ -1,6 +1,8 @@
-# Avalonia Port Implementation Checklist
+# Avalonia Port Implementation Checklist - Linux Focus
 
-This checklist tracks the implementation of the Avalonia port based on the [AVALONIA_PORT_PLAN.md](../AVALONIA_PORT_PLAN.md).
+This checklist tracks the implementation of the Avalonia port for **Linux** based on the [AVALONIA_PORT_PLAN.md](../AVALONIA_PORT_PLAN.md).
+
+**Scope**: Linux support via Avalonia while maintaining Windows WPF version
 
 ---
 
@@ -59,12 +61,12 @@ This checklist tracks the implementation of the Avalonia port based on the [AVAL
 
 ## Phase 2: Avalonia Project Bootstrap (1 week)
 
-**Goal**: Create basic Avalonia project structure
+**Goal**: Create basic Avalonia project structure for Linux
 
 ### Project Creation
-- [ ] Create `BabySmash.Avalonia` project using Avalonia template
+- [ ] Create `BabySmash.Linux` project using Avalonia template
 - [ ] Configure project to target `net10.0`
-- [ ] Set RuntimeIdentifiers: `win-x64;osx-x64;osx-arm64;linux-x64`
+- [ ] Set RuntimeIdentifiers: `linux-x64` (and optionally `linux-arm64` for Raspberry Pi)
 - [ ] Add project reference to `BabySmash.Core`
 
 ### NuGet Packages
@@ -77,24 +79,26 @@ This checklist tracks the implementation of the Avalonia port based on the [AVAL
 ### Basic App Structure
 - [ ] Create `App.axaml` and `App.axaml.cs`
 - [ ] Create `MainWindow.axaml` and `MainWindow.axaml.cs`
-- [ ] Setup dependency injection in `App.axaml.cs`
+- [ ] Setup dependency injection in `App.axaml.cs` for Linux services
 - [ ] Configure resource embedding
 
-### Platform Service Stubs
-- [ ] Create `Platform/Windows/` directory
-- [ ] Create `Platform/MacOS/` directory
-- [ ] Create `Platform/Linux/` directory
-- [ ] Create stub implementations for all services (return NotImplementedException)
+### Linux Service Stubs
+- [ ] Create `Platform/` directory
+- [ ] Create stub implementations for Linux services (return NotImplementedException)
+  - [ ] LinuxTtsService
+  - [ ] LinuxAudioService
+  - [ ] LinuxKeyboardHookService
+  - [ ] LinuxSettingsService
+  - [ ] LinuxScreenService
 
 ### Build Configuration
-- [ ] Configure single-file publishing for all platforms
-- [ ] Test build on Windows: `dotnet build`
-- [ ] Test publish for Windows: `dotnet publish -r win-x64`
-- [ ] (If on Mac) Test publish for macOS: `dotnet publish -r osx-x64`
-- [ ] (If on Linux) Test publish for Linux: `dotnet publish -r linux-x64`
+- [ ] Configure single-file publishing for Linux
+- [ ] Test build on Linux: `dotnet build`
+- [ ] Test publish for Linux x64: `dotnet publish -r linux-x64`
+- [ ] (Optional) Test publish for Linux ARM64: `dotnet publish -r linux-arm64`
 
 ### Verification
-- [ ] App launches and shows empty window
+- [ ] App launches on Linux and shows empty window
 - [ ] No build errors or warnings
 - [ ] Dependency injection works (services resolve correctly)
 
@@ -159,197 +163,160 @@ This checklist tracks the implementation of the Avalonia port based on the [AVAL
 
 **Goal**: Implement platform-specific services
 
-### Windows Platform Services
-- [ ] Implement `WindowsTtsService` using `System.Speech`
-- [ ] Implement `WindowsAudioService` using NAudio or existing P/Invoke
-- [ ] Implement `WindowsKeyboardHookService` using existing Win32 hooks
-- [ ] Test all services on Windows
+## Phase 4: Platform Services Implementation (2-3 weeks)
 
-### macOS Platform Services
-- [ ] Research macOS TTS options (AVSpeechSynthesizer or 'say' command)
-- [ ] Implement `MacOSTtsService`
-- [ ] Research macOS audio options (AVFoundation or NAudio)
-- [ ] Implement `MacOSAudioService`
-- [ ] Research macOS keyboard hooks (CGEventTap + Accessibility permissions)
-- [ ] Implement `MacOSKeyboardHookService`
-- [ ] Create permission request dialog for Accessibility
-- [ ] Test all services on macOS
+**Goal**: Implement Linux-specific services
 
 ### Linux Platform Services
 - [ ] Research Linux TTS options (espeak, speech-dispatcher)
 - [ ] Implement `LinuxTtsService`
+  - [ ] Test with espeak
+  - [ ] Test with speech-dispatcher
+  - [ ] Handle missing TTS gracefully
 - [ ] Research Linux audio options (ALSA, PulseAudio, NAudio)
 - [ ] Implement `LinuxAudioService`
+  - [ ] Test with NAudio
+  - [ ] Test with direct ALSA/PulseAudio
 - [ ] Research Linux keyboard hooks (X11 XGrabKeyboard, Wayland)
 - [ ] Implement `LinuxKeyboardHookService`
-- [ ] Handle permission requirements gracefully
-- [ ] Test all services on Linux (Ubuntu, Fedora, Arch)
+  - [ ] Implement X11 keyboard hooks
+  - [ ] Implement Wayland keyboard hooks (or fallback)
+  - [ ] Handle permission requirements gracefully
+- [ ] Test all services on major Linux distributions:
+  - [ ] Ubuntu 22.04+ (GNOME, X11 and Wayland)
+  - [ ] Fedora (GNOME, Wayland)
+  - [ ] Arch Linux (KDE, X11)
+  - [ ] Linux Mint (Cinnamon)
 
-### Cross-Platform Audio
-- [ ] Evaluate NAudio for cross-platform use
-- [ ] Test WAV playback on all platforms
+### Audio Playback
+- [ ] Test WAV playback on Linux
 - [ ] Ensure embedded resources load correctly
+- [ ] Verify audio works with PulseAudio
+- [ ] Verify audio works with ALSA
 
 ### Localization
-- [ ] Test TTS with multiple languages on each platform
-- [ ] Verify en-EN, ru-RU, pt-BR work on Windows
-- [ ] Verify localization on macOS
-- [ ] Verify localization on Linux
+- [ ] Test TTS with multiple languages on Linux
+- [ ] Verify en-EN, ru-RU, pt-BR work with espeak/speech-dispatcher
+- [ ] Handle missing language packs gracefully
 
 ### Settings Storage
-- [ ] Implement `JsonSettingsService` with platform-specific directories
-- [ ] Test settings persist across app restarts on all platforms
-- [ ] Test migration from WPF settings (Windows only)
+- [ ] Implement `JsonSettingsService` for Linux
+- [ ] Use `~/.config/babysmash/settings.json`
+- [ ] Test settings persist across app restarts on Linux
+- [ ] Handle missing directories gracefully
 
 ### Integration Testing
-- [ ] Test full workflow on Windows: keypress → shape → sound → speech
-- [ ] Test full workflow on macOS
-- [ ] Test full workflow on Linux
-- [ ] Test keyboard blocking (Alt+Tab, Win key, etc.) on each platform
+- [ ] Test full workflow on Linux: keypress → shape → sound → speech
+- [ ] Test keyboard blocking (Alt+Tab, Super key, etc.) on X11
+- [ ] Test keyboard blocking on Wayland
+- [ ] Test multi-monitor support on Linux
 
 ---
 
-## Phase 5: Auto-Update & Signing (2 weeks)
+## Phase 5: Auto-Update & Packaging (1-2 weeks)
 
-**Goal**: Implement auto-update and code signing
+**Goal**: Implement auto-update and Linux packaging
 
 ### Updatum Integration
-- [ ] Configure Updatum for multi-platform asset patterns
-- [ ] Update `App.axaml.cs` with platform-specific update logic
-- [ ] Test update check on all platforms
-- [ ] Test download and install on Windows
-- [ ] Test download and install on macOS
+- [ ] Configure Updatum for Linux asset patterns
+- [ ] Update `App.axaml.cs` with Linux update logic
+- [ ] Test update check on Linux
 - [ ] Test download and install on Linux
 
-### Code Signing - Windows
-- [ ] Verify Azure Trusted Signing works with Avalonia build
-- [ ] Test signed executable launches without SmartScreen warning
-
-### Code Signing - macOS
-- [ ] Enroll in Apple Developer Program ($99/year)
-- [ ] Create Developer ID Application certificate
-- [ ] Sign .app bundle with codesign
-- [ ] Notarize with Apple notarization service
-- [ ] Staple notarization ticket
-- [ ] Test signed app launches without warning
-- [ ] Test on macOS with Gatekeeper enabled
-
-### Code Signing - Linux
-- [ ] Determine if signing needed (AppImage, Flatpak)
-- [ ] Implement if beneficial
+### Linux Packaging
+- [ ] Create AppImage build process
+- [ ] Test AppImage on multiple distros
+- [ ] Create tarball (.tar.gz) distribution
+- [ ] (Optional) Create .deb package for Debian/Ubuntu
+- [ ] (Optional) Create .rpm package for Fedora/RHEL
+- [ ] (Optional) Create Flatpak manifest
+- [ ] (Optional) Create Snap package
 
 ### Testing
 - [ ] Test auto-update downloads new version
 - [ ] Test auto-update installs correctly
-- [ ] Verify signed apps launch without warnings
+- [ ] Verify packages work across distributions
 
 ---
 
-## Phase 6: GitHub Actions Multi-Platform Build (1 week)
+## Phase 6: GitHub Actions Linux Build (1 week)
 
-**Goal**: Automate builds for all platforms
+**Goal**: Automate Linux builds
 
 ### Workflow Setup
-- [ ] Create `.github/workflows/build-avalonia.yml`
-- [ ] Configure build matrix for platforms
-- [ ] Setup Windows build job (win-x64)
-- [ ] Setup macOS build job (osx-x64, osx-arm64)
-- [ ] Setup Linux build job (linux-x64)
-
-### Windows Build
-- [ ] Publish single-file executable
-- [ ] Sign with Azure Trusted Signing
-- [ ] Create ZIP with exe + README
-- [ ] Upload artifact
-
-### macOS Build
-- [ ] Publish for osx-x64 and osx-arm64
-- [ ] Create .app bundle
-- [ ] Sign with Apple Developer ID
-- [ ] Notarize with Apple
-- [ ] Create DMG installer
-- [ ] Upload artifacts
+- [ ] Create `.github/workflows/build-linux.yml` or extend existing workflow
+- [ ] Configure build matrix for Linux platforms
+- [ ] Setup Linux x64 build job
+- [ ] (Optional) Setup Linux ARM64 build job (for Raspberry Pi)
 
 ### Linux Build
 - [ ] Publish for linux-x64
-- [ ] Create AppImage (optional)
-- [ ] Create tarball
-- [ ] Upload artifact
+- [ ] Create AppImage
+- [ ] Create tarball (.tar.gz)
+- [ ] (Optional) Create .deb package
+- [ ] (Optional) Create .rpm package
+- [ ] Upload artifacts
 
 ### Release Creation
 - [ ] Configure release creation on tag push
 - [ ] Auto-generate release notes
-- [ ] Upload all platform artifacts
+- [ ] Upload Linux artifacts alongside Windows WPF artifacts
 - [ ] Test release workflow end-to-end
 
 ### Testing
 - [ ] Push test tag, verify builds trigger
-- [ ] Download artifacts, verify they work
-- [ ] Test auto-update finds new release
+- [ ] Download Linux artifacts, verify they work
+- [ ] Test auto-update finds new release from Linux
 
 ---
 
-## Phase 7: Testing & Polish (2 weeks)
+## Phase 7: Testing & Polish (1-2 weeks)
 
-**Goal**: Comprehensive testing and UX improvements
+**Goal**: Comprehensive testing on Linux and UX improvements
 
-### Functionality Testing - Windows
+### Functionality Testing - Windows (WPF - ensure no regressions)
+- [ ] WPF version still works (no regressions from Core extraction)
+- [ ] All existing features continue to function
+
+### Functionality Testing - Linux (Avalonia - new)
 - [ ] All shapes display correctly
 - [ ] Animations run smoothly (60 FPS)
 - [ ] Audio plays on keypress
-- [ ] Text-to-speech works
+- [ ] Text-to-speech works (espeak/speech-dispatcher)
 - [ ] Multi-monitor support
 - [ ] Options dialog saves settings
 - [ ] Auto-update works
 - [ ] Keyboard shortcuts work (Ctrl+Alt+Shift+O, Alt+F4)
-
-### Functionality Testing - macOS
-- [ ] All shapes display correctly
-- [ ] Animations run smoothly
-- [ ] Audio plays on keypress
-- [ ] Text-to-speech works (multiple languages)
-- [ ] Multi-monitor support
-- [ ] Options dialog saves settings
-- [ ] Auto-update works
-- [ ] Keyboard shortcuts work
-- [ ] Accessibility permissions requested correctly
-
-### Functionality Testing - Linux
-- [ ] All shapes display correctly
-- [ ] Animations run smoothly
-- [ ] Audio plays on keypress
-- [ ] Text-to-speech works (espeak)
-- [ ] Multi-monitor support (X11 and Wayland)
-- [ ] Options dialog saves settings
-- [ ] Auto-update works
-- [ ] Keyboard shortcuts work
+- [ ] Keyboard blocking works (Alt+Tab, Super key)
 
 ### Performance Testing
-- [ ] CPU usage < 5% when idle (all platforms)
-- [ ] CPU usage < 20% during rapid keypress (all platforms)
-- [ ] Memory usage < 200MB (all platforms)
-- [ ] Startup time < 2 seconds (all platforms)
+- [ ] CPU usage < 5% when idle on Linux
+- [ ] CPU usage < 20% during rapid keypress on Linux
+- [ ] Memory usage < 200MB on Linux
+- [ ] Startup time < 2 seconds on Linux
 - [ ] No lag during 10-minute keyboard mashing session
 
-### Platform-Specific Testing
-- [ ] Test on Windows 10, Windows 11
-- [ ] Test on macOS 12+ (Intel and Apple Silicon)
-- [ ] Test on Ubuntu 22.04+, Fedora, Arch Linux
-- [ ] Test with different window managers (GNOME, KDE, etc.)
+### Platform-Specific Testing on Linux
+- [ ] Test on Ubuntu 22.04+ (GNOME, X11 and Wayland)
+- [ ] Test on Fedora (GNOME, Wayland)
+- [ ] Test on Arch Linux (KDE, X11)
+- [ ] Test on Linux Mint (Cinnamon)
+- [ ] (Optional) Test on Raspberry Pi OS (ARM64)
+- [ ] Test with different window managers (GNOME, KDE, XFCE, etc.)
 
 ### UI Polish
-- [ ] Consistent look across platforms
-- [ ] Native window decorations where appropriate
-- [ ] Platform-appropriate icons
-- [ ] High DPI support on all platforms
+- [ ] Consistent look with Linux desktop themes
+- [ ] Native window decorations
+- [ ] Proper icon integration with Linux desktops
+- [ ] High DPI support on Linux
 
 ### Accessibility (Bonus)
 - [ ] Keyboard navigation works
-- [ ] Screen reader compatibility (test with NVDA on Windows)
+- [ ] Screen reader compatibility (test with Orca on Linux)
 
 ### Bug Fixes
-- [ ] Fix all critical bugs found during testing
-- [ ] Address performance issues
+- [ ] Fix all critical bugs found during Linux testing
+- [ ] Address performance issues on Linux
 - [ ] Polish rough edges
 
 ---
@@ -357,63 +324,62 @@ This checklist tracks the implementation of the Avalonia port based on the [AVAL
 ## Documentation & Release
 
 ### Documentation
-- [x] Planning document (AVALONIA_PORT_PLAN.md) - COMPLETED
-- [x] Architecture document (docs/AVALONIA_ARCHITECTURE.md) - COMPLETED
-- [x] Quick start guide (docs/AVALONIA_QUICKSTART.md) - COMPLETED
-- [ ] Update main README with Avalonia instructions
-- [ ] Add platform-specific installation guides
-- [ ] Create BUILDING_AVALONIA.md for contributors
-- [ ] Document known issues and workarounds
+- [x] Planning document (AVALONIA_PORT_PLAN.md) - UPDATED for Linux focus
+- [x] Architecture document (docs/AVALONIA_ARCHITECTURE.md) - UPDATED for Linux focus
+- [x] Quick start guide (docs/AVALONIA_QUICKSTART.md) - UPDATED for Linux focus
+- [ ] Update main README with Linux instructions
+- [ ] Add Linux-specific installation guide
+- [ ] Create BUILDING_LINUX.md for contributors
+- [ ] Document known issues and workarounds for Linux
 
 ### Release Preparation
-- [ ] Decide on version number (v5.0.0 for first Avalonia release?)
-- [ ] Write release notes
+- [ ] Decide on version number (v5.0.0 for first Linux release?)
+- [ ] Write release notes highlighting Linux support
 - [ ] Create changelog
 - [ ] Update all documentation links
 
 ### Community
-- [ ] Announce Avalonia port on blog/social media
-- [ ] Recruit platform testers (macOS, Linux users)
-- [ ] Open GitHub Discussions for feedback
-- [ ] Consider creating a Discord or Slack channel
+- [ ] Announce Linux port on blog/social media
+- [ ] Recruit Linux testers from community
+- [ ] Open GitHub Discussions for Linux user feedback
+- [ ] Engage with Linux-focused communities (r/linux, etc.)
 
 ---
 
 ## Post-Release
 
 ### Monitoring
-- [ ] Monitor GitHub issues for platform-specific bugs
-- [ ] Track download metrics per platform
+- [ ] Monitor GitHub issues for Linux-specific bugs
+- [ ] Track download metrics for Linux packages
 - [ ] Gather user feedback
 
 ### Iteration
-- [ ] Address high-priority bugs
-- [ ] Add requested features
-- [ ] Optimize performance based on feedback
+- [ ] Address high-priority Linux bugs
+- [ ] Add requested Linux-specific features
+- [ ] Optimize performance based on Linux user feedback
 
 ### Community Growth
-- [ ] Celebrate first macOS/Linux contributors
-- [ ] Highlight success stories
-- [ ] Consider additional platforms (mobile?)
+- [ ] Celebrate first Linux contributors
+- [ ] Highlight Linux user success stories
 
 ---
 
 ## Success Metrics
 
-- [ ] Avalonia app builds on all platforms without errors
-- [ ] All core features work on Windows, macOS, Linux
-- [ ] At least 10 downloads of non-Windows versions in first month
-- [ ] At least 1 community contribution (PR or detailed bug report)
-- [ ] Positive feedback from macOS/Linux users
-- [ ] No major regressions in WPF version
+- [ ] Linux version builds without errors
+- [ ] All core features work on Linux (Ubuntu, Fedora, Arch)
+- [ ] At least 10 downloads of Linux version in first month
+- [ ] At least 1 community contribution from Linux users (PR or detailed bug report)
+- [ ] Positive feedback from Linux community
+- [ ] No regressions in Windows WPF version
 
 ---
 
-**Implementation Timeline**: 3-4 months  
-**Estimated Effort**: ~200-300 developer hours  
-**Cost**: ~$120/year (Apple Developer Program)
+**Implementation Timeline**: 2-3 months  
+**Estimated Effort**: ~150-200 developer hours  
+**Cost**: ~$0/year (no code signing needed for Linux)
 
-**Status**: Planning Complete - Ready for Phase 1
+**Status**: Planning Updated for Linux Focus - Ready for Phase 1
 
 ---
 

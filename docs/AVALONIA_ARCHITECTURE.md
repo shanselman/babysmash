@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document details the technical architecture for the Avalonia port, focusing on the dual-codebase approach with maximum code sharing through the `BabySmash.Core` library.
+This document details the technical architecture for the Avalonia port to **Linux**, focusing on a dual-codebase approach with maximum code sharing through the `BabySmash.Core` library.
+
+**Target**: Linux support via Avalonia while maintaining Windows WPF version
 
 ---
 
@@ -11,49 +13,31 @@ This document details the technical architecture for the Avalonia port, focusing
 ```
 BabySmash/
 ├── BabySmash.sln
-├── BabySmash.WPF/                    (Existing Windows-only WPF app)
-│   ├── BabySmash.csproj
+├── BabySmash.csproj                  (Existing Windows WPF app - no changes)
 │   ├── App.xaml / App.xaml.cs
 │   ├── MainWindow.xaml / MainWindow.xaml.cs
 │   ├── Options.xaml / Options.xaml.cs
-│   ├── UpdateDialog.xaml / UpdateDialog.xaml.cs
-│   ├── DownloadProgressDialog.xaml / DownloadProgressDialog.xaml.cs
 │   ├── Shapes/                       (14 WPF UserControls)
 │   │   ├── CoolCircle.xaml
 │   │   ├── CoolSquare.xaml
 │   │   └── ...
-│   └── Platform/                     (Windows-specific implementations)
-│       ├── WindowsTtsService.cs
-│       ├── WindowsAudioService.cs
-│       ├── WindowsKeyboardHookService.cs
-│       └── WindowsSettingsService.cs
+│   └── Windows-specific code (System.Speech, keyboard hooks, etc.)
 │
-├── BabySmash.Avalonia/               (New cross-platform Avalonia app)
-│   ├── BabySmash.Avalonia.csproj
+├── BabySmash.Linux/                  (New Avalonia for Linux)
+│   ├── BabySmash.Linux.csproj
 │   ├── App.axaml / App.axaml.cs
 │   ├── MainWindow.axaml / MainWindow.axaml.cs
 │   ├── Options.axaml / Options.axaml.cs
-│   ├── UpdateDialog.axaml / UpdateDialog.axaml.cs
-│   ├── DownloadProgressDialog.axaml / DownloadProgressDialog.axaml.cs
-│   ├── Shapes/                       (14 Avalonia UserControls)
+│   ├── Shapes/                       (14 Avalonia UserControls ported from WPF)
 │   │   ├── CoolCircle.axaml
 │   │   ├── CoolSquare.axaml
 │   │   └── ...
-│   └── Platform/                     (Platform-specific implementations)
-│       ├── Windows/
-│       │   ├── WindowsTtsService.cs
-│       │   ├── WindowsAudioService.cs
-│       │   └── WindowsKeyboardHookService.cs
-│       ├── MacOS/
-│       │   ├── MacOSTtsService.cs
-│       │   ├── MacOSAudioService.cs
-│       │   └── MacOSKeyboardHookService.cs
-│       └── Linux/
-│           ├── LinuxTtsService.cs
-│           ├── LinuxAudioService.cs
-│           └── LinuxKeyboardHookService.cs
+│   └── Platform/                     (Linux-specific implementations)
+│       ├── LinuxTtsService.cs
+│       ├── LinuxAudioService.cs
+│       └── LinuxKeyboardHookService.cs
 │
-└── BabySmash.Core/                   (Shared .NET Standard 2.0 or .NET 6+ library)
+└── BabySmash.Core/                   (Shared .NET library)
     ├── BabySmash.Core.csproj
     ├── Interfaces/                   (Platform abstraction interfaces)
     │   ├── ITtsService.cs
@@ -73,9 +57,6 @@ BabySmash/
     ├── Extensions/
     │   ├── ColorExtensions.cs
     │   └── StringExtensions.cs
-    ├── ViewModels/                   (MVVM support for both platforms)
-    │   ├── MainWindowViewModel.cs
-    │   └── OptionsViewModel.cs
     └── Resources/
         ├── Sounds/                   (Embedded WAV files)
         ├── Strings/                  (Localization JSON)
@@ -128,8 +109,7 @@ namespace BabySmash.Core.Interfaces
 
 **Platform Implementations**:
 
-- **Windows** (`WindowsTtsService`): Uses `System.Speech.Synthesis.SpeechSynthesizer`
-- **macOS** (`MacOSTtsService`): Uses `AVFoundation.AVSpeechSynthesizer` via P/Invoke or Xamarin bindings
+- **Windows** (`WindowsTtsService`): Uses `System.Speech.Synthesis.SpeechSynthesizer` (existing WPF)
 - **Linux** (`LinuxTtsService`): Executes `espeak` or `speech-dispatcher` CLI
 
 #### IAudioService (Sound Playback)
@@ -158,10 +138,9 @@ namespace BabySmash.Core.Interfaces
 ```
 
 **Implementation Options**:
-- **NAudio** (Windows, Linux with ALSA/PulseAudio)
-- **System.Media.SoundPlayer** (.NET, limited but cross-platform)
-- **SkiaSharp.HarfBuzz** (via Avalonia, has audio capabilities)
-- **Platform-specific**: AVFoundation (macOS), ALSA (Linux)
+- **NAudio** (cross-platform with ALSA/PulseAudio backend for Linux)
+- **ALSA** (Linux direct audio)
+- **PulseAudio** (most common on modern Linux)
 
 #### IKeyboardHookService (Low-Level Keyboard Interception)
 
@@ -207,13 +186,11 @@ namespace BabySmash.Core.Interfaces
 ```
 
 **Platform Implementations**:
-- **Windows**: Win32 `SetWindowsHookEx` with `WH_KEYBOARD_LL`
-- **macOS**: `CGEventTap` (requires Accessibility permissions, code signing, and notarization)
-- **Linux**: X11 `XGrabKeyboard` or Wayland input capture
+- **Windows**: Win32 `SetWindowsHookEx` with `WH_KEYBOARD_LL` (existing WPF)
+- **Linux**: X11 `XGrabKeyboard` or Wayland input capture (new)
 
 **Permission Requirements**:
-- macOS: Must request Accessibility permissions, show instructions to user
-- Linux: May require running as root or specific user groups (input, uinput)
+- Linux: May require specific user groups (input, uinput) or running with appropriate permissions
 
 #### ISettingsService (Cross-Platform Settings Storage)
 
@@ -251,11 +228,10 @@ namespace BabySmash.Core.Interfaces
 ```
 
 **Implementation**:
-Use `System.Text.Json` to serialize settings to JSON file in platform-specific directory:
+Use `System.Text.Json` to serialize settings to JSON file:
 
-- Windows: `%APPDATA%\BabySmash\settings.json`
-- macOS: `~/Library/Application Support/BabySmash/settings.json`
-- Linux: `~/.config/babysmash/settings.json`
+- Windows: `%APPDATA%\BabySmash\settings.json` (WPF continues using existing approach)
+- Linux: `~/.config/babysmash/settings.json` (new Avalonia)
 
 #### IScreenService (Multi-Monitor Support)
 
@@ -288,8 +264,8 @@ namespace BabySmash.Core.Interfaces
 ```
 
 **Platform Implementations**:
-- **WPF**: `System.Windows.Forms.Screen.AllScreens`
-- **Avalonia**: `Avalonia.Platform.Screens.All`
+- **WPF**: `System.Windows.Forms.Screen.AllScreens` (existing, no changes)
+- **Avalonia**: `Avalonia.Platform.Screens.All` (Linux)
 
 ---
 

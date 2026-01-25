@@ -1,8 +1,8 @@
 # Avalonia Port - Quick Start Guide
 
-## For Developers Getting Started with the Avalonia Port
+## For Developers Getting Started with the Linux Port
 
-This guide helps developers quickly understand and contribute to the BabySmash Avalonia port.
+This guide helps developers quickly understand and contribute to the BabySmash Linux port using Avalonia.
 
 ---
 
@@ -14,9 +14,8 @@ This guide helps developers quickly understand and contribute to the BabySmash A
 - Code editor (Visual Studio 2022, VS Code, or Rider)
 
 ### Platform-Specific
-- **Windows**: Visual Studio 2022 with .NET desktop development workload
-- **macOS**: Xcode Command Line Tools (`xcode-select --install`)
-- **Linux**: `build-essential` package
+- **Windows**: Visual Studio 2022 with .NET desktop development workload (for WPF)
+- **Linux**: `build-essential` package, X11 or Wayland development libraries
 
 ---
 
@@ -32,15 +31,15 @@ cd babysmash
 ### 2. Build and Run (WPF - Windows Only)
 
 ```bash
-# Current WPF version (existing)
+# Current WPF version (existing) - Windows only
 dotnet run --project BabySmash.csproj
 ```
 
-### 3. Build and Run (Avalonia - Future Cross-Platform)
+### 3. Build and Run (Avalonia - Linux)
 
 ```bash
-# Avalonia version (after implementation)
-dotnet run --project BabySmash.Avalonia/BabySmash.Avalonia.csproj
+# Avalonia version (after implementation) - Linux
+dotnet run --project BabySmash.Linux/BabySmash.Linux.csproj
 ```
 
 ---
@@ -49,8 +48,8 @@ dotnet run --project BabySmash.Avalonia/BabySmash.Avalonia.csproj
 
 ```
 BabySmash/
-├── BabySmash.csproj           ← Current WPF project
-├── BabySmash.Avalonia/        ← Future Avalonia project
+├── BabySmash.csproj           ← Current WPF project (Windows - no changes)
+├── BabySmash.Linux/           ← Future Avalonia project (Linux)
 ├── BabySmash.Core/            ← Shared business logic
 ├── AVALONIA_PORT_PLAN.md      ← Comprehensive planning doc
 └── docs/
@@ -91,7 +90,7 @@ BabySmash/
 
 1. Create Avalonia app:
    ```bash
-   dotnet new avalonia.app -n BabySmash.Avalonia -f net10.0
+   dotnet new avalonia.app -n BabySmash.Linux -f net10.0
    ```
 
 2. Add reference to Core:
@@ -133,9 +132,9 @@ Avalonia (`MainWindow.axaml`):
 ```xml
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="BabySmash.Avalonia.MainWindow">
+        x:Class="BabySmash.Linux.MainWindow">
     <Grid>
-        <TextBlock Text="Hello Avalonia" />
+        <TextBlock Text="Hello Avalonia on Linux" />
     </Grid>
 </Window>
 ```
@@ -159,8 +158,9 @@ public interface ITtsService
 }
 ```
 
-**Windows Implementation** (`BabySmash.Avalonia/Platform/Windows/WindowsTtsService.cs`):
+**Windows Implementation** (WPF - existing, no changes needed):
 ```csharp
+// In existing WPF project - uses System.Speech
 public class WindowsTtsService : ITtsService
 {
     private readonly SpeechSynthesizer _synthesizer = new();
@@ -185,34 +185,7 @@ public class WindowsTtsService : ITtsService
 }
 ```
 
-**macOS Implementation** (`BabySmash.Avalonia/Platform/MacOS/MacOSTtsService.cs`):
-```csharp
-public class MacOSTtsService : ITtsService
-{
-    public void Speak(string text)
-    {
-        // Use AVSpeechSynthesizer or 'say' command
-        var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "say",
-                Arguments = $"\"{text}\"",
-                CreateNoWindow = true
-            }
-        };
-        process.Start();
-    }
-
-    public bool TrySetLanguage(CultureInfo culture)
-    {
-        // macOS 'say' command uses -v flag for voice selection
-        return true; // Simplified
-    }
-}
-```
-
-**Linux Implementation** (`BabySmash.Avalonia/Platform/Linux/LinuxTtsService.cs`):
+**Linux Implementation** (`BabySmash.Linux/Platform/LinuxTtsService.cs`):
 ```csharp
 public class LinuxTtsService : ITtsService
 {
@@ -225,7 +198,8 @@ public class LinuxTtsService : ITtsService
             {
                 FileName = "espeak",
                 Arguments = $"\"{text}\"",
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                UseShellExecute = false
             }
         };
         process.Start();
@@ -233,35 +207,28 @@ public class LinuxTtsService : ITtsService
 
     public bool TrySetLanguage(CultureInfo culture)
     {
-        // espeak uses -v flag for language
-        return true; // Simplified
+        // espeak uses -v flag for language (e.g., espeak -v en "text")
+        return true; // Simplified for example
     }
 }
 ```
 
 ### Dependency Injection Setup
 
-**App.axaml.cs**:
+**App.axaml.cs** (Linux Avalonia project):
 ```csharp
 public override void OnFrameworkInitializationCompleted()
 {
     var services = new ServiceCollection();
 
-    // Register platform-specific services
-    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-    {
-        services.AddSingleton<ITtsService, WindowsTtsService>();
-    }
-    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-    {
-        services.AddSingleton<ITtsService, MacOSTtsService>();
-    }
-    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-    {
-        services.AddSingleton<ITtsService, LinuxTtsService>();
-    }
+    // Register Linux-specific services
+    services.AddSingleton<ITtsService, LinuxTtsService>();
+    services.AddSingleton<IAudioService, LinuxAudioService>();
+    services.AddSingleton<IKeyboardHookService, LinuxKeyboardHookService>();
+    services.AddSingleton<ISettingsService, JsonSettingsService>();
+    services.AddSingleton<IScreenService, AvaloniaScreenService>();
 
-    // Register core services
+    // Register core services (shared)
     services.AddSingleton<GameController>();
     services.AddSingleton<WordFinder>();
 
@@ -288,31 +255,19 @@ public override void OnFrameworkInitializationCompleted()
 dotnet run --project BabySmash.csproj
 ```
 
-### Run Avalonia Version (Cross-Platform)
+### Run Linux Avalonia Version
 ```bash
-# Windows
-dotnet run --project BabySmash.Avalonia/BabySmash.Avalonia.csproj
-
-# macOS
-dotnet run --project BabySmash.Avalonia/BabySmash.Avalonia.csproj
-
 # Linux
-dotnet run --project BabySmash.Avalonia/BabySmash.Avalonia.csproj
+dotnet run --project BabySmash.Linux/BabySmash.Linux.csproj
 ```
 
 ### Build for Release
 ```bash
-# Windows x64
-dotnet publish BabySmash.Avalonia/BabySmash.Avalonia.csproj -c Release -r win-x64 --self-contained
-
-# macOS x64 (Intel)
-dotnet publish BabySmash.Avalonia/BabySmash.Avalonia.csproj -c Release -r osx-x64 --self-contained
-
-# macOS ARM64 (Apple Silicon)
-dotnet publish BabySmash.Avalonia/BabySmash.Avalonia.csproj -c Release -r osx-arm64 --self-contained
-
 # Linux x64
-dotnet publish BabySmash.Avalonia/BabySmash.Avalonia.csproj -c Release -r linux-x64 --self-contained
+dotnet publish BabySmash.Linux/BabySmash.Linux.csproj -c Release -r linux-x64 --self-contained
+
+# Linux ARM64 (optional, for Raspberry Pi)
+dotnet publish BabySmash.Linux/BabySmash.Linux.csproj -c Release -r linux-arm64 --self-contained
 ```
 
 ---
@@ -321,10 +276,10 @@ dotnet publish BabySmash.Avalonia/BabySmash.Avalonia.csproj -c Release -r linux-
 
 ### Adding a New Shape
 
-1. **Create Shape XAML** in `BabySmash.Avalonia/Shapes/`:
+1. **Create Shape XAML** in `BabySmash.Linux/Shapes/`:
    ```xml
    <UserControl xmlns="https://github.com/avaloniaui"
-                x:Class="BabySmash.Avalonia.Shapes.CoolDiamond">
+                x:Class="BabySmash.Linux.Shapes.CoolDiamond">
        <Polygon Points="50,0 100,50 50,100 0,50" Fill="{Binding Fill}" />
    </UserControl>
    ```
@@ -376,20 +331,17 @@ dotnet publish BabySmash.Avalonia/BabySmash.Avalonia.csproj -c Release -r linux-
 
 ## Debugging Tips
 
-### Windows
+### Windows (WPF)
 - Use Visual Studio 2022 debugger
 - Attach to process if needed
 - Check Event Viewer for crashes
-
-### macOS
-- Use VS Code with C# extension
-- Check Console.app for logs
-- Grant Accessibility permissions for keyboard hooks
 
 ### Linux
 - Use VS Code or Rider
 - Run with `AVALONIA_DEBUG=1` for verbose logging
 - Check `journalctl` for system logs
+- Test on both X11 and Wayland
+- For keyboard hooks, check permissions and user groups
 
 ---
 
@@ -397,14 +349,14 @@ dotnet publish BabySmash.Avalonia/BabySmash.Avalonia.csproj -c Release -r linux-
 
 ### Before Submitting a PR
 
-1. **Test on your platform** (Windows, macOS, or Linux)
+1. **Test on Linux** (your distribution)
 2. **Run existing tests**: `dotnet test` (when test project exists)
 3. **Check code style**: Follow existing patterns
 4. **Update documentation** if adding features
 
 ### PR Checklist
-- [ ] Code compiles on your platform
-- [ ] Feature tested manually
+- [ ] Code compiles on Linux
+- [ ] Feature tested manually on at least one Linux distro
 - [ ] No new warnings or errors
 - [ ] Documentation updated (if needed)
 
@@ -430,20 +382,20 @@ dotnet publish BabySmash.Avalonia/BabySmash.Avalonia.csproj -c Release -r linux-
 
 ## FAQ
 
-### Q: Why both WPF and Avalonia?
-**A**: WPF stays as the primary Windows version (mature, optimized). Avalonia enables macOS/Linux support without abandoning existing Windows users.
+### Q: Why only Linux and not macOS too?
+**A**: The current Windows WPF version is mature and optimized. The focus is specifically on bringing BabySmash to Linux users. macOS could be considered in the future if there's demand.
 
-### Q: Can I use Avalonia on Windows?
-**A**: Yes! Avalonia runs on Windows too. Both versions will be maintained.
+### Q: Can I use the Avalonia version on Windows?
+**A**: The Windows WPF version is the primary and recommended version for Windows. The Avalonia port is specifically for Linux.
 
-### Q: What about mobile (iOS/Android)?
-**A**: Future possibility with Avalonia, but not in initial scope.
+### Q: What about Raspberry Pi?
+**A**: Linux ARM64 support is planned, which would enable Raspberry Pi use (Pi 4 and newer with 64-bit OS).
 
-### Q: How do I test keyboard hooks on macOS?
-**A**: You'll need to grant Accessibility permissions: System Preferences → Security & Privacy → Privacy → Accessibility → Add BabySmash
+### Q: How do I test keyboard hooks on Linux?
+**A**: You may need to ensure your user is in the appropriate groups (e.g., `input`) or test with appropriate permissions. The implementation will vary between X11 and Wayland.
 
 ### Q: Where should I start contributing?
-**A**: Start with Phase 1 (extracting Core library) or porting simple XAML shapes.
+**A**: Start with Phase 1 (extracting Core library) or porting simple XAML shapes to Avalonia syntax.
 
 ---
 
