@@ -54,9 +54,11 @@ Output: `bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe`
 
 Originally developed by [Scott Hanselman](https://www.hanselman.com), based on AlphaBaby.
 
-- **v1-v2**: Original .NET Framework 3.5 version ([legacy-dotnet35 branch](https://github.com/shanselman/babysmash/tree/legacy-dotnet35))
+- **v1-v2**: Original .NET Framework 3.5 version
 - **v3.0**: Migrated to .NET 10, single-file deployment
 - **v4.0**: Added Updatum auto-updates, Azure code signing, new icon
+
+> **Looking for the original code?** The legacy .NET Framework 3.5 version is preserved in the [legacy-dotnet35](https://github.com/shanselman/babysmash/tree/legacy-dotnet35) branch.
 
 ## License
 
