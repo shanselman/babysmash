@@ -1,22 +1,27 @@
 # BabySmash! Upgrade Plan: .NET 3.5 → .NET 10
 
-## Current Status: ✅ Phases 1-5 Complete, Phase 8 Partial
+## Current Status: ✅ ALL PHASES COMPLETE
 
-**Branch**: `copilot-upgrade`  
-**Latest Tag**: `v3.0.0`
+**Latest Release**: `v3.9.9`
 
-### Completed
+### ✅ Completed
 - ✅ Phase 1: SDK-style csproj
-- ✅ Phase 2: XAML compatibility (BitmapEffect still works, Luna removed not needed yet)
-- ✅ Phase 3: C# code updates (ClickOnce removed, type ambiguities fixed)
-- ✅ Phase 4: Resources embedded (Words.txt auto-extracts, JSON localization embedded)
+- ✅ Phase 2: XAML compatibility
+- ✅ Phase 3: C# code updates (ClickOnce removed)
+- ✅ Phase 4: Resources embedded
 - ✅ Phase 5: Build & Test - **App runs!**
-- ✅ Phase 8 (partial): GitHub Actions CI - builds and creates releases
+- ✅ Phase 6: Updatum auto-update integration
+- ✅ Phase 7: Azure Trusted Signing
+- ✅ Phase 8: GitHub Actions CI/CD with Inno Setup installer
 
-### Remaining
-- ⏳ Phase 6: Updatum auto-update integration
-- ⏳ Phase 7: Azure Trusted Signing
-- ⏳ Phase 8: Add signing to GitHub Actions
+### ✅ Additional Improvements
+- ✅ 7 language locales (en-EN, ru-RU, de-DE, el-GR, lv-LV, pt-BR, pt-PT)
+- ✅ All open PRs processed and closed
+- ✅ DavidRieman fork improvements incorporated
+- ✅ Inno Setup installer with Start Menu shortcuts
+- ✅ Visual Effects auto-detection based on GPU tier
+- ✅ `--fps` command line flag for performance monitoring
+- ✅ babysmash.com website updated with direct download links
 
 ---
 
@@ -430,17 +435,17 @@ git push && git push --tags
 ---
 
 ## Success Criteria
-- [ ] Application compiles with `dotnet build`
-- [ ] Single executable produced (~20-50MB expected)
-- [ ] All shapes display correctly
-- [ ] Audio plays on keypress
-- [ ] Speech synthesis works
-- [ ] Options dialog functional
-- [ ] Multi-monitor support works
-- [ ] No runtime errors in normal usage
-- [ ] Updatum auto-update checks for new versions on startup
-- [ ] GitHub Actions builds and signs releases automatically
-- [ ] SmartScreen does NOT warn when running signed executable
+- [x] Application compiles with `dotnet build`
+- [x] Single executable produced (~68MB self-contained)
+- [x] All shapes display correctly
+- [x] Audio plays on keypress
+- [x] Speech synthesis works
+- [x] Options dialog functional
+- [x] Multi-monitor support works
+- [x] No runtime errors in normal usage
+- [x] Updatum auto-update checks for new versions on startup
+- [x] GitHub Actions builds and signs releases automatically
+- [x] SmartScreen does NOT warn when running signed executable
 
 ---
 
