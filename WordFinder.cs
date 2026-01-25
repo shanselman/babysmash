@@ -18,7 +18,8 @@ namespace BabySmash
     {
         private const int MinimumWordLength = 2, MaximumWordLength = 15;
 
-        private bool wordsReady;
+        // Use volatile to ensure thread-safe visibility across threads
+        private volatile bool wordsReady;
 
         private HashSet<string> words = new HashSet<string>();
 
@@ -45,18 +46,20 @@ namespace BabySmash
             {
                 // Read through the word file and create a hashtable entry for each one with some 
                 // further parsed word data (such as various game scores, etc)
-                StreamReader sr = new StreamReader(fullPath);
-                string s = sr.ReadLine();
-                while (s != null)
+                using (StreamReader sr = new StreamReader(fullPath))
                 {
-                    // Ignore invalid lines, comment lines, or words which are too short or too long.
-                    if (!s.Contains(";") && !s.Contains("/") && !s.Contains("\\") &&
-                        s.Length >= MinimumWordLength && s.Length <= MaximumWordLength)
+                    string s = sr.ReadLine();
+                    while (s != null)
                     {
-                        this.words.Add(s.ToUpper());
-                    }
+                        // Ignore invalid lines, comment lines, or words which are too short or too long.
+                        if (!s.Contains(";") && !s.Contains("/") && !s.Contains("\\") &&
+                            s.Length >= MinimumWordLength && s.Length <= MaximumWordLength)
+                        {
+                            this.words.Add(s.ToUpper());
+                        }
 
-                    s = sr.ReadLine();
+                        s = sr.ReadLine();
+                    }
                 }
 
                 // Store all words into separate buckets based on the last letter for faster compares.

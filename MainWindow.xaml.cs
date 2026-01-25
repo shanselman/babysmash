@@ -42,6 +42,9 @@ namespace BabySmash
             _showFps = showFps;
             InitializeComponent();
 
+            // Initialize cursor early to prevent NullReferenceException in mouse events
+            AssertCursor();
+
             if (_showFps)
             {
                 fpsLabel.Visibility = Visibility.Visible;
@@ -60,6 +63,15 @@ namespace BabySmash
                 _frameCount = 0;
                 _fpsStopwatch.Restart();
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (_showFps)
+            {
+                CompositionTarget.Rendering -= OnRendering;
+            }
+            base.OnClosed(e);
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)

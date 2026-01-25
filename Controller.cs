@@ -103,9 +103,6 @@ namespace BabySmash
             //Startup sound
             Win32Audio.PlayWavResourceYield("EditedJackPlaysBabySmash.wav");
 
-            string[] args = Environment.GetCommandLineArgs();
-            string ext = System.IO.Path.GetExtension(System.Reflection.Assembly.GetExecutingAssembly().Location);
-
             // Show options on first run (will be enhanced with Updatum in Phase 6)
             // For now, just start the timer
             timer.Start();
@@ -477,6 +474,10 @@ namespace BabySmash
                 catch (Exception e)
                 {
                     System.Diagnostics.Trace.WriteLine(e.ToString());
+                }
+                finally
+                {
+                    SpeechSynth?.Dispose();
                 }
             }
         }

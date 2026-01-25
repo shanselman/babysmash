@@ -66,6 +66,10 @@ namespace BabySmash
                 // get the resource into a stream
                 using (Stream strm = Assembly.GetExecutingAssembly().GetManifestResourceStream(strName))
                 {
+                    if (strm == null)
+                    {
+                        throw new InvalidOperationException($"WAV resource '{strName}' not found. Ensure the WAV file is included as an embedded resource.");
+                    }
                     var arrWav = new Byte[strm.Length];
                     strm.ReadExactly(arrWav, 0, (int)strm.Length);
                     cachedWavs.Add(wav, arrWav);

@@ -161,6 +161,8 @@ namespace BabySmash
             _singleInstanceMutex = new Mutex(true, "BabySmashSingleInstance", out createdNew);
             if (!createdNew)
             {
+                // Dispose mutex before shutting down to prevent abandonment
+                _singleInstanceMutex?.Dispose();
                 Shutdown();
                 return;
             }
