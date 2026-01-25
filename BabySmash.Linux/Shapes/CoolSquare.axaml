@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="BabySmash.Linux.Shapes.CoolSquare"
+             Width="207" Height="207">
+    <Canvas x:Name="Square">
+        <Rectangle x:Name="Body" 
+                   Width="207" Height="207"
+                   StrokeThickness="10" Stroke="Black">
+            <Rectangle.Fill>
+                <RadialGradientBrush GradientOrigin="0.75,0.25">
+                    <GradientStop Offset="0" Color="#FFFF00FF"/>
+                    <GradientStop Offset="1" Color="#FF9D005C"/>
+                </RadialGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        
+        <Canvas x:Name="Face">
+            <!-- Eyes - exact path data from Windows version -->
+            <Canvas x:Name="Eye1">
+                <Path Fill="Black" Data="F1 M 93.295410,58.927246 C 93.295410,55.992676 90.916504,53.613281 87.981445,53.613281 L 78.018066,53.613281 C 75.083496,53.613281 72.704590,55.992676 72.704590,58.927246 L 72.704590,91 L 93.295410,91 L 93.295410,58.927246 Z"/>
+            </Canvas>
+            <Canvas x:Name="Eye2">
+                <Path Fill="Black" Data="F1 M 134.295410,58.927246 C 134.295410,55.992676 131.916504,53.613281 128.981445,53.613281 L 119.018066,53.613281 C 116.083496,53.613281 113.704590,55.992676 113.704590,58.927246 L 113.704590,91 L 134.295410,91 L 134.295410,58.927246 Z"/>
+            </Canvas>
+            <!-- Mouth - exact path data from Windows version -->
+            <Path Fill="Black" Data="F1 M 122.779297,145.530762 C 122.779297,156.178223 114.147461,164.810059 103.5,164.810059 C 92.852539,164.810059 84.220703,156.178223 84.220703,145.530762 C 84.220703,134.883301 92.852539,145.530762 103.5,145.530762 C 114.147461,145.530762 122.779297,134.883301 122.779297,145.530762 Z"/>
+        </Canvas>
+    </Canvas>
+</UserControl>

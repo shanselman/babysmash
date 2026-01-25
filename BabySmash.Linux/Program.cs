@@ -1,16 +1,36 @@
 ﻿using Avalonia;
 using System;
+using System.Threading;
 
 namespace BabySmash.Linux;
 
 class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
+    private static Mutex? _singleInstanceMutex;
+    
     [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        // Ensure single instance
+        _singleInstanceMutex = new Mutex(true, "BabySmashLinuxSingleInstance", out bool createdNew);
+        
+        if (!createdNew)
+        {
+            // Another instance is already running
+            Console.WriteLine("BabySmash is already running.");
+            return;
+        }
+        
+        try
+        {
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        }
+        finally
+        {
+            _singleInstanceMutex?.ReleaseMutex();
+            _singleInstanceMutex?.Dispose();
+        }
+    }
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()

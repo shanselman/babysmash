@@ -2,22 +2,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="BabySmash.Linux.MainWindow"
         Title="BabySmash! for Linux"
-        Width="800" Height="600"
         Background="WhiteSmoke"
-        WindowState="Maximized">
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        SystemDecorations="None"
+        Topmost="True">
     
     <Grid>
+        <!-- Main canvas for figures -->
         <Canvas Name="figuresCanvas" Background="Transparent"/>
         
-        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left" Margin="15">
-            <TextBlock FontSize="16" FontWeight="Bold">
+        <!-- Mouse drag canvas (for mouse drawing mode) -->
+        <Canvas Name="mouseDragCanvas" Background="Transparent"/>
+        
+        <!-- Mouse cursor canvas -->
+        <Canvas Name="mouseCursorCanvas" Background="Transparent"/>
+        
+        <!-- Info label (shown on first window only) -->
+        <StackPanel Name="infoLabel" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="15" IsVisible="True">
+            <TextBlock FontSize="24" FontWeight="Bold" Foreground="#333333">
                 BabySmash! for Linux
             </TextBlock>
-            <TextBlock FontSize="12" Margin="0,5,0,0">
+            <TextBlock FontSize="14" Margin="0,8,0,0" Foreground="#666666">
                 Press any key to start!
             </TextBlock>
-            <TextBlock FontSize="12" Margin="0,5,0,0">
-                ESC to exit
+            <TextBlock FontSize="12" Margin="0,4,0,0" Foreground="#999999">
+                Press ESC to exit, ALT+O for options
             </TextBlock>
         </StackPanel>
     </Grid>
