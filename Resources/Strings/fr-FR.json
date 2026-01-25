@@ -1,0 +1,23 @@
+{
+	"ColorShapeFormat": "{0} {1}",
+
+	"Circle": "Cercle",
+	"Oval": "Ovale",
+	"Rectangle": "Rectangle",
+	"Hexagon": "Hexagone",
+	"Trapezoid": "Trapèze",
+	"Star": "Étoile",
+	"Square": "Carré",
+	"Triangle": "Triangle",
+	"Heart": "Cœur",
+
+	"Red": "Rouge",
+	"Blue": "Bleu",
+	"Yellow": "Jaune",
+	"Green": "Vert",
+	"Purple": "Violet",
+	"Pink": "Rose",
+	"Orange": "Orange",
+	"Tan": "Beige",
+	"Gray": "Gris"
+}
