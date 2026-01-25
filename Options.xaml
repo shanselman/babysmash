@@ -794,7 +794,7 @@
 					        <CheckBox Style="{DynamicResource SimpleCheckBox}" Grid.Row="5" Grid.ColumnSpan="2"  Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
 					                  IsChecked="{Binding Path=Default.FacesOnShapes, Mode=TwoWay}" Content="Faces on Shapes" />
 					        <CheckBox Style="{DynamicResource SimpleCheckBox}" Grid.Row="6" Grid.ColumnSpan="2" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
-					                  IsChecked="{Binding Path=Default.UseEffects, Mode=TwoWay}" Content="Hardware Effects"/>
+					                  IsChecked="{Binding Path=Default.BitmapEffects, Mode=TwoWay}" Content="Visual Effects (blur, glow)"/>
 					        <CheckBox Style="{DynamicResource SimpleCheckBox}" Grid.Row="7" Grid.ColumnSpan="2" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
 					                  IsChecked="{Binding Path=Default.MouseDraw, Mode=TwoWay}" Content="Clickless Mouse Drawing" />
 					        <CheckBox Style="{DynamicResource SimpleCheckBox}" x:Name="TransparentCheckBox" Grid.Row="8" Grid.ColumnSpan="3" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
