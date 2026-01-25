@@ -18,7 +18,8 @@
             </Path.Fill>
         </Path>
         
-        <Canvas x:Name="Face">
+        <!-- Face - adjusted to center on triangle -->
+        <Canvas x:Name="Face" Canvas.Left="15" Canvas.Top="0">
             <!-- Eyes -->
             <Canvas x:Name="Eye1">
                 <Path Fill="Black" 
