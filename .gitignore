@@ -6,6 +6,9 @@
 *.user
 *.sln.docstates
 
+# Visual Studio cache (solution settings, IntelliSense, etc.)
+/.vs/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
