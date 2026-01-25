@@ -1,79 +1,81 @@
-# BabySmash! Upgrade Plan: .NET 3.5 → .NET 10
+# BabySmash! Migration Guide: .NET Framework 3.5 → .NET 10
 
-## Current Status: ✅ ALL PHASES COMPLETE
+> **A practical guide for migrating legacy WPF applications to modern .NET**
 
-**Latest Release**: `v3.9.9`
+This document chronicles the complete migration of BabySmash!, an 18-year-old WPF application, from .NET Framework 3.5 to .NET 10. It serves as both a historical record and an educational resource for developers facing similar migrations.
 
-### ✅ Completed
-- ✅ Phase 1: SDK-style csproj
-- ✅ Phase 2: XAML compatibility
-- ✅ Phase 3: C# code updates (ClickOnce removed)
-- ✅ Phase 4: Resources embedded
-- ✅ Phase 5: Build & Test - **App runs!**
-- ✅ Phase 6: Updatum auto-update integration
-- ✅ Phase 7: Azure Trusted Signing
-- ✅ Phase 8: GitHub Actions CI/CD with Inno Setup installer
+## 📋 Table of Contents
 
-### ✅ Additional Improvements
-- ✅ 7 language locales (en-EN, ru-RU, de-DE, el-GR, lv-LV, pt-BR, pt-PT)
-- ✅ All open PRs processed and closed
-- ✅ DavidRieman fork improvements incorporated
-- ✅ Inno Setup installer with Start Menu shortcuts
-- ✅ Visual Effects auto-detection based on GPU tier
-- ✅ `--fps` command line flag for performance monitoring
-- ✅ babysmash.com website updated with direct download links
+1. [Executive Summary](#executive-summary)
+2. [Before You Start](#before-you-start)
+3. [Phase 1: Project File Migration](#phase-1-project-file-migration)
+4. [Phase 2: XAML Compatibility](#phase-2-xaml-compatibility)
+5. [Phase 3: C# Code Modernization](#phase-3-c-code-modernization)
+6. [Phase 4: Resource Handling](#phase-4-resource-handling)
+7. [Phase 5: Build & Test](#phase-5-build--test)
+8. [Phase 6: Auto-Updates with Updatum](#phase-6-auto-updates-with-updatum)
+9. [Phase 7: Code Signing](#phase-7-code-signing)
+10. [Phase 8: CI/CD with GitHub Actions](#phase-8-cicd-with-github-actions)
+11. [Lessons Learned](#lessons-learned)
 
 ---
 
-## Overview
-BabySmash! is an ~18-year-old WPF application targeting .NET Framework 3.5. This plan outlines the migration to .NET 10 with modern features including single-file deployment, auto-update via **Updatum**, and **Azure Trusted Signing**.
+## Executive Summary
 
-**Reference Implementation**: [WindowsEdgeLight](https://github.com/shanselman/WindowsEdgeLight) - Follow the same patterns for Updatum and code signing.
+| Metric | Before | After |
+|--------|--------|-------|
+| Framework | .NET Framework 3.5 | .NET 10 |
+| Project Format | Legacy csproj (500+ lines) | SDK-style (50 lines) |
+| Deployment | ClickOnce | Inno Setup + Updatum auto-update |
+| Code Signing | Self-signed PFX | Azure Trusted Signing |
+| CI/CD | Manual builds | GitHub Actions |
+| Executable Size | ~2MB + .NET Framework | ~68MB self-contained |
+| .NET Required | Yes (.NET 3.5) | No (self-contained) |
 
-## Current State Analysis
-
-### Project Structure
-- **Framework**: .NET Framework 3.5 (WPF)
-- **Project Format**: Legacy `.csproj` (non-SDK style)
-- **Dependencies**: 
-  - `Newtonsoft.Json 9.0.1` (via packages.config)
-  - `System.Speech` (for text-to-speech)
-  - `System.Deployment` (ClickOnce auto-update - **replacing with Updatum**)
-  - P/Invoke calls to `user32.dll`, `winmm.dll`
-
-### Key Components
-| Component | Files | Notes |
-|-----------|-------|-------|
-| Main App | `App.xaml`, `MainWindow.xaml` | WPF entry point |
-| Controller | `Controller.cs` | Main logic, uses ClickOnce `ApplicationDeployment` |
-| Shapes | 14 XAML UserControls in `/Shapes` | Custom shapes with animations |
-| Audio | `Audio.cs` | P/Invoke to `winmm.dll` for WAV playback |
-| Keyboard Hook | `KeyboardHook.cs`, `App.xaml.cs` | Low-level keyboard interception |
-| Settings | `Settings.cs`, `Properties/Settings.settings` | User preferences |
-| Options UI | `Options.xaml` | 63KB XAML - complex settings dialog |
-| Localization | `/Resources/Strings/*.json` | en-EN, ru-RU |
-| Sounds | `/Resources/Sounds/*.wav` | 10 WAV files (embedded resources) |
-
-### Known Issues to Address
-1. **ClickOnce Dependency**: `System.Deployment.ApplicationDeployment` doesn't exist in .NET Core/.NET 5+ → **Replace with Updatum**
-2. **BitmapEffect**: `BitmapEffectGroup`, `OuterGlowBitmapEffect` in `MainWindow.xaml` are deprecated
-3. **PresentationFramework.Luna**: Windows XP theme assembly - dead code, just remove the xmlns reference in `Options.xaml`
-4. **Legacy app.config**: Uses old `supportedRuntime` for v2.0.50727
+**Time to complete**: ~2 days of focused work
 
 ---
 
-## Phase 1: Create New SDK-Style Project ✅
+## Before You Start
 
-### Tasks
-- [ ] Create new `BabySmash.csproj` (SDK-style, targeting `net10.0-windows`)
-- [ ] Configure for WPF: `<UseWPF>true</UseWPF>`
-- [ ] Set output type: `<OutputType>WinExe</OutputType>`
-- [ ] Configure single-file publishing
-- [ ] Add modern package references (replace `packages.config`)
-- [ ] Preserve embedded resources configuration
-- [ ] Remove old `packages.config` after migration
+### Assess Your Application
 
-### New csproj Configuration
+Before migrating, understand what you're working with:
+
+```powershell
+# Check for ClickOnce dependencies (must be replaced)
+Select-String -Path "*.cs" -Pattern "System.Deployment"
+
+# Check for deprecated WPF features
+Select-String -Path "*.xaml" -Pattern "BitmapEffect|Luna"
+
+# Check for Newtonsoft.Json (consider System.Text.Json)
+Select-String -Path "*.cs" -Pattern "Newtonsoft"
+```
+
+### BabySmash's Starting Point
+
+| Component | Status | Action Needed |
+|-----------|--------|---------------|
+| WPF UI | ✅ Works | Minor XAML fixes |
+| P/Invoke (user32, winmm) | ✅ Works | No changes |
+| System.Speech | ✅ Works | No changes |
+| ClickOnce | ❌ Removed in .NET Core | Replace with Updatum |
+| BitmapEffect | ⚠️ Deprecated | Keep or replace with Effect |
+| Newtonsoft.Json | ⚠️ Optional | Replaced with System.Text.Json |
+
+---
+
+## Phase 1: Project File Migration
+
+### The Problem
+
+Legacy .csproj files are verbose XML nightmares that mix project configuration with build logic. SDK-style projects are clean and convention-based.
+
+### The Solution
+
+**Delete** your old .csproj and create a new one:
+
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -81,379 +83,387 @@ BabySmash! is an ~18-year-old WPF application targeting .NET Framework 3.5. This
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>App.ico</ApplicationIcon>
+    
+    <!-- Single-file deployment -->
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Speech" Version="9.0.0" />
+    <PackageReference Include="Updatum" Version="1.2.1" />
+  </ItemGroup>
 </Project>
+```
+
+### Key Decisions
+
+1. **Single-file**: Users get one .exe, no scattered DLLs
+2. **Self-contained**: No .NET runtime required on user's machine
+3. **x64 only**: ARM64 Windows has excellent x64 emulation - one binary is enough for a simple app like this
+
+### What About packages.config?
+
+Delete it. Package references go directly in .csproj now:
+
+```xml
+<!-- Old way (packages.config) -->
+<package id="Newtonsoft.Json" version="9.0.1" targetFramework="net35" />
+
+<!-- New way (in .csproj) -->
+<PackageReference Include="System.Text.Json" Version="9.0.0" />
 ```
 
 ---
 
-## Phase 2: Fix XAML Compatibility Issues
+## Phase 2: XAML Compatibility
 
-### Tasks
-- [ ] Remove `BitmapEffectGroup` / `OuterGlowBitmapEffect` from `MainWindow.xaml`
-  - Replace with `Effect` property using `DropShadowEffect` or remove entirely
-- [ ] Remove `PresentationFramework.Luna` xmlns from `Options.xaml` (line 10)
-  - This was a Windows XP theme - just delete the xmlns declaration
-- [ ] Verify all shape XAML files compile (14 files in `/Shapes`)
-- [ ] Test animation storyboards work correctly
+### BitmapEffect: Deprecated But Still Works
 
-### MainWindow.xaml Changes Required
+.NET Framework had `BitmapEffect` (software-rendered) and `Effect` (GPU-accelerated). BitmapEffect was deprecated but **still compiles and runs** in .NET 10 WPF.
+
 ```xml
-<!-- OLD (deprecated) -->
+<!-- This still works in .NET 10! (but uses CPU) -->
 <TextBlock.BitmapEffect>
-    <BitmapEffectGroup>
-        <OuterGlowBitmapEffect GlowColor="Yellow" GlowSize="3"/>
-    </BitmapEffectGroup>
+    <OuterGlowBitmapEffect GlowColor="Yellow" GlowSize="3"/>
 </TextBlock.BitmapEffect>
 
-<!-- NEW (use Effect instead) -->
+<!-- Modern replacement (uses GPU) -->
 <TextBlock.Effect>
     <DropShadowEffect Color="Yellow" BlurRadius="6" ShadowDepth="0"/>
 </TextBlock.Effect>
 ```
 
----
+**Our decision**: Keep BitmapEffect for visual continuity, but use modern `Effect` class for new features. Added GPU tier detection to auto-enable effects only on capable hardware.
 
-## Phase 3: Update C# Code for .NET 10
+### Remove Dead Theme References
 
-### Tasks
-- [ ] **Remove ClickOnce code** from `Controller.cs`:
-  - Remove `using System.Deployment.Application`
-  - Remove `ApplicationDeployment` usage (lines 49, 104-118, 155-162)
-  - Keep update UI but stub it out for now
-- [ ] Update `Newtonsoft.Json` to latest version or switch to `System.Text.Json`
-- [ ] Verify `System.Speech` works (should be available via Windows compatibility pack)
-- [ ] Verify P/Invoke signatures are compatible
-- [ ] Update `AssemblyInfo.cs` or move attributes to csproj
-- [ ] Remove/update `app.config` for modern .NET
+Windows XP themes don't exist anymore:
 
-### Files Requiring Code Changes
-| File | Change |
-|------|--------|
-| `Controller.cs` | Remove ClickOnce, stub auto-update |
-| `App.xaml.cs` | Verify keyboard hook works |
-| `Properties/AssemblyInfo.cs` | May remove (use csproj properties) |
-
----
-
-## Phase 4: Resource Configuration
-
-### Tasks
-- [ ] Configure embedded resources for WAV files in new csproj
-- [ ] Ensure `Words.txt` copies to output
-- [ ] Configure JSON localization files to copy to output
-- [ ] Verify `App.ico` is set correctly
-
-### Resource Configuration
 ```xml
-<ItemGroup>
-  <!-- Embedded WAV sounds -->
-  <EmbeddedResource Include="Resources\Sounds\*.wav" />
-  <EmbeddedResource Include="App.ico" />
-  
-  <!-- Content files -->
-  <Content Include="Words.txt">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-  <Content Include="Resources\Strings\*.json">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-</ItemGroup>
+<!-- DELETE THIS LINE from your XAML -->
+xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Luna"
+```
+
+---
+
+## Phase 3: C# Code Modernization
+
+### Removing ClickOnce
+
+ClickOnce (`System.Deployment.Application`) doesn't exist in .NET Core/.NET 5+. Search and destroy:
+
+```csharp
+// DELETE all of this:
+using System.Deployment.Application;
+
+if (ApplicationDeployment.IsNetworkDeployed)
+{
+    deployment = ApplicationDeployment.CurrentDeployment;
+    deployment.CheckForUpdateAsync();
+}
+```
+
+**Replacement**: [Updatum](https://github.com/sn4k3/Updatum) - covered in Phase 6.
+
+### JSON Migration
+
+```csharp
+// Old (Newtonsoft.Json)
+var obj = JsonConvert.DeserializeObject<MyType>(json);
+
+// New (System.Text.Json) - built into .NET
+var obj = JsonSerializer.Deserialize<MyType>(json);
+```
+
+System.Text.Json is faster and has no external dependency.
+
+### Type Ambiguities
+
+When you add `<UseWPF>true</UseWPF>`, you get both WPF and WinForms types. Add explicit aliases:
+
+```csharp
+using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
+using Point = System.Windows.Point;
+using WinForms = System.Windows.Forms;
+```
+
+---
+
+## Phase 4: Resource Handling
+
+### Embedded Resources vs Content
+
+| Type | Use Case | Configuration |
+|------|----------|---------------|
+| Embedded Resource | WAV sounds, icons | `<EmbeddedResource Include="..." />` |
+| Content | JSON config, text files | `<Content Include="..." CopyToOutputDirectory="PreserveNewest" />` |
+
+### Single-File Gotcha
+
+With `PublishSingleFile`, embedded resources work fine, but `Content` files need special handling. We auto-extract `Words.txt` on first run:
+
+```csharp
+private string GetWordsFilePath()
+{
+    // Check next to executable first
+    string exeDir = AppContext.BaseDirectory;
+    string localPath = Path.Combine(exeDir, _wordsFileName);
+    if (File.Exists(localPath)) return localPath;
+
+    // For single-file publish, extract from embedded resource
+    string appDataPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "BabySmash", _wordsFileName);
+    
+    if (!File.Exists(appDataPath))
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(appDataPath)!);
+        using var stream = Assembly.GetExecutingAssembly()
+            .GetManifestResourceStream("BabySmash.Words.txt");
+        using var file = File.Create(appDataPath);
+        stream!.CopyTo(file);
+    }
+    return appDataPath;
+}
 ```
 
 ---
 
 ## Phase 5: Build & Test
 
-### Tasks
-- [ ] Run `dotnet build` and fix any compilation errors
-- [ ] Run `dotnet publish` for single-file output
-- [ ] Test application launches
-- [ ] Test keyboard input displays shapes
-- [ ] Test audio playback
-- [ ] Test text-to-speech
-- [ ] Test Options dialog opens (Ctrl+Alt+Shift+O)
-- [ ] Test multi-monitor support
+### Build Commands
+
+```powershell
+# Debug build
+dotnet build
+
+# Release build
+dotnet build -c Release
+
+# Publish single-file executable
+dotnet publish -c Release -r win-x64 --self-contained
+
+# Output location
+# bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe
+```
+
+### Testing Checklist
+
+- [ ] App launches without crash
+- [ ] Keyboard input shows shapes
+- [ ] Audio plays (WAV sounds)
+- [ ] Speech synthesis works
+- [ ] Options dialog opens (Ctrl+Shift+Alt+O)
+- [ ] Multi-monitor support works
+- [ ] Settings persist between runs
 
 ---
 
-## Phase 6: Updatum Auto-Update Integration
+## Phase 6: Auto-Updates with Updatum
 
-**Reference**: [WindowsEdgeLight Updatum Integration](https://github.com/shanselman/WindowsEdgeLight/blob/master/docs/UPDATUM_INTEGRATION.md)
+### Why Updatum?
 
-### What is Updatum?
-[Updatum](https://github.com/sn4k3/Updatum) is a lightweight C# library that automates application updates using GitHub Releases. It replaces the legacy ClickOnce deployment.
+[Updatum](https://github.com/sn4k3/Updatum) is a lightweight library that uses GitHub Releases for auto-updates. No server infrastructure needed.
 
-### Tasks
-- [ ] Add Updatum NuGet package: `<PackageReference Include="Updatum" Version="1.2.1" />`
-- [ ] Create `UpdateDialog.xaml` - Update notification dialog
-- [ ] Create `DownloadProgressDialog.xaml` - Download progress UI
-- [ ] Add `UpdatumManager` configuration in `App.xaml.cs`
-- [ ] Remove all ClickOnce code from `Controller.cs`
-- [ ] Update `MainWindow.xaml` to remove ClickOnce update progress UI
+### Integration
 
-### Updatum Configuration (App.xaml.cs)
 ```csharp
-using Updatum;
-
-internal static readonly UpdatumManager AppUpdater = new("shanselman", "babysmash")
+// App.xaml.cs
+internal static readonly UpdatumManager AppUpdater = new("owner", "repo")
 {
     FetchOnlyLatestRelease = true,
     InstallUpdateSingleFileExecutableName = "BabySmash",
 };
 
-protected override async void OnStartup(StartupEventArgs e)
+private async void Application_Startup(object sender, StartupEventArgs e)
 {
-    base.OnStartup(e);
-    _ = CheckForUpdatesAsync();
+    var shouldLaunch = await CheckForUpdatesBeforeLaunchAsync();
+    if (shouldLaunch)
+    {
+        Controller.Instance.Launch();
+    }
 }
 
-private async Task CheckForUpdatesAsync()
+private async Task<bool> CheckForUpdatesBeforeLaunchAsync()
 {
     try
     {
-        await Task.Delay(2000); // Let app load first
         var updateFound = await AppUpdater.CheckForUpdatesAsync();
-        if (!updateFound) return;
-        
-        await Dispatcher.InvokeAsync(async () =>
+        if (!updateFound) return true;
+
+        var dialog = new UpdateDialog(
+            AppUpdater.LatestRelease!.TagName,
+            AppUpdater.GetChangelog(true));
+        dialog.ShowDialog();
+
+        if (dialog.Result == UpdateDialogResult.Download)
         {
-            var release = AppUpdater.LatestRelease!;
-            var changelog = AppUpdater.GetChangelog(true) ?? "No release notes available.";
-            var dialog = new UpdateDialog(release.TagName, changelog);
-            if (dialog.ShowDialog() == true)
-            {
-                await DownloadAndInstallUpdateAsync();
-            }
-        });
+            await DownloadAndInstallUpdateAsync();
+            return false; // App will restart
+        }
+        return true;
     }
-    catch (Exception ex)
+    catch
     {
-        System.Diagnostics.Debug.WriteLine($"Update check failed: {ex.Message}");
+        return true; // Don't block app on update failure
     }
 }
 ```
 
-### Asset Naming Convention for GitHub Releases
+### Critical: Asset Naming
+
+Updatum's default `AssetRegexPattern` looks for the platform identifier (e.g., `win-x64`) in the asset name:
+
 ```
-BabySmash-v1.0.0-win-x64.zip   (contains BabySmash.exe + README.md)
+✅ BabySmash-win-x64.zip    <- Updatum finds this
+❌ BabySmash-Portable.zip   <- Updatum can't find this!
 ```
 
-**Critical**: ZIP must contain **at least 2 files** (exe + README) for Updatum to handle correctly.
+### ZIP Contents
 
-**x64 only**: ARM64 Windows has excellent x64 emulation - no need for separate ARM build for this app.
+Include at least 2 files in the ZIP for Updatum to handle it correctly:
 
-### Code to Remove from Controller.cs
-```csharp
-// DELETE these lines:
-using System.Deployment.Application;
-private ApplicationDeployment deployment = null;
-// DELETE all deployment_* event handlers
-// DELETE ApplicationDeployment.IsNetworkDeployed checks
+```
+BabySmash-win-x64.zip
+├── BabySmash.exe
+└── README.md
 ```
 
 ---
 
-## Phase 7: Azure Trusted Signing
+## Phase 7: Code Signing
 
-**Reference**: [WindowsEdgeLight Code Signing](https://github.com/shanselman/WindowsEdgeLight/blob/master/docs/CODESIGNING.md)
+### The Problem
 
-### Why Code Sign?
-- Eliminates Microsoft Defender SmartScreen warnings
-- Verifies authenticity of the application
-- Establishes trust with Windows security features
+Without code signing, Windows SmartScreen shows scary warnings that make users think your app is malware.
 
-### Azure Resources Required
-- Azure Subscription
-- Azure Trusted Signing resource (Code Signing Account)
-- Certificate Profile configured
-- Service Principal with "Trusted Signing Certificate Profile Signer" role
+### Azure Trusted Signing
 
-### GitHub Secrets Required
-| Secret | Description |
-|--------|-------------|
-| `AZURE_CLIENT_ID` | Service principal client ID |
-| `AZURE_CLIENT_SECRET` | Service principal secret |
-| `AZURE_TENANT_ID` | Azure tenant ID |
-| `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
+Microsoft's cloud-based code signing service (~$10/month):
 
-### Estimated Cost
-- **Public Trust Certificate Profile**: ~$9.99/month
-- **First 5,000 signing operations/month**: Included
-- **Total for occasional releases**: ~$10-15/month
+1. Create Azure Trusted Signing resource
+2. Create Certificate Profile (Public Trust)
+3. Create Service Principal with signing permissions
+4. Store credentials as GitHub Secrets
 
----
+### GitHub Action for Signing
 
-## Phase 8: GitHub Actions CI/CD
-
-### Tasks
-- [ ] Create `.github/workflows/build.yml`
-- [ ] Configure GitVersion for semantic versioning
-- [ ] Build for win-x64 and win-arm64
-- [ ] Sign executables with Azure Trusted Signing
-- [ ] Create GitHub Release with ZIP assets
-- [ ] Auto-generate release notes
-
-### GitHub Actions Workflow (build.yml)
 ```yaml
-name: Build Release
+- uses: azure/trusted-signing-action@v0
+  with:
+    azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+    endpoint: https://wus2.codesigning.azure.net/
+    trusted-signing-account-name: your-account
+    certificate-profile-name: your-profile
+    files-folder: ${{ github.workspace }}/publish
+    files-folder-filter: exe
+    file-digest: SHA256
+    timestamp-rfc3161: http://timestamp.acs.microsoft.com
+    timestamp-digest: SHA256
+```
 
-on:
-  push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
+---
 
-permissions:
-  contents: write
+## Phase 8: CI/CD with GitHub Actions
 
-jobs:
-  build:
-    runs-on: windows-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-      
-    - uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '10.0.x'
-        
-    - name: Restore dependencies
-      run: dotnet restore BabySmash.csproj
+### Complete Workflow
 
-    - uses: gittools/actions/gitversion/setup@v4
-      with:
-        versionSpec: '6.4.x'
+Our workflow:
+1. Builds on every push
+2. Creates releases only on tags (`v*`)
+3. Uses GitVersion for semantic versioning
+4. Signs both EXE and installer
+5. Creates Inno Setup installer with Start Menu shortcuts
 
-    - uses: gittools/actions/gitversion/execute@v4
-      id: gitversion
+### Inno Setup Installer
 
-    - name: Build x64
-      run: |
-        dotnet publish BabySmash.csproj `
-          -c Release -r win-x64 `
-          /p:Version=${{ steps.gitversion.outputs.semVer }} `
-          --self-contained
+For a proper Windows experience, we added an installer:
 
-    - uses: azure/login@v2
-      with:
-        creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+```iss
+[Setup]
+AppName=BabySmash!
+AppVersion={#MyAppVersion}
+DefaultDirName={localappdata}\BabySmash
+PrivilegesRequired=lowest
 
-    - uses: azure/trusted-signing-action@v0
-      with:
-        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-        endpoint: https://wus2.codesigning.azure.net/
-        trusted-signing-account-name: hanselman
-        certificate-profile-name: BabySmash
-        files-folder: ${{ github.workspace }}\bin\Release\net10.0-windows\win-x64\publish
-        files-folder-filter: exe
-        file-digest: SHA256
-        timestamp-rfc3161: http://timestamp.acs.microsoft.com
-        timestamp-digest: SHA256
-          
-    - name: Prepare artifacts (ZIP with exe + README)
-      shell: pwsh
-      run: |
-        $version = "${{ steps.gitversion.outputs.semVer }}"
-        New-Item -ItemType Directory -Path "artifacts" -Force
-        New-Item -ItemType Directory -Path "temp-x64" -Force
-        Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe" -Destination "temp-x64/"
-        Copy-Item "README.md" -Destination "temp-x64/"
-        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-v$version-win-x64.zip"
-        Remove-Item "temp-x64" -Recurse -Force
-                  
-    - uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: artifacts/*.zip
-        generate_release_notes: true
+[Files]
+Source: "publish\BabySmash.exe"; DestDir: "{app}"
+
+[Icons]
+Name: "{userprograms}\BabySmash!"; Filename: "{app}\BabySmash.exe"
+Name: "{userstartup}\BabySmash!"; Filename: "{app}\BabySmash.exe"; Tasks: startupicon
 ```
 
 ### Release Process
+
 ```powershell
-# 1. Update version in csproj (or let GitVersion handle it)
-# 2. Commit and push
-git add -A
-git commit -m "Release v1.0.0 - Description"
-git tag v1.0.0
-git push && git push --tags
-# 3. GitHub Actions automatically builds, signs, and creates release
+git tag v3.9.9
+git push origin v3.9.9
+# GitHub Actions handles the rest!
 ```
 
 ---
 
-## Files to Delete After Migration
-- `packages.config` (replaced by PackageReference)
-- `BabySmash_TemporaryKey.pfx` (old signing key)
-- `BuildProcessTemplates/` (old TFS build templates)
-- `private.pfx` reference in csproj (if not needed)
+## Lessons Learned
 
-## Files to Keep/Backup
-- Original `BabySmash.csproj` → rename to `BabySmash.csproj.old`
-- `BabySmash.sln` (update for new project format)
+### 1. BitmapEffect Still Works
+Don't panic about deprecated APIs. Test them first - they might still work fine.
 
----
+### 2. Updatum Asset Naming is Critical
+The default regex pattern looks for `win-x64` in asset names. Name your ZIPs accordingly or set a custom pattern.
 
-## Execution Order
+### 3. Check for Updates BEFORE the App Takes Over
+For a baby-smashing app, show the update dialog before the baby starts smashing keys!
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ Phase 1: New SDK-Style csproj                                       │
-│   └─> Phase 2: Fix XAML (BitmapEffect, Luna theme)                 │
-│         └─> Phase 3: Update C# (remove ClickOnce)                  │
-│               └─> Phase 4: Configure Resources                     │
-│                     └─> Phase 5: Build & Test                      │
-│                           └─> Phase 6: Updatum Auto-Update         │
-│                                 └─> Phase 7: Azure Trusted Signing │
-│                                       └─> Phase 8: GitHub Actions  │
-└─────────────────────────────────────────────────────────────────────┘
-```
+### 4. GPU Detection for Effects
+WPF's `RenderCapability.Tier` tells you if effects are hardware-accelerated:
+- Tier 0: Software rendering (disable effects)
+- Tier 1: Partial hardware
+- Tier 2: Full GPU acceleration (enable effects)
 
-**Phases 1-5**: Core migration (must complete first)  
-**Phases 6-8**: Modern deployment features (can be done incrementally)
+### 5. Self-Contained = Larger But Simpler
+Yes, the EXE is 68MB. But users don't need to install .NET, and you don't get "which .NET version?" support tickets.
+
+### 6. Inno Setup + Updatum = Best of Both Worlds
+- Installer handles first-time setup (Start Menu, shortcuts)
+- Updatum handles all future updates (in-place, no reinstall)
 
 ---
 
-## Risk Mitigation
+## Resources
 
-| Risk | Mitigation |
-|------|------------|
-| XAML won't compile | Fix one file at a time, test incrementally |
-| P/Invoke breaks | Windows platform target ensures Win32 APIs available |
-| Missing dependencies | Use Windows Compatibility Pack if needed |
-| Audio doesn't work | Fallback to `System.Media.SoundPlayer` if needed |
-| Speech fails | `System.Speech` requires Windows TTS voices installed |
+- [Updatum](https://github.com/sn4k3/Updatum) - GitHub-based auto-update library
+- [Azure Trusted Signing](https://learn.microsoft.com/azure/trusted-signing/) - Code signing service
+- [WindowsEdgeLight](https://github.com/shanselman/WindowsEdgeLight) - Reference implementation with same patterns
+- [Inno Setup](https://jrsoftware.org/isinfo.php) - Windows installer creator
 
 ---
 
-## Success Criteria
-- [x] Application compiles with `dotnet build`
-- [x] Single executable produced (~68MB self-contained)
-- [x] All shapes display correctly
-- [x] Audio plays on keypress
-- [x] Speech synthesis works
-- [x] Options dialog functional
-- [x] Multi-monitor support works
-- [x] No runtime errors in normal usage
-- [x] Updatum auto-update checks for new versions on startup
-- [x] GitHub Actions builds and signs releases automatically
-- [x] SmartScreen does NOT warn when running signed executable
+## Final Status
+
+**All phases complete!** ✅
+
+| Success Criteria | Status |
+|-----------------|--------|
+| Application compiles | ✅ |
+| Single executable | ✅ 68MB self-contained |
+| All shapes display | ✅ |
+| Audio plays | ✅ |
+| Speech synthesis | ✅ |
+| Options dialog | ✅ |
+| Multi-monitor | ✅ |
+| Auto-updates | ✅ Updatum working |
+| CI/CD | ✅ GitHub Actions |
+| Code signed | ✅ No SmartScreen warnings |
+
+**Current release: v3.9.9**
 
 ---
 
-## Notes
-- .NET 10 SDK detected: `10.0.100`
-- **x64 only** - ARM64 not needed; x64 emulation on Windows ARM works fine for this non-intensive app
-- Target single-file with self-contained for maximum portability
-- **ClickOnce → Updatum**: Complete replacement using GitHub Releases
-- **Code Signing**: Azure Trusted Signing (~$10/month) eliminates SmartScreen warnings
-- **PresentationFramework.Luna**: Dead code from Windows XP era - just remove the xmlns reference
-- **Reference repo**: [WindowsEdgeLight](https://github.com/shanselman/WindowsEdgeLight) has working examples of all patterns
+*This migration was completed in January 2026. The app was originally written in 2008 for .NET Framework 3.5.*
