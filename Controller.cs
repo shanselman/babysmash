@@ -367,7 +367,7 @@ namespace BabySmash
             string jsonConfig = LoadEmbeddedLocalization(culture);
             if (jsonConfig == null && culture.Contains('-'))
             {
-                // Fallback to base language (e.g., "es-ES" from "es-MX")
+                // Fallback from specific locale to base language (e.g., from "es-MX" to "es-ES")
                 string baseLanguage = culture.Split('-')[0];
                 // Try common base language variants (es-ES, de-DE, etc.)
                 jsonConfig = LoadEmbeddedLocalization($"{baseLanguage}-{baseLanguage.ToUpper()}");
