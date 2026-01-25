@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BabySmash.Properties;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -31,12 +32,14 @@ namespace BabySmash
 
         public static void PlayWavResource(string wav)
         {
+            if (Settings.Default.Sounds == "None") return;
             byte[] arrWav = GetWavResource(wav);
             PlaySound(arrWav, IntPtr.Zero, SND_ASYNC | SND_MEMORY);
         }
 
         public static void PlayWavResourceYield(string wav)
         {
+            if (Settings.Default.Sounds == "None") return;
             byte[] arrWav = GetWavResource(wav);
             PlaySound(arrWav, IntPtr.Zero, SND_ASYNC | SND_NOSTOP | SND_MEMORY);
         }

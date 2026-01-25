@@ -195,9 +195,10 @@ namespace BabySmash
         public static bool AllowKeyboardInput(bool alt, bool control, Keys key)
         {
             // Disallow various special keys.
+            // F4 alone triggers Properties command in Windows - kids hit it accidentally
             if (key <= Keys.Back || key == Keys.None ||
                 key == Keys.Menu || key == Keys.Pause ||
-                key == Keys.Help)
+                key == Keys.Help || key == Keys.F4)
             {
                 return false;
             }

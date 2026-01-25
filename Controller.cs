@@ -32,8 +32,7 @@ namespace BabySmash
     using System.Reflection;
     using System.Speech.Synthesis;
     using System.Text;
-
-    using Newtonsoft.Json;
+    using System.Text.Json;
 
     public class Controller
     {
@@ -371,10 +370,10 @@ namespace BabySmash
 
             if (jsonConfig != null)
             {
-                Dictionary<string, object> config = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonConfig);
-                if (config.ContainsKey(key))
+                var config = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonConfig);
+                if (config != null && config.TryGetValue(key, out var value))
                 {
-                    return config[key].ToString();
+                    return value.GetString() ?? key;
                 }
             }
 
