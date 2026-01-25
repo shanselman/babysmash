@@ -12,7 +12,8 @@ namespace BabySmash
     {
         private static readonly Dictionary<Color, string> brushToString;
 
-        private static readonly Random lRandom = new Random(); // BUG BUG: Believe it or not, Random is NOT THREAD SAFE!
+        // Use Random.Shared for thread-safe random number generation (.NET 6+)
+        private static Random RandomInstance => Random.Shared;
 
         private static readonly FunCursor1 fun1 = new FunCursor1();
         private static readonly FunCursor2 fun2 = new FunCursor2();
@@ -49,7 +50,7 @@ namespace BabySmash
 
         public static Color GetRandomColor()
         {
-            Color color = someColors[lRandom.Next(0, someColors.Length)];
+            Color color = someColors[RandomInstance.Next(0, someColors.Length)];
             return color;
         }
 
@@ -81,19 +82,19 @@ namespace BabySmash
 
         public static string GetRandomSoundFile()
         {
-            return sounds[lRandom.Next(0, sounds.Length)];
+            return sounds[RandomInstance.Next(0, sounds.Length)];
         }
 
         public static bool GetRandomBoolean()
         {
-            if (lRandom.Next(0, 2) == 0)
+            if (RandomInstance.Next(0, 2) == 0)
                 return false;
             return true;
         }
 
         public static int RandomBetweenTwoNumbers(int min, int max)
         {
-            return lRandom.Next(min, max + 1);
+            return RandomInstance.Next(min, max + 1);
         }
 
         internal static System.Windows.Controls.UserControl GetCursor()
