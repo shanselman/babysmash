@@ -23,6 +23,39 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 | `Ctrl+Shift+Alt+O` | Options dialog |
 | `Alt+F4` | Exit |
 
+## Localization / Language Support
+
+BabySmash automatically uses your **Windows keyboard language** for:
+
+1. **Text-to-speech voice** - Shapes and colors are spoken in your language
+2. **Shape/color names** - Translated to your locale (if available)
+3. **Word order** - "Red Circle" (English) vs "Círculo Vermelho" (Portuguese)
+
+**Supported locales:** English (en), Russian (ru), Portuguese (pt-BR, pt-PT)
+
+### Changing the Language
+
+1. Change your Windows keyboard language (Win+Space or taskbar language selector)
+2. BabySmash will use the matching TTS voice and translations
+
+### Adding a New Language
+
+Create a JSON file in `Resources/Strings/` named `{locale}.json` (e.g., `de-DE.json` for German):
+
+```json
+{
+  "ColorShapeFormat": "{0} {1}",
+  "Circle": "Kreis",
+  "Red": "Rot",
+  ...
+}
+```
+
+- Use `"{0} {1}"` for color-first languages (English: "Red Circle")
+- Use `"{1} {0}"` for shape-first languages (Portuguese: "Círculo Vermelho")
+
+**Note:** You may need to install the TTS voice for your language in Windows Settings → Time & Language → Speech.
+
 ## Touchpad Gestures
 
 BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (like three-finger swipe for Task View) are handled at the OS level and cannot be blocked by applications.
