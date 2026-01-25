@@ -73,11 +73,7 @@ BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (lik
 
 ## Building from Source
 
-### Prerequisites
-
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-
-### Build & Run
+Requires [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ```bash
 git clone https://github.com/shanselman/babysmash.git
