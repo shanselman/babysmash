@@ -39,6 +39,8 @@ namespace BabySmash
 
         private static Controller instance = new Controller();
 
+        public static bool ShowFps { get; set; }
+
         public bool isOptionsDialogShown { get; set; }
         private bool isDrawing = false;
         private readonly SpeechSynthesizer objSpeech = new SpeechSynthesizer();
@@ -71,7 +73,7 @@ namespace BabySmash
 
             foreach (WinForms.Screen s in appScreens)
             {
-                MainWindow m = new MainWindow(this)
+                MainWindow m = new MainWindow(this, ShowFps)
                 {
                     WindowStartupLocation = WindowStartupLocation.Manual,
                     Left = s.WorkingArea.Left,

@@ -154,5 +154,17 @@ namespace BabySmash.Properties {
                 this["TransparentBackground"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool EffectsAutoDetected {
+            get {
+                return ((bool)(this["EffectsAutoDetected"]));
+            }
+            set {
+                this["EffectsAutoDetected"] = value;
+            }
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -18,6 +20,11 @@ namespace BabySmash
         private UserControl customCursor;
         public UserControl CustomCursor { get { return customCursor; } set { customCursor = value; } }
 
+        // FPS counter
+        private int _frameCount;
+        private readonly Stopwatch _fpsStopwatch = new();
+        private bool _showFps;
+
         public void AddFigure(UserControl c)
         {
             this.figuresCanvas.Children.Add(c);
@@ -28,13 +35,31 @@ namespace BabySmash
             this.figuresCanvas.Children.Remove(c);
         }
 
-        public MainWindow(Controller c)
+        public MainWindow(Controller c, bool showFps = false)
         {
             this.controller = c;
             this.DataContext = controller;
+            _showFps = showFps;
             InitializeComponent();
 
-            //ResetCanvas();
+            if (_showFps)
+            {
+                fpsLabel.Visibility = Visibility.Visible;
+                CompositionTarget.Rendering += OnRendering;
+                _fpsStopwatch.Start();
+            }
+        }
+
+        private void OnRendering(object sender, EventArgs e)
+        {
+            _frameCount++;
+            if (_fpsStopwatch.ElapsedMilliseconds >= 1000)
+            {
+                var fps = _frameCount * 1000.0 / _fpsStopwatch.ElapsedMilliseconds;
+                fpsLabel.Text = $"FPS: {fps:F0} | Shapes: {figuresCanvas.Children.Count}";
+                _frameCount = 0;
+                _fpsStopwatch.Restart();
+            }
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)

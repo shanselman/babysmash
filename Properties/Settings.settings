@@ -9,7 +9,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="BitmapEffects" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ClearAfter" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">35</Value>
@@ -33,6 +33,9 @@
       <Value Profile="(Default)">Arial</Value>
     </Setting>
     <Setting Name="TransparentBackground" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="EffectsAutoDetected" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>

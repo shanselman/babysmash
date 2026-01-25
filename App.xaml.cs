@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Media;
+using BabySmash.Properties;
 using Updatum;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
@@ -26,6 +29,13 @@ namespace BabySmash
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
+            // Parse command line arguments
+            var args = e.Args;
+            Controller.ShowFps = args.Contains("--fps") || args.Contains("-fps");
+
+            // Auto-detect GPU capability on first run
+            AutoDetectVisualEffects();
+
             // Check for updates BEFORE launching the game
             // This way the parent can handle updates before baby takes over
             var shouldLaunch = await CheckForUpdatesBeforeLaunchAsync();
@@ -34,6 +44,23 @@ namespace BabySmash
             {
                 Controller.Instance.Launch();
             }
+        }
+
+        private void AutoDetectVisualEffects()
+        {
+            // Only auto-detect once (on first run)
+            if (Settings.Default.EffectsAutoDetected)
+                return;
+
+            // WPF Rendering Tier: 0=software, 1=partial HW, 2=full GPU acceleration
+            int renderingTier = RenderCapability.Tier >> 16;
+            
+            // Enable effects only on Tier 2 (full GPU acceleration)
+            Settings.Default.BitmapEffects = renderingTier >= 2;
+            Settings.Default.EffectsAutoDetected = true;
+            Settings.Default.Save();
+
+            Debug.WriteLine($"Auto-detected rendering tier {renderingTier}, visual effects: {Settings.Default.BitmapEffects}");
         }
 
         private async Task<bool> CheckForUpdatesBeforeLaunchAsync()
