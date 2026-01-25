@@ -20,6 +20,9 @@
     <Company>Scott Hanselman</Company>
     <Product>BabySmash! for Linux</Product>
     <Description>A game for babies who like to bang on the keyboard - Linux version</Description>
+    
+    <!-- Suppress nullable warnings when disabled -->
+    <NoWarn>$(NoWarn);CS8632</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
