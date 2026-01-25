@@ -1,31 +1,63 @@
-BabySmash
-=========
+# BabySmash!
 
-## Overview
-The BabySmash game for small kids.  
+A game for babies who like to bang on the keyboard.
 
-As babies or children smash on the keyboard, colored shapes, letters and numbers appear on the screen and are voiced to help breed familiarization.
+As babies or children smash on the keyboard, colored shapes, letters and numbers appear on the screen and are spoken aloud to help with letter and number recognition.
 
-Baby Smash will lock out the Windows Key, as well as Ctrl-Esc and Alt-Tab so your baby won't likely exit the application, rotate your monitor display, and so on. Pressing ALT-F4 will exit the application and Shift-Ctrl-Alt-O brings up the options dialog.
+**Download the latest release:** [GitHub Releases](https://github.com/shanselman/babysmash/releases)
 
-Originally developed by Scott Hanselman, based on AlphaBaby. The version here contains some enhancements, but the original version is also available: http://www.hanselman.com/babysmash/
+## Features
 
-## Enhancements
-This version of BabySmash includes at least the following enhancements over the original:
-* Keypad typing now register as numbers typed, just like the number row.
-* Bug fixes, including cleaner shutdown.
-* Improved sound handling.
-* Ovals are added to the roster of shapes (including Circle, Heart, Hexagon, Rectangle, Square, Star, Trapezoid, Triangle), letters, and numbers.
+- 🎨 Colorful shapes with happy faces (Circle, Heart, Hexagon, Star, Triangle, and more)
+- 🔤 Letters and numbers with text-to-speech
+- 🔊 Fun sounds and giggles
+- 🖥️ Multi-monitor support with Per-Monitor DPI awareness
+- 🔒 Locks out Windows key, Ctrl+Esc, Alt+Tab to prevent accidental exits
+- 🔄 **Auto-updates** via GitHub Releases
 
-## AutoHotkey
-Used in conjunction with a tool like AutoHotkey, you can essentially create a "baby lock hotkey" so you can baby-proof your PC inputs at a moment's notice, with this immersive application instead of just the boring Windows Lock Screen.  To set up:
-* Download and install, if you don't already have it. Available for free at: http://www.autohotkey.com/
-* Run AutoHotkey; for the first time, it will prompt if you want to edit the script. You do.
-* If the script is not open, right-click the AutoHotkey taskbar icon (an 'H' icon) and select 'Edit This Script'.
-* Choose a hotkey. Avoid relying on the Windows key, as it will be held while BabySmash starts and may be buggy when you exit BabySmash due to the way the key is intercepted. I like to use Control+Shift+Z.
-* Code the hotkey. If you're using Control+Shift+Z, you can add "^+z::Run D:\GIT\babysmash\bin\Release\BabySmash.exe" right after the line "#z::Run www.autohotkey.com" (without quotes); Obviously your path to BabySmash.exe will vary depending on where you installed or built the code.
-* Save the file and close your text editor.
-* Right-click the AutoHotkey taskbar, and select 'Reload This Script'.
-* Try out your new hotkey to make sure it works.  If not, go back to 'Edit This Script' and try again.
+## Keyboard Shortcuts
 
-For more advanced customization, see also: http://ahkscript.org/docs/Tutorial.htm
+| Shortcut | Action |
+|----------|--------|
+| Any key | Display shapes/letters! |
+| `Ctrl+Shift+Alt+O` | Options dialog |
+| `Alt+F4` | Exit |
+
+## Requirements
+
+- Windows 10 or later (64-bit)
+- No .NET installation required (self-contained)
+
+## Building from Source
+
+### Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+
+### Build & Run
+
+```bash
+git clone https://github.com/shanselman/babysmash.git
+cd babysmash
+dotnet run
+```
+
+### Publish Single-File Executable
+
+```bash
+dotnet publish -c Release -r win-x64 --self-contained
+```
+
+Output: `bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe`
+
+## History
+
+Originally developed by [Scott Hanselman](https://www.hanselman.com), based on AlphaBaby.
+
+- **v1-v2**: Original .NET Framework 3.5 version ([legacy-dotnet35 branch](https://github.com/shanselman/babysmash/tree/legacy-dotnet35))
+- **v3.0**: Migrated to .NET 10, single-file deployment
+- **v4.0**: Added Updatum auto-updates, Azure code signing, new icon
+
+## License
+
+See [LICENSE](LICENSE)
