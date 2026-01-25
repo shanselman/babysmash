@@ -23,6 +23,16 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 | `Ctrl+Shift+Alt+O` | Options dialog |
 | `Alt+F4` | Exit |
 
+## Touchpad Gestures
+
+BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (like three-finger swipe for Task View) are handled at the OS level and cannot be blocked by applications.
+
+**To prevent accidental exits via touchpad:**
+
+1. Open **Windows Settings** → **Bluetooth & devices** → **Touchpad**
+2. Under **Three-finger gestures**, set "Swipes" to **Nothing**
+3. Optionally disable four-finger gestures too
+
 ## Requirements
 
 - Windows 10 or later (64-bit)
