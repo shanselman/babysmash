@@ -1,4 +1,6 @@
 ﻿{
+	"ColorShapeFormat": "{0} {1}",
+
 	"Circle": "Круг",
 	"Oval": "Овал",
 	"Rectangle": "Прямоугольник",

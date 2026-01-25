@@ -344,7 +344,11 @@ namespace BabySmash
                 }
                 else
                 {
-                    SpeakString(GetLocalizedString(Utils.ColorToString(template.Color)) + " " + template.Name);
+                    // Use localized format for color+shape order (e.g., English "Red Circle" vs Portuguese "Círculo Vermelho")
+                    string format = GetLocalizedString("ColorShapeFormat");
+                    string color = GetLocalizedString(Utils.ColorToString(template.Color));
+                    string shape = GetLocalizedString(template.Name);
+                    SpeakString(string.Format(format, color, shape));
                 }
             }
         }
