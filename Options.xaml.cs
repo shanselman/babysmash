@@ -61,7 +61,7 @@ namespace BabySmash
 
         private void FeedbackLink_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(new ProcessStartInfo("http://feedback.babysmash.com") { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("https://github.com/shanselman/babysmash/issues") { UseShellExecute = true });
         }
     }
 }

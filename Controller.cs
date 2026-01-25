@@ -70,7 +70,11 @@ namespace BabySmash
 
             // TODO: Updatum auto-update will be added here in Phase 6
 
-            foreach (WinForms.Screen s in WinForms.Screen.AllScreens)
+            // When debugging with multiple monitors, skip one so IDE/debugger remains accessible
+            int skipScreens = Debugger.IsAttached && WinForms.Screen.AllScreens.Length > 1 ? 1 : 0;
+            var appScreens = WinForms.Screen.AllScreens.Skip(skipScreens);
+
+            foreach (WinForms.Screen s in appScreens)
             {
                 MainWindow m = new MainWindow(this)
                 {
