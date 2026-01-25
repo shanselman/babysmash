@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="BabySmash.Linux.MainWindow"
+        Title="BabySmash! for Linux"
+        Width="800" Height="600"
+        Background="WhiteSmoke"
+        WindowState="Maximized">
+    
+    <Grid>
+        <Canvas Name="figuresCanvas" Background="Transparent"/>
+        
+        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Left" Margin="15">
+            <TextBlock FontSize="16" FontWeight="Bold">
+                BabySmash! for Linux
+            </TextBlock>
+            <TextBlock FontSize="12" Margin="0,5,0,0">
+                Press any key to start!
+            </TextBlock>
+            <TextBlock FontSize="12" Margin="0,5,0,0">
+                ESC to exit
+            </TextBlock>
+        </StackPanel>
+    </Grid>
+</Window>
