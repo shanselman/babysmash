@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -139,7 +134,7 @@ namespace BabySmash
             {
                 uie.ReleaseMouseCapture();
             }
-            
+
             char displayChar = GetDisplayChar(e.Key);
             AddFigure(uie, displayChar);
         }
@@ -289,7 +284,7 @@ namespace BabySmash
         //   var group = new TransformGroup();
         //   u.RenderTransform = group;
 
-        //   ani1.Completed += new EventHandler(ani1_Completed); 
+        //   ani1.Completed += new EventHandler(ani1_Completed);
 
         //   group.Children.Add(new ScaleTransform());
         //   group.Children[0].BeginAnimation(ScaleTransform.ScaleXProperty, ani1);
@@ -326,7 +321,7 @@ namespace BabySmash
         void HandleMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             UserControl f = e.Source as UserControl;
-            if (f != null && f.Opacity > 0.1) //can it be seen? 
+            if (f != null && f.Opacity > 0.1) //can it be seen?
             {
                 isDrawing = true; //HACK: This is a cheat to stop the mouse draw action.
                 Animation.ApplyRandomAnimationEffect(f, Duration.Automatic);
@@ -368,8 +363,15 @@ namespace BabySmash
         {
             CultureInfo keyboardLanguage = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture;
             string culture = keyboardLanguage.Name;
-            
+
             string jsonConfig = LoadEmbeddedLocalization(culture);
+            if (jsonConfig == null && culture.Contains('-'))
+            {
+                // Fallback from specific locale to base language (e.g., from "es-MX" to "es-ES")
+                string baseLanguage = culture.Split('-')[0];
+                // Try common base language variants (es-ES, de-DE, etc.)
+                jsonConfig = LoadEmbeddedLocalization($"{baseLanguage}-{baseLanguage.ToUpper()}");
+            }
             if (jsonConfig == null)
             {
                 // Fallback to English
