@@ -1,0 +1,55 @@
+<Window x:Class="BabySmash.DownloadProgressDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Downloading Update" 
+        Height="220" 
+        Width="480"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#FFFAFAFA"
+        WindowStyle="None"
+        AllowsTransparency="True">
+    <Border BorderBrush="#FF2196F3" 
+            BorderThickness="2" 
+            CornerRadius="12"
+            Background="#FFFAFAFA">
+        <Grid Margin="32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" 
+                       Text="⬇️ Downloading BabySmash! Update..." 
+                       FontSize="18" 
+                       FontWeight="Bold"
+                       Foreground="#FF2196F3"
+                       Margin="0,0,0,20"/>
+
+            <ProgressBar Grid.Row="1" 
+                         x:Name="ProgressBar"
+                         Height="24"
+                         Minimum="0"
+                         Maximum="100"
+                         Value="0"
+                         Margin="0,0,0,12"/>
+
+            <TextBlock Grid.Row="2" 
+                       x:Name="ProgressText"
+                       Text="0 MB / 0 MB (0%)"
+                       FontSize="13"
+                       Foreground="#FF666666"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,16"/>
+
+            <TextBlock Grid.Row="3" 
+                       Text="Please wait - your little one will be smashing keys in no time!"
+                       FontSize="12"
+                       Foreground="#FF999999"
+                       HorizontalAlignment="Center"
+                       TextWrapping="Wrap"/>
+        </Grid>
+    </Border>
+</Window>

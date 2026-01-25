@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using Updatum;
 using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
 using WinForms = System.Windows.Forms;
 
 namespace BabySmash
@@ -13,9 +16,113 @@ namespace BabySmash
         private static readonly InterceptKeys.LowLevelKeyboardProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
 
-        private void Application_Startup(object sender, StartupEventArgs e)
+        internal static readonly UpdatumManager AppUpdater = new("shanselman", "babysmash")
         {
-            Controller.Instance.Launch();
+            FetchOnlyLatestRelease = true,
+            InstallUpdateSingleFileExecutableName = "BabySmash",
+        };
+
+        private async void Application_Startup(object sender, StartupEventArgs e)
+        {
+            // Check for updates BEFORE launching the game
+            // This way the parent can handle updates before baby takes over
+            var shouldLaunch = await CheckForUpdatesBeforeLaunchAsync();
+            
+            if (shouldLaunch)
+            {
+                Controller.Instance.Launch();
+            }
+        }
+
+        private async Task<bool> CheckForUpdatesBeforeLaunchAsync()
+        {
+            try
+            {
+                var updateFound = await AppUpdater.CheckForUpdatesAsync();
+                if (!updateFound) return true;
+
+                var release = AppUpdater.LatestRelease!;
+                var changelog = AppUpdater.GetChangelog(true) ?? "No release notes available.";
+
+                var dialog = new UpdateDialog(release.TagName, changelog);
+                dialog.ShowDialog();
+
+                if (dialog.Result == UpdateDialog.UpdateDialogResult.Download)
+                {
+                    var installed = await DownloadAndInstallUpdateAsync();
+                    // If install succeeded, app will restart - don't launch
+                    // If install failed, let user continue to the app
+                    return !installed;
+                }
+
+                // RemindLater or Skip - continue to launch
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Update check failed - don't block the app, just launch
+                Debug.WriteLine($"Update check failed: {ex.Message}");
+                return true;
+            }
+        }
+
+        private async Task<bool> DownloadAndInstallUpdateAsync()
+        {
+            DownloadProgressDialog progressDialog = null;
+            try
+            {
+                progressDialog = new DownloadProgressDialog(AppUpdater);
+                progressDialog.Show();
+
+                var downloadedAsset = await AppUpdater.DownloadUpdateAsync();
+
+                progressDialog?.Close();
+                progressDialog = null;
+
+                if (downloadedAsset == null)
+                {
+                    MessageBox.Show("Failed to download the update. Please try again later.",
+                        "Download Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+
+                if (!System.IO.File.Exists(downloadedAsset.FilePath))
+                {
+                    MessageBox.Show($"Update file was deleted or is inaccessible:\n{downloadedAsset.FilePath}\n\nThis may be caused by antivirus software.",
+                        "Update File Missing", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
+                }
+
+                var confirmResult = MessageBox.Show(
+                    "The update has been downloaded. BabySmash! will now restart to install the update.\n\nContinue?",
+                    "Install Update",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (confirmResult == MessageBoxResult.Yes)
+                {
+                    await AppUpdater.InstallUpdateAsync(downloadedAsset);
+                    return true; // App will restart
+                }
+
+                return false; // User cancelled, continue to app
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                MessageBox.Show($"Access denied when accessing update file.\n\n1. Antivirus may be blocking the update\n2. Windows SmartScreen may need approval\n\nError: {ex.Message}",
+                    "Access Denied", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to download or install update: {ex.Message}",
+                    "Update Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+            finally
+            {
+                progressDialog?.Close();
+            }
         }
 
         public App()
