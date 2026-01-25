@@ -100,7 +100,7 @@ public partial class MainWindow : Window
         if (e.Key == Key.Escape)
         {
             _focusTimer.Stop();
-            Close();
+            CloseAllWindows();
             return;
         }
 
@@ -117,10 +117,27 @@ public partial class MainWindow : Window
 
         if (displayChar.HasValue)
         {
-            AddFigure(displayChar.Value);
+            // Add figure to all windows
+            foreach (var window in App.Windows)
+            {
+                window.AddFigure(displayChar.Value);
+            }
         }
 
         e.Handled = true;
+    }
+
+    private void CloseAllWindows()
+    {
+        foreach (var window in App.Windows)
+        {
+            if (window != this)
+            {
+                window._focusTimer.Stop();
+                window.Close();
+            }
+        }
+        Close();
     }
 
     private char? GetDisplayChar(Key key)
