@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -15,6 +16,7 @@ namespace BabySmash
     {
         private static readonly InterceptKeys.LowLevelKeyboardProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
+        private static Mutex _singleInstanceMutex;
 
         internal static readonly UpdatumManager AppUpdater = new("shanselman", "babysmash")
         {
@@ -127,6 +129,15 @@ namespace BabySmash
 
         public App()
         {
+            // Prevent multiple instances from running at the same time
+            bool createdNew;
+            _singleInstanceMutex = new Mutex(true, "BabySmashSingleInstance", out createdNew);
+            if (!createdNew)
+            {
+                Shutdown();
+                return;
+            }
+
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             Application.Current.Exit += new ExitEventHandler(Current_Exit);
             try
@@ -142,6 +153,7 @@ namespace BabySmash
         void Current_Exit(object sender, ExitEventArgs e)
         {
             DetachKeyboardHook();
+            _singleInstanceMutex?.Dispose();
         }
 
         /// <summary>
