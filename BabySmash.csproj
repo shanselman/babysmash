@@ -31,7 +31,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     
     <!-- Don't auto-generate assembly info - we have AssemblyInfo.cs -->
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     
     <!-- Suppress expected warnings -->
     <!-- WFO0003: Using Windows Forms in WPF app - intentional for Screen API -->
