@@ -26,6 +26,9 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     
+    <!-- DPI Awareness - Per-Monitor v2 for modern Windows multi-monitor support -->
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    
     <!-- Nullable and implicit usings -->
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
