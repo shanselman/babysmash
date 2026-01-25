@@ -86,6 +86,37 @@ jobs:
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
+
+    - name: Install Inno Setup
+      shell: pwsh
+      run: |
+        choco install innosetup -y --no-progress
+        echo "C:\Program Files (x86)\Inno Setup 6" >> $env:GITHUB_PATH
+
+    - name: Build Installer
+      shell: pwsh
+      run: |
+        # Copy signed exe to publish folder for installer
+        New-Item -ItemType Directory -Path publish -Force
+        Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe" -Destination "publish/"
+        
+        # Compile installer with version
+        iscc "/DMyAppVersion=$env:VERSION" installer.iss
+        
+    - name: Sign Installer with Trusted Signing
+      uses: azure/trusted-signing-action@v0
+      with:
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+        endpoint: https://wus2.codesigning.azure.net/
+        trusted-signing-account-name: hanselman
+        certificate-profile-name: WindowsEdgeLight
+        files-folder: ${{ github.workspace }}\Output
+        files-folder-filter: exe
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
           
     - name: Prepare artifacts
       shell: pwsh
@@ -93,11 +124,14 @@ jobs:
         New-Item -ItemType Directory -Path artifacts -Force
         $version = $env:VERSION
         
-        # Create ZIP with exe and README (Updatum needs 2+ files for portable app handling)
+        # Rename and copy installer
+        Copy-Item "Output/BabySmash-Setup.exe" -Destination "artifacts/BabySmash-v$version-Setup.exe"
+        
+        # Create portable ZIP with exe and README (Updatum needs 2+ files for portable app handling)
         New-Item -ItemType Directory -Path "temp-x64" -Force
         Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe" -Destination "temp-x64/"
         Copy-Item "README.md" -Destination "temp-x64/"
-        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-v$version-win-x64.zip"
+        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-v$version-Portable.zip"
         
         Remove-Item "temp-x64" -Recurse -Force
                   
@@ -105,13 +139,13 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: BabySmash-Release
-        path: artifacts/*.zip
+        path: artifacts/*
         
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: artifacts/*.zip
+        files: artifacts/*
         generate_release_notes: true
         body: |
           ## BabySmash! ${{ github.ref_name }}
@@ -120,11 +154,12 @@ jobs:
           
           ### 📦 Download
           
-          | File | Platform |
-          |------|----------|
-          | `BabySmash-win-x64.zip` | Intel/AMD 64-bit Windows |
+          | File | Description |
+          |------|-------------|
+          | `BabySmash-Setup.exe` | **Recommended** - Installer with Start Menu shortcut |
+          | `BabySmash-Portable.zip` | Portable version - extract and run anywhere |
           
-          **Self-contained** - Extract and run, no .NET installation required.
+          **Self-contained** - No .NET installation required.
           
           ### ⌨️ Usage
           - Press keys and watch shapes and letters appear!
