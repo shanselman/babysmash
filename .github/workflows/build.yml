@@ -127,11 +127,11 @@ jobs:
         # Copy installer with consistent name (for direct download links)
         Copy-Item "Output/BabySmash-Setup.exe" -Destination "artifacts/BabySmash-Setup.exe"
         
-        # Create portable ZIP with exe and README (Updatum needs 2+ files for portable app handling)
+        # Create portable ZIP with exe and README (Updatum looks for BabySmash.zip based on InstallUpdateSingleFileExecutableName)
         New-Item -ItemType Directory -Path "temp-x64" -Force
         Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe" -Destination "temp-x64/"
         Copy-Item "README.md" -Destination "temp-x64/"
-        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-Portable.zip"
+        Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash.zip"
         
         Remove-Item "temp-x64" -Recurse -Force
                   
@@ -157,7 +157,7 @@ jobs:
           | File | Description |
           |------|-------------|
           | `BabySmash-Setup.exe` | **Recommended** - Installer with Start Menu shortcut |
-          | `BabySmash-Portable.zip` | Portable version - extract and run anywhere |
+          | `BabySmash.zip` | Portable version - extract and run anywhere (also used by auto-updater) |
           
           **Self-contained** - No .NET installation required.
           
