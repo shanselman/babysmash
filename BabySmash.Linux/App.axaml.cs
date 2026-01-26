@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -50,7 +51,12 @@ public partial class App : Application
             var screens = firstWindow.Screens;
             bool isFirst = true;
             
-            foreach (var screen in screens.All)
+            // Put primary screen first, then others (fixes issue on some multi-monitor setups)
+            var orderedScreens = screens.All
+                .OrderByDescending(s => s.IsPrimary)
+                .ToList();
+            
+            foreach (var screen in orderedScreens)
             {
                 MainWindow window;
                 if (isFirst)
