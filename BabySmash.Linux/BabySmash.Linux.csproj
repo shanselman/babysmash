@@ -39,9 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Embed all resources -->
-    <EmbeddedResource Include="Core\Resources\Sounds\*.wav" />
-    <EmbeddedResource Include="Core\Resources\Strings\*.json" />
-    <EmbeddedResource Include="Core\Resources\Words.txt" />
+    <!-- Shared resources (linked from Shared folder) -->
+    <EmbeddedResource Include="..\Shared\Resources\Sounds\*.wav" Link="Core\Resources\Sounds\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\Shared\Resources\Strings\*.json" Link="Core\Resources\Strings\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\Shared\Resources\Words.txt" Link="Core\Resources\Words.txt" />
   </ItemGroup>
 </Project>
