@@ -50,10 +50,11 @@ jobs:
       run: |
         mkdir -p artifacts
         
-        # Create tarball with executable, desktop file, and README
+        # Create tarball with executable, desktop file, icon, and README
         mkdir -p temp-linux
         cp BabySmash.Linux/bin/Release/net10.0/linux-x64/publish/BabySmash.Linux temp-linux/babysmash
         cp BabySmash.Linux/babysmash.desktop temp-linux/
+        cp Shared/Resources/babysmash.png temp-linux/
         cp README.md temp-linux/
         chmod +x temp-linux/babysmash
         

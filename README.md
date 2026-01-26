@@ -11,11 +11,24 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 - 🎨 Colorful shapes with happy faces (Circle, Heart, Hexagon, Star, Triangle, and more)
 - 🔤 Letters and numbers with text-to-speech
 - 🔊 Fun sounds and giggles
-- 🖥️ Multi-monitor support with Per-Monitor DPI awareness
-- 🔒 Locks out Windows key, Ctrl+Esc, Alt+Tab to prevent accidental exits
-- 🔄 **Auto-updates** via GitHub Releases
+- 🖥️ Multi-monitor support
+- 🔒 Locks out system keys to prevent accidental exits
+- 🔄 **Auto-updates** via GitHub Releases (Windows)
+- 🐧 **Linux support** via Avalonia
 
-## Keyboard Shortcuts
+## Downloads
+
+| Platform | Download | Notes |
+|----------|----------|-------|
+| **Windows** | [BabySmash-Setup.exe](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-Setup.exe) | Installer with auto-updates |
+| **Windows** | [BabySmash-win-x64.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-win-x64.zip) | Portable version |
+| **Linux** | [BabySmash-linux-x64.tar.gz](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-linux-x64.tar.gz) | Self-contained executable |
+
+---
+
+## Windows
+
+### Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
@@ -23,40 +36,12 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 | `Ctrl+Shift+Alt+O` | Options dialog |
 | `Alt+F4` | Exit |
 
-## Localization / Language Support
+### Requirements
 
-BabySmash automatically uses your **Windows keyboard language** for:
+- Windows 10 or later (64-bit)
+- No .NET installation required (self-contained)
 
-1. **Text-to-speech voice** - Shapes and colors are spoken in your language
-2. **Shape/color names** - Translated to your locale (if available)
-3. **Word order** - "Red Circle" (English) vs "Círculo Vermelho" (Portuguese)
-
-**Supported locales:** English (en), Russian (ru), Portuguese (pt-BR, pt-PT)
-
-### Changing the Language
-
-1. Change your Windows keyboard language (Win+Space or taskbar language selector)
-2. BabySmash will use the matching TTS voice and translations
-
-### Adding a New Language
-
-Create a JSON file in `Resources/Strings/` named `{locale}.json` (e.g., `de-DE.json` for German):
-
-```json
-{
-  "ColorShapeFormat": "{0} {1}",
-  "Circle": "Kreis",
-  "Red": "Rot",
-  ...
-}
-```
-
-- Use `"{0} {1}"` for color-first languages (English: "Red Circle")
-- Use `"{1} {0}"` for shape-first languages (Portuguese: "Círculo Vermelho")
-
-**Note:** You may need to install the TTS voice for your language in Windows Settings → Time & Language → Speech.
-
-## Touchpad Gestures
+### Touchpad Gestures
 
 BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (like three-finger swipe for Task View) are handled at the OS level and cannot be blocked by applications.
 
@@ -66,10 +51,95 @@ BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (lik
 2. Under **Three-finger gestures**, set "Swipes" to **Nothing**
 3. Optionally disable four-finger gestures too
 
-## Requirements
+---
 
-- Windows 10 or later (64-bit)
+## Linux
+
+### Installation
+
+1. Download and extract:
+   ```bash
+   tar -xzf BabySmash-linux-x64.tar.gz
+   ```
+
+2. Install dependencies:
+   ```bash
+   # For text-to-speech
+   sudo apt install espeak
+   
+   # For audio (one of these)
+   sudo apt install pulseaudio-utils  # for paplay
+   # or
+   sudo apt install alsa-utils        # for aplay
+   ```
+
+3. Run:
+   ```bash
+   ./babysmash
+   ```
+
+### Add to Application Menu (Optional)
+
+To make BabySmash appear in your desktop's app launcher:
+
+```bash
+# Copy executable to a permanent location
+sudo cp babysmash /usr/local/bin/
+
+# Install the icon
+sudo cp babysmash.png /usr/share/icons/hicolor/256x256/apps/
+
+# Install desktop entry
+cp babysmash.desktop ~/.local/share/applications/
+
+# Update icon cache
+gtk-update-icon-cache /usr/share/icons/hicolor/ 2>/dev/null || true
+```
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| Any key | Display shapes/letters! |
+| `Alt+O` | Options dialog |
+| `Escape` | Exit |
+
+### Requirements
+
+- 64-bit Linux (x64)
+- `espeak` for text-to-speech
+- `paplay` or `aplay` for audio
 - No .NET installation required (self-contained)
+
+---
+
+## Localization / Language Support
+
+BabySmash automatically uses your **keyboard language** for:
+
+1. **Text-to-speech voice** - Shapes and colors are spoken in your language
+2. **Shape/color names** - Translated to your locale (if available)
+3. **Word order** - "Red Circle" (English) vs "Círculo Vermelho" (Portuguese)
+
+**Supported locales:** English (en), German (de), Spanish (es), French (fr), Greek (el), Latvian (lv), Portuguese (pt-BR, pt-PT), Russian (ru)
+
+### Adding a New Language
+
+Create a JSON file in `Shared/Resources/Strings/` named `{locale}.json` (e.g., `ja-JP.json` for Japanese):
+
+```json
+{
+  "ColorShapeFormat": "{0} {1}",
+  "Circle": "丸",
+  "Red": "赤",
+  ...
+}
+```
+
+- Use `"{0} {1}"` for color-first languages (English: "Red Circle")
+- Use `"{1} {0}"` for shape-first languages (Portuguese: "Círculo Vermelho")
+
+---
 
 ## Building from Source
 
@@ -78,16 +148,25 @@ Requires [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 ```bash
 git clone https://github.com/shanselman/babysmash.git
 cd babysmash
+
+# Windows
 dotnet run
+
+# Linux
+dotnet run --project BabySmash.Linux
 ```
 
-### Publish Single-File Executable
+### Publish Executables
 
 ```bash
+# Windows
 dotnet publish -c Release -r win-x64 --self-contained
+
+# Linux
+dotnet publish BabySmash.Linux -c Release -r linux-x64 --self-contained
 ```
 
-Output: `bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe`
+---
 
 ## History
 
@@ -95,24 +174,9 @@ Originally developed by [Scott Hanselman](https://www.hanselman.com), based on A
 
 - **v1-v2**: Original .NET Framework 3.5 version
 - **v3.0**: Migrated to .NET 10, single-file deployment
-- **v4.0**: Added Updatum auto-updates, Azure code signing, new icon
+- **v4.0**: Linux support via Avalonia, shared resources, auto-updates
 
 > **Looking for the original code?** The legacy .NET Framework 3.5 version is preserved in the [legacy-dotnet35](https://github.com/shanselman/babysmash/tree/legacy-dotnet35) branch.
-
-## Cross-Platform (Future)
-
-Planning is underway for an **Avalonia port** to bring BabySmash to **Linux**!
-
-📋 See the [Avalonia Port Plan](AVALONIA_PORT_PLAN.md) for the complete roadmap and architecture.
-
-**Documentation**:
-- [Planning Document](AVALONIA_PORT_PLAN.md) - Comprehensive plan for Linux port
-- [Architecture](docs/AVALONIA_ARCHITECTURE.md) - Technical architecture details
-- [Quick Start Guide](docs/AVALONIA_QUICKSTART.md) - Developer getting started guide
-
-**Focus**: Linux support via Avalonia while keeping the existing Windows WPF version
-
-**Interested in contributing?** The Linux port is a great opportunity to help bring BabySmash to Linux users!
 
 ## License
 
