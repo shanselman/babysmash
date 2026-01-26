@@ -45,6 +45,7 @@ namespace BabySmash
         private bool isDrawing = false;
         private readonly SpeechSynthesizer objSpeech = new SpeechSynthesizer();
         private readonly List<MainWindow> windows = new List<MainWindow>();
+        private readonly SpeechQueue _speechQueue = new SpeechQueue(5);
 
         private DispatcherTimer timer = new DispatcherTimer();
         private Queue<Shape> ellipsesQueue = new Queue<Shape>();
@@ -421,65 +422,13 @@ namespace BabySmash
 
         private void SpeakString(string s)
         {
-            ThreadedSpeak ts = new ThreadedSpeak(s);
-            ts.Speak();
+            var culture = WinForms.InputLanguage.CurrentInputLanguage.Culture;
+            _speechQueue.Enqueue(s, culture);
         }
 
-        private class ThreadedSpeak
+        public void Shutdown()
         {
-            private string Word = null;
-            SpeechSynthesizer SpeechSynth = new SpeechSynthesizer();
-            public ThreadedSpeak(string Word)
-            {
-                this.Word = Word;
-                CultureInfo keyboardLanguage = System.Windows.Forms.InputLanguage.CurrentInputLanguage.Culture;
-                InstalledVoice neededVoice = this.SpeechSynth.GetInstalledVoices(keyboardLanguage).FirstOrDefault();
-                if (neededVoice == null)
-                {
-                    //http://superuser.com/questions/590779/how-to-install-more-voices-to-windows-speech
-                    //https://msdn.microsoft.com/en-us/library/windows.media.speechsynthesis.speechsynthesizer.voice.aspx
-                    //http://stackoverflow.com/questions/34776593/speechsynthesizer-selectvoice-fails-with-no-matching-voice-is-installed-or-th
-                    this.Word = "Unsupported Language";
-                }
-                else if (!neededVoice.Enabled)
-                {
-                    this.Word = "Voice Disabled";
-                }
-                else
-                {
-                    try
-                    {
-                        this.SpeechSynth.SelectVoice(neededVoice.VoiceInfo.Name);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Assert(false, ex.ToString());
-                    }
-                }
-
-                SpeechSynth.Rate = -1;
-                SpeechSynth.Volume = 100;
-            }
-            public void Speak()
-            {
-                Thread oThread = new Thread(new ThreadStart(this.Start));
-                oThread.Start();
-            }
-            private void Start()
-            {
-                try
-                {
-                    SpeechSynth.Speak(Word);
-                }
-                catch (Exception e)
-                {
-                    System.Diagnostics.Trace.WriteLine(e.ToString());
-                }
-                finally
-                {
-                    SpeechSynth?.Dispose();
-                }
-            }
+            _speechQueue.Dispose();
         }
 
         public void ShowOptionsDialog()
