@@ -268,7 +268,7 @@ namespace BabySmash
                     this.wordFinder.AnimateLettersIntoWord(figuresUserControlQueue[window.Name], lastWord);
                 }
 
-                SpeakString(lastWord);
+                SpeakString(lastWord, true);
             }
             else
             {
@@ -420,10 +420,10 @@ namespace BabySmash
             Win32Audio.PlayWavResource(Utils.GetRandomSoundFile());
         }
 
-        private void SpeakString(string s)
+        private void SpeakString(string s, bool priority = false)
         {
             var culture = WinForms.InputLanguage.CurrentInputLanguage.Culture;
-            _speechQueue.Enqueue(s, culture);
+            _speechQueue.Enqueue(s, culture, priority);
         }
 
         public void Shutdown()

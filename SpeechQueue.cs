@@ -44,11 +44,19 @@ namespace BabySmash
             _workerThread.Start();
         }
 
-        public void Enqueue(string text, CultureInfo culture)
+        public void Enqueue(string text, CultureInfo culture, bool priority = false)
         {
             if (string.IsNullOrWhiteSpace(text))
             {
                 return;
+            }
+
+            if (priority)
+            {
+                // Make room for a high-priority utterance (e.g., a detected word).
+                while (_channel.Reader.TryRead(out _))
+                {
+                }
             }
 
             _channel.Writer.TryWrite(new SpeechItem(text, culture));
