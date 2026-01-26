@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using BabySmash.Core.Interfaces;
-using BabySmash.Core.Models;
+using BabySmash.Linux.Core.Interfaces;
+using BabySmash.Linux.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BabySmash.Linux;

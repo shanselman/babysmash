@@ -1,4 +1,5 @@
-namespace BabySmash.Core.Models;
+using System;
+namespace BabySmash.Linux.Core.Models;
 
 /// <summary>
 /// Settings keys and defaults for BabySmash

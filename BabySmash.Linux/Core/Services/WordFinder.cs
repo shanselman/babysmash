@@ -1,7 +1,11 @@
+using System.IO;
+using System.Threading;
+using System.Collections.Generic;
+using System;
 ﻿using System.Reflection;
 using System.Text;
 
-namespace BabySmash.Core.Services;
+namespace BabySmash.Linux.Core.Services;
 
 public class WordFinder
 {
@@ -24,7 +28,7 @@ public class WordFinder
             try
             {
                 var assembly = Assembly.GetExecutingAssembly();
-                using var stream = assembly.GetManifestResourceStream("BabySmash.Core.Resources.Words.txt");
+                using var stream = assembly.GetManifestResourceStream("BabySmash.Linux.Core.Resources.Words.txt");
                 if (stream != null)
                 {
                     using var sr = new StreamReader(stream);

@@ -1,8 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using BabySmash.Core.Models;
-using BabySmash.Core.Services;
+using BabySmash.Linux.Core.Models;
+using BabySmash.Linux.Core.Services;
 
 namespace BabySmash.Linux.Shapes;
 

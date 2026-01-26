@@ -1,6 +1,7 @@
-using BabySmash.Core.Models;
+using System;
+using BabySmash.Linux.Core.Models;
 
-namespace BabySmash.Core.Services;
+namespace BabySmash.Linux.Core.Services;
 
 /// <summary>
 /// Shared utility functions for BabySmash

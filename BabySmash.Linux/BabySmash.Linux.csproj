@@ -39,6 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BabySmash.Core\BabySmash.Core.csproj" />
+    <!-- Embed all resources -->
+    <EmbeddedResource Include="Core\Resources\Sounds\*.wav" />
+    <EmbeddedResource Include="Core\Resources\Strings\*.json" />
+    <EmbeddedResource Include="Core\Resources\Words.txt" />
   </ItemGroup>
 </Project>

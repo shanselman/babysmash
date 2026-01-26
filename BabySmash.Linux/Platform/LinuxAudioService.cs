@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using BabySmash.Core.Interfaces;
+using BabySmash.Linux.Core.Interfaces;
 
 namespace BabySmash.Linux.Platform;
 
@@ -144,8 +144,8 @@ public class LinuxAudioService : IAudioService, IDisposable
         }
 
         // Try to find the resource in Core assembly
-        var coreAssembly = typeof(BabySmash.Core.Services.WordFinder).Assembly;
-        var resourceFullName = $"BabySmash.Core.Resources.Sounds.{resourceName}";
+        var coreAssembly = typeof(BabySmash.Linux.Core.Services.WordFinder).Assembly;
+        var resourceFullName = $"BabySmash.Linux.Core.Resources.Sounds.{resourceName}";
         
         using var stream = coreAssembly.GetManifestResourceStream(resourceFullName);
         if (stream == null)

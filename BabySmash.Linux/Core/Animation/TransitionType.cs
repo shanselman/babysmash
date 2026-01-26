@@ -1,4 +1,4 @@
-namespace BabySmash.Core.Animation;
+namespace BabySmash.Linux.Core.Animation;
 
 /// <summary>
 /// Defines the set of easing equation types.

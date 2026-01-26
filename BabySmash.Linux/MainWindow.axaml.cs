@@ -7,9 +7,9 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
-using BabySmash.Core.Interfaces;
-using BabySmash.Core.Models;
-using BabySmash.Core.Services;
+using BabySmash.Linux.Core.Interfaces;
+using BabySmash.Linux.Core.Models;
+using BabySmash.Linux.Core.Services;
 using BabySmash.Linux.Shapes;
 using Microsoft.Extensions.DependencyInjection;
 

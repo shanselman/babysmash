@@ -1,5 +1,5 @@
 using System;
-using BabySmash.Core.Interfaces;
+using BabySmash.Linux.Core.Interfaces;
 
 namespace BabySmash.Linux.Platform;
 

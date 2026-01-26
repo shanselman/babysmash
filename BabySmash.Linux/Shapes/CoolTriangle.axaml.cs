@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
-using BabySmash.Core.Models;
+using BabySmash.Linux.Core.Models;
 
 namespace BabySmash.Linux.Shapes;
 

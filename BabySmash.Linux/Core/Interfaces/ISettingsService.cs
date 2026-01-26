@@ -1,4 +1,5 @@
-namespace BabySmash.Core.Interfaces;
+using System;
+namespace BabySmash.Linux.Core.Interfaces;
 
 public interface ISettingsService
 {

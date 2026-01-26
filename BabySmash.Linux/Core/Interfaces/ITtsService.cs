@@ -1,6 +1,7 @@
+using System;
 using System.Globalization;
 
-namespace BabySmash.Core.Interfaces;
+namespace BabySmash.Linux.Core.Interfaces;
 
 public interface ITtsService
 {

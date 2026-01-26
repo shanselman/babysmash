@@ -1,4 +1,4 @@
-namespace BabySmash.Core.Animation
+namespace BabySmash.Linux.Core.Animation
 {
     using System;
 

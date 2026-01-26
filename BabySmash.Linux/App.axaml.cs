@@ -4,8 +4,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using BabySmash.Core.Interfaces;
-using BabySmash.Core.Services;
+using BabySmash.Linux.Core.Interfaces;
+using BabySmash.Linux.Core.Services;
 using BabySmash.Linux.Platform;
 using Microsoft.Extensions.DependencyInjection;
 

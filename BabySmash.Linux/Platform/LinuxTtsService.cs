@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using BabySmash.Core.Interfaces;
+using BabySmash.Linux.Core.Interfaces;
 
 namespace BabySmash.Linux.Platform;
 
