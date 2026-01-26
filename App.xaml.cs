@@ -182,6 +182,7 @@ namespace BabySmash
         void Current_Exit(object sender, ExitEventArgs e)
         {
             DetachKeyboardHook();
+            Controller.Instance.Shutdown();
             _singleInstanceMutex?.Dispose();
         }
 
