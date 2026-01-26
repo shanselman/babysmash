@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Speech.Synthesis;
@@ -14,7 +15,7 @@ namespace BabySmash
         private readonly Thread _workerThread;
         private readonly CancellationTokenSource _cts = new();
         private SpeechSynthesizer _synth;
-        private readonly Dictionary<string, VoiceInfo> _voiceCache = new();
+        private readonly Dictionary<string, InstalledVoice> _voiceCache = new();
         private readonly object _voiceLock = new();
 
         private readonly struct SpeechItem
@@ -62,20 +63,30 @@ namespace BabySmash
                 }
             }
 
+            // Signal that new speech is pending (worker will cancel current speech)
+            _newItemPending = true;
             _channel.Writer.TryWrite(new SpeechItem(text, culture));
         }
 
+        private volatile bool _newItemPending;
+
         private void WorkerLoop()
         {
+            // SpeechSynthesizer is a COM object that requires STA thread
+            Debug.Assert(Thread.CurrentThread.GetApartmentState() == ApartmentState.STA,
+                "SpeechSynthesizer requires STA thread");
+
             _synth = new SpeechSynthesizer
             {
-                Rate = -1,
+                Rate = -1,  // Slower for baby clarity
                 Volume = 100
             };
 
             try
             {
                 var reader = _channel.Reader;
+                // Using blocking wait (not await) to ensure we stay on this STA thread.
+                // async/await could switch threads after await, breaking STA requirements.
                 while (reader.WaitToReadAsync(_cts.Token).AsTask().GetAwaiter().GetResult())
                 {
                     while (reader.TryRead(out var item))
@@ -96,13 +107,15 @@ namespace BabySmash
 
         private void SpeakItem(SpeechItem item)
         {
+            _newItemPending = false;
+            
             string textToSpeak = item.Text;
-            var voiceInfo = GetCachedVoiceInfo(item.Culture);
-            if (voiceInfo == null)
+            var voice = GetCachedVoice(item.Culture);
+            if (voice == null)
             {
                 textToSpeak = "Unsupported Language";
             }
-            else if (!voiceInfo.Enabled)
+            else if (!voice.Enabled)
             {
                 textToSpeak = "Voice Disabled";
             }
@@ -110,7 +123,7 @@ namespace BabySmash
             {
                 try
                 {
-                    _synth.SelectVoice(voiceInfo.Name);
+                    _synth.SelectVoice(voice.VoiceInfo.Name);
                 }
                 catch
                 {
@@ -120,7 +133,19 @@ namespace BabySmash
 
             try
             {
-                _synth.Speak(textToSpeak);
+                // Use async speech so we can cancel if new input arrives
+                _synth.SpeakAsync(textToSpeak);
+                
+                // Wait for speech to complete, but cancel if new item arrives
+                while (_synth.State == SynthesizerState.Speaking)
+                {
+                    Thread.Sleep(50);
+                    if (_newItemPending)
+                    {
+                        _synth.SpeakAsyncCancelAll();
+                        break;
+                    }
+                }
             }
             catch
             {
@@ -134,7 +159,7 @@ namespace BabySmash
             _channel.Writer.TryComplete();
         }
 
-        private VoiceInfo GetCachedVoiceInfo(CultureInfo culture)
+        private InstalledVoice GetCachedVoice(CultureInfo culture)
         {
             var key = culture.Name;
             lock (_voiceLock)
@@ -145,9 +170,8 @@ namespace BabySmash
                 }
 
                 var voice = _synth.GetInstalledVoices(culture).FirstOrDefault();
-                var voiceInfo = voice?.VoiceInfo;
-                _voiceCache[key] = voiceInfo;
-                return voiceInfo;
+                _voiceCache[key] = voice;
+                return voice;
             }
         }
     }

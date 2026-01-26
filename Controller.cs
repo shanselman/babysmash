@@ -43,7 +43,6 @@ namespace BabySmash
 
         public bool isOptionsDialogShown { get; set; }
         private bool isDrawing = false;
-        private readonly SpeechSynthesizer objSpeech = new SpeechSynthesizer();
         private readonly List<MainWindow> windows = new List<MainWindow>();
         private readonly SpeechQueue _speechQueue = new SpeechQueue(5);
 
@@ -335,7 +334,7 @@ namespace BabySmash
             {
                 PlayLaughter();
             }
-            if (objSpeech != null && Settings.Default.Sounds == "Speech")
+            else if (Settings.Default.Sounds == "Speech")
             {
                 if (template.Letter != null && template.Letter.Length == 1 && Char.IsLetterOrDigit(template.Letter[0]))
                 {
@@ -422,7 +421,8 @@ namespace BabySmash
 
         private void SpeakString(string s, bool priority = false)
         {
-            var culture = WinForms.InputLanguage.CurrentInputLanguage.Culture;
+            var culture = WinForms.InputLanguage.CurrentInputLanguage?.Culture 
+                          ?? System.Globalization.CultureInfo.CurrentUICulture;
             _speechQueue.Enqueue(s, culture, priority);
         }
 
