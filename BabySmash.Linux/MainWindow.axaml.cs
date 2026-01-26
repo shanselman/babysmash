@@ -118,10 +118,39 @@ public partial class MainWindow : Window
 
         if (displayChar.HasValue)
         {
-            // Add figure to all windows
+            char c = displayChar.Value;
+            
+            // Apply ForceUppercase setting
+            var forceUpper = _settingsService.Get(SettingsKeys.ForceUppercase, SettingsDefaults.ForceUppercase);
+            if (forceUpper && char.IsLetter(c))
+            {
+                c = char.ToUpper(c);
+            }
+            
+            var template = BabySmashUtils.GenerateFigureTemplate(c);
+            
+            // Add figure to ALL windows first (matching Windows behavior)
             foreach (var window in App.Windows)
             {
-                window.AddFigure(displayChar.Value);
+                window.AddFigure(template);
+            }
+
+            // Find the last word typed using first window's queue
+            var firstWindow = App.Windows.FirstOrDefault();
+            string? lastWord = firstWindow != null ? _wordFinder.LastWord(firstWindow._figuresList) : null;
+            
+            if (lastWord != null)
+            {
+                // Animate on ALL windows
+                foreach (var window in App.Windows)
+                {
+                    window.AnimateLettersIntoWord(lastWord);
+                }
+                _ttsService.Speak($"You spelled {lastWord}!");
+            }
+            else
+            {
+                PlaySound(template);
             }
         }
 
@@ -189,16 +218,8 @@ public partial class MainWindow : Window
         return '*';
     }
 
-    private void AddFigure(char c)
+    public void AddFigure(FigureTemplate template)
     {
-        // Apply ForceUppercase setting
-        var forceUpper = _settingsService.Get(SettingsKeys.ForceUppercase, SettingsDefaults.ForceUppercase);
-        if (forceUpper && char.IsLetter(c))
-        {
-            c = char.ToUpper(c);
-        }
-        
-        var template = BabySmashUtils.GenerateFigureTemplate(c);
         var figure = FigureGenerator.CreateFigure(template);
         
         // Set face visibility based on settings
@@ -221,18 +242,6 @@ public partial class MainWindow : Window
         figuresCanvas.Children.Add(figure);
         _figuresQueue.Enqueue(figure);
         _figuresList.Add(figure);
-
-        // Check for word completion
-        var word = _wordFinder.AddLetter(c);
-        if (word != null)
-        {
-            _ttsService.Speak($"You spelled {word}!");
-            AnimateLettersIntoWord(word);
-        }
-        else
-        {
-            PlaySound(template);
-        }
 
         // Clear old figures if queue is too long
         var clearAfter = _settingsService.Get(SettingsKeys.ClearAfter, SettingsDefaults.ClearAfter);

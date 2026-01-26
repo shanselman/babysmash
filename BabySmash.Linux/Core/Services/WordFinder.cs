@@ -2,10 +2,17 @@ using System.IO;
 using System.Threading;
 using System.Collections.Generic;
 using System;
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text;
+using Avalonia.Controls;
 
 namespace BabySmash.Linux.Core.Services;
+
+// Interface so WordFinder doesn't need direct reference to CoolLetter
+public interface ILetterFigure
+{
+    char Character { get; }
+}
 
 public class WordFinder
 {
@@ -13,8 +20,6 @@ public class WordFinder
 
     private volatile bool _wordsReady;
     private readonly HashSet<string> _words = new();
-    private readonly StringBuilder _currentSequence = new();
-    private readonly object _lock = new();
 
     public WordFinder()
     {
@@ -39,10 +44,7 @@ public class WordFinder
                         if (!s.Contains(";") && !s.Contains("/") && !s.Contains("\\") &&
                             s.Length >= MinimumWordLength && s.Length <= MaximumWordLength)
                         {
-                            lock (_lock)
-                            {
-                                _words.Add(s.ToUpper());
-                            }
+                            _words.Add(s.ToUpper());
                         }
                         s = sr.ReadLine();
                     }
@@ -60,45 +62,43 @@ public class WordFinder
         t.Start();
     }
 
-    public string? AddLetter(char letter)
+    /// <summary>
+    /// Checks the figures queue for the last word typed (matching Windows behavior)
+    /// </summary>
+    public string? LastWord(IList<Control> figuresQueue)
     {
-        if (!_wordsReady || !char.IsLetter(letter))
+        // If not done loading, or could not yet form a word based on queue length, just abort.
+        int figuresPos = figuresQueue.Count - 1;
+        if (!_wordsReady || figuresPos < MinimumWordLength - 1)
+        {
             return null;
+        }
 
-        lock (_lock)
+        // Loop while the most recently pressed things are still letters
+        string? longestWord = null;
+        var stringToCheck = new StringBuilder();
+        int lowestIndexToCheck = Math.Max(0, figuresPos - MaximumWordLength);
+        
+        while (figuresPos >= lowestIndexToCheck)
         {
-            _currentSequence.Append(char.ToUpper(letter));
-
-            // Check progressively longer sequences
-            string? longestWord = null;
-            for (int len = Math.Min(_currentSequence.Length, MaximumWordLength); len >= MinimumWordLength; len--)
+            if (figuresQueue[figuresPos] is ILetterFigure letterFigure)
             {
-                if (_currentSequence.Length >= len)
+                // Build up the string and check to see if it is a word so far.
+                stringToCheck.Insert(0, char.ToUpper(letterFigure.Character));
+                string s = stringToCheck.ToString();
+                if (_words.Contains(s) && s.Length >= MinimumWordLength)
                 {
-                    string candidate = _currentSequence.ToString(_currentSequence.Length - len, len);
-                    if (_words.Contains(candidate))
-                    {
-                        longestWord = candidate;
-                        break; // Found the longest match
-                    }
+                    longestWord = s;
                 }
+                figuresPos--;
             }
-
-            // Keep sequence manageable
-            if (_currentSequence.Length > MaximumWordLength)
+            else
             {
-                _currentSequence.Remove(0, _currentSequence.Length - MaximumWordLength);
+                // If we encounter a non-letter, stop
+                break;
             }
-
-            return longestWord;
         }
-    }
 
-    public void Reset()
-    {
-        lock (_lock)
-        {
-            _currentSequence.Clear();
-        }
+        return longestWord;
     }
 }

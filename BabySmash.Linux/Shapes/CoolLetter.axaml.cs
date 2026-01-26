@@ -6,7 +6,7 @@ using BabySmash.Linux.Core.Services;
 
 namespace BabySmash.Linux.Shapes;
 
-public partial class CoolLetter : UserControl
+public partial class CoolLetter : UserControl, ILetterFigure
 {
     private TextBlock? _letterText;
     
@@ -26,23 +26,22 @@ public partial class CoolLetter : UserControl
 
     public void SetLetter(char letter, BabySmashColor color)
     {
-        Character = letter;
+        Character = char.ToUpperInvariant(letter); // Always store uppercase for word matching
         
         if (_letterText != null)
         {
-            // Randomly choose uppercase or lowercase
+            // Randomly choose uppercase or lowercase for display
             char displayChar = BabySmashUtils.GetRandomBoolean() 
                 ? char.ToUpperInvariant(letter) 
                 : char.ToLowerInvariant(letter);
             
             _letterText.Text = displayChar.ToString();
             _letterText.Foreground = CreateGradientBrush(color);
-            
-            // Measure and set size after text is set
-            _letterText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            Width = _letterText.DesiredSize.Width;
-            Height = _letterText.DesiredSize.Height;
         }
+        
+        // Size needs to accommodate FontSize 300 (matching Windows behavior)
+        Width = 350;
+        Height = 400;
     }
 
     private static IBrush CreateGradientBrush(BabySmashColor color)
