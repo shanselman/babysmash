@@ -29,6 +29,21 @@ jobs:
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '10.0.x'
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v4
+      with:
+        versionSpec: '6.4.x'
+
+    - name: GitVersion
+      uses: gittools/actions/gitversion/execute@v4
+      id: gitversion
+
+    - name: Set version environment variable
+      run: |
+        VERSION="${{ steps.gitversion.outputs.semVer }}"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Using version: $VERSION"
         
     - name: Restore dependencies
       run: dotnet restore BabySmash.Linux/BabySmash.Linux.csproj
@@ -46,11 +61,27 @@ jobs:
           -p:PublishSingleFile=true \
           --self-contained
 
-    - name: Prepare Linux artifacts
+    - name: Install nfpm
       run: |
-        mkdir -p artifacts
-        
-        # Create tarball with executable, desktop file, icon, and README
+        echo "Installing nfpm..."
+        curl -sfL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh -s -- -b /usr/local/bin
+        nfpm --version
+
+    - name: Create .deb package
+      run: |
+        nfpm package --packager deb --target artifacts/
+      env:
+        VERSION: ${{ steps.gitversion.outputs.semVer }}
+
+    - name: Create .rpm package
+      run: |
+        nfpm package --packager rpm --target artifacts/
+      env:
+        VERSION: ${{ steps.gitversion.outputs.semVer }}
+
+    - name: Prepare Linux tarball
+      run: |
+        # Also create tarball for users who prefer it
         mkdir -p temp-linux
         cp BabySmash.Linux/bin/Release/net10.0/linux-x64/publish/BabySmash.Linux temp-linux/babysmash
         cp BabySmash.Linux/babysmash.desktop temp-linux/
@@ -234,7 +265,9 @@ jobs:
           |------|-------------|
           | `BabySmash-Setup.exe` | **Windows** - Installer with Start Menu shortcut |
           | `BabySmash-win-x64.zip` | **Windows** - Portable version (also used by auto-updater) |
-          | `BabySmash-linux-x64.tar.gz` | **Linux** - Extract and run `./babysmash` |
+          | `babysmash_*_amd64.deb` | **Debian/Ubuntu** - Install with `sudo dpkg -i babysmash_*_amd64.deb` |
+          | `babysmash-*.x86_64.rpm` | **Fedora/RHEL** - Install with `sudo rpm -i babysmash-*.x86_64.rpm` |
+          | `BabySmash-linux-x64.tar.gz` | **Linux** - Manual install, extract and run `./babysmash` |
           
           **Self-contained** - No .NET installation required.
           
@@ -243,9 +276,26 @@ jobs:
           - `Alt+O` - Options (Linux) / `Ctrl+Shift+Alt+O` - Options (Windows)
           - `Escape` - Exit (Linux) / `Alt+F4` - Exit (Windows)
           
-          ### 🐧 Linux Requirements
-          - `espeak` for text-to-speech: `sudo apt install espeak`
-          - `pulseaudio-utils` for audio: `sudo apt install pulseaudio-utils`
+          ### 🐧 Linux Package Installation
+          
+          **Debian/Ubuntu:**
+          ```bash
+          sudo dpkg -i babysmash_*_amd64.deb
+          sudo apt-get install -f  # Install dependencies if needed
+          ```
+          
+          **Fedora/RHEL:**
+          ```bash
+          sudo rpm -i babysmash-*.x86_64.rpm
+          ```
+          
+          After installation, BabySmash will appear in your application menu!
+          
+          ### 🐧 Linux Dependencies
+          - `espeak` for text-to-speech
+          - `pulseaudio-utils` or `alsa-utils` for audio
+          
+          These are automatically installed when using .deb or .rpm packages.
           
           ---
         append_body: true
