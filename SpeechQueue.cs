@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Speech.Synthesis;
@@ -13,6 +14,8 @@ namespace BabySmash
         private readonly Thread _workerThread;
         private readonly CancellationTokenSource _cts = new();
         private SpeechSynthesizer _synth;
+        private readonly Dictionary<string, VoiceInfo> _voiceCache = new();
+        private readonly object _voiceLock = new();
 
         private readonly struct SpeechItem
         {
@@ -94,12 +97,12 @@ namespace BabySmash
         private void SpeakItem(SpeechItem item)
         {
             string textToSpeak = item.Text;
-            var voice = _synth.GetInstalledVoices(item.Culture).FirstOrDefault();
-            if (voice == null)
+            var voiceInfo = GetCachedVoiceInfo(item.Culture);
+            if (voiceInfo == null)
             {
                 textToSpeak = "Unsupported Language";
             }
-            else if (!voice.Enabled)
+            else if (!voiceInfo.Enabled)
             {
                 textToSpeak = "Voice Disabled";
             }
@@ -107,7 +110,7 @@ namespace BabySmash
             {
                 try
                 {
-                    _synth.SelectVoice(voice.VoiceInfo.Name);
+                    _synth.SelectVoice(voiceInfo.Name);
                 }
                 catch
                 {
@@ -129,6 +132,23 @@ namespace BabySmash
         {
             _cts.Cancel();
             _channel.Writer.TryComplete();
+        }
+
+        private VoiceInfo GetCachedVoiceInfo(CultureInfo culture)
+        {
+            var key = culture.Name;
+            lock (_voiceLock)
+            {
+                if (_voiceCache.TryGetValue(key, out var cached))
+                {
+                    return cached;
+                }
+
+                var voice = _synth.GetInstalledVoices(culture).FirstOrDefault();
+                var voiceInfo = voice?.VoiceInfo;
+                _voiceCache[key] = voiceInfo;
+                return voiceInfo;
+            }
         }
     }
 }
