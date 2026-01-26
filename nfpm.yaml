@@ -5,7 +5,7 @@ platform: "linux"
 version: "${VERSION}"
 section: "games"
 priority: "optional"
-maintainer: "Scott Hanselman <https://github.com/shanselman>"
+maintainer: "Scott Hanselman"
 description: |
   BabySmash - A game for babies who like to bang on the keyboard
   As babies or children smash on the keyboard, colored shapes, letters and 
