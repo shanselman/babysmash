@@ -7,9 +7,10 @@ public class WordFinder
 {
     private const int MinimumWordLength = 2, MaximumWordLength = 15;
 
-    private bool wordsReady;
-    private readonly HashSet<string> words = new();
-    private readonly StringBuilder currentSequence = new();
+    private volatile bool _wordsReady;
+    private readonly HashSet<string> _words = new();
+    private readonly StringBuilder _currentSequence = new();
+    private readonly object _lock = new();
 
     public WordFinder()
     {
@@ -34,12 +35,15 @@ public class WordFinder
                         if (!s.Contains(";") && !s.Contains("/") && !s.Contains("\\") &&
                             s.Length >= MinimumWordLength && s.Length <= MaximumWordLength)
                         {
-                            this.words.Add(s.ToUpper());
+                            lock (_lock)
+                            {
+                                _words.Add(s.ToUpper());
+                            }
                         }
                         s = sr.ReadLine();
                     }
                 }
-                wordsReady = true;
+                _wordsReady = true;
             }
             catch
             {
@@ -54,37 +58,43 @@ public class WordFinder
 
     public string? AddLetter(char letter)
     {
-        if (!wordsReady || !char.IsLetter(letter))
+        if (!_wordsReady || !char.IsLetter(letter))
             return null;
 
-        currentSequence.Append(char.ToUpper(letter));
-
-        // Check progressively longer sequences
-        string? longestWord = null;
-        for (int len = Math.Min(currentSequence.Length, MaximumWordLength); len >= MinimumWordLength; len--)
+        lock (_lock)
         {
-            if (currentSequence.Length >= len)
+            _currentSequence.Append(char.ToUpper(letter));
+
+            // Check progressively longer sequences
+            string? longestWord = null;
+            for (int len = Math.Min(_currentSequence.Length, MaximumWordLength); len >= MinimumWordLength; len--)
             {
-                string candidate = currentSequence.ToString(currentSequence.Length - len, len);
-                if (words.Contains(candidate))
+                if (_currentSequence.Length >= len)
                 {
-                    longestWord = candidate;
-                    break; // Found the longest match
+                    string candidate = _currentSequence.ToString(_currentSequence.Length - len, len);
+                    if (_words.Contains(candidate))
+                    {
+                        longestWord = candidate;
+                        break; // Found the longest match
+                    }
                 }
             }
-        }
 
-        // Keep sequence manageable
-        if (currentSequence.Length > MaximumWordLength)
-        {
-            currentSequence.Remove(0, currentSequence.Length - MaximumWordLength);
-        }
+            // Keep sequence manageable
+            if (_currentSequence.Length > MaximumWordLength)
+            {
+                _currentSequence.Remove(0, _currentSequence.Length - MaximumWordLength);
+            }
 
-        return longestWord;
+            return longestWord;
+        }
     }
 
     public void Reset()
     {
-        currentSequence.Clear();
+        lock (_lock)
+        {
+            _currentSequence.Clear();
+        }
     }
 }

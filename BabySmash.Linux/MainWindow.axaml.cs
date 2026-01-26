@@ -24,6 +24,7 @@ public partial class MainWindow : Window
     private readonly Queue<Control> _figuresQueue = new();
     private readonly Queue<Shape> _mouseEllipsesQueue = new();
     private readonly List<Control> _figuresList = new();
+    private readonly List<DispatcherTimer> _animationTimers = new();
     private readonly DispatcherTimer _focusTimer;
     private bool _isDrawing;
     private bool _isOptionsDialogShown;
@@ -133,11 +134,35 @@ public partial class MainWindow : Window
         {
             if (window != this)
             {
-                window._focusTimer.Stop();
+                window.StopAllTimers();
                 window.Close();
             }
         }
+        StopAllTimers();
         Close();
+    }
+
+    private void StopAllTimers()
+    {
+        _focusTimer.Stop();
+        foreach (var timer in _animationTimers.ToArray())
+        {
+            timer.Stop();
+        }
+        _animationTimers.Clear();
+    }
+
+    private DispatcherTimer CreateAnimationTimer(TimeSpan interval)
+    {
+        var timer = new DispatcherTimer { Interval = interval };
+        _animationTimers.Add(timer);
+        return timer;
+    }
+
+    private void RemoveAnimationTimer(DispatcherTimer timer)
+    {
+        timer.Stop();
+        _animationTimers.Remove(timer);
     }
 
     private char? GetDisplayChar(Key key)
@@ -245,7 +270,7 @@ public partial class MainWindow : Window
         var startTime = DateTime.Now;
         var duration = TimeSpan.FromSeconds(1.0); // 1 second like Windows
         
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+        var timer = CreateAnimationTimer(TimeSpan.FromMilliseconds(16));
         timer.Tick += (s, e) =>
         {
             var elapsed = DateTime.Now - startTime;
@@ -263,7 +288,7 @@ public partial class MainWindow : Window
             
             if (progress >= 1.0)
             {
-                timer.Stop();
+                RemoveAnimationTimer(timer);
                 scaleTransform.ScaleX = 1.0;
                 scaleTransform.ScaleY = 1.0;
                 rotateTransform.Angle = 0;
@@ -369,13 +394,14 @@ public partial class MainWindow : Window
             double targetY = centerY - letter.Height / 2;
             
             var startTime = DateTime.Now;
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+            var timer = CreateAnimationTimer(TimeSpan.FromMilliseconds(16));
             
             var capturedLetter = letter;
             var capturedTargetX = targetX;
             var capturedTargetY = targetY;
             var capturedStartX = startX;
             var capturedStartY = startY;
+            var capturedTimer = timer;
             
             timer.Tick += (s, e) =>
             {
@@ -391,7 +417,7 @@ public partial class MainWindow : Window
                 
                 if (progress >= 1.0)
                 {
-                    timer.Stop();
+                    RemoveAnimationTimer(capturedTimer);
                 }
             };
             timer.Start();
@@ -406,7 +432,7 @@ public partial class MainWindow : Window
         var startTime = DateTime.Now;
         var duration = TimeSpan.FromSeconds(fadeAfterSeconds);
         
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+        var timer = CreateAnimationTimer(TimeSpan.FromMilliseconds(50));
         timer.Tick += (s, e) =>
         {
             var elapsed = DateTime.Now - startTime;
@@ -416,7 +442,7 @@ public partial class MainWindow : Window
             
             if (progress >= 1.0)
             {
-                timer.Stop();
+                RemoveAnimationTimer(timer);
                 figure.Opacity = 0;
             }
         };
@@ -557,7 +583,7 @@ public partial class MainWindow : Window
     private void AnimateWithKeyframes<T>(T transform, double[] keyframes, Action<double> setValue, TimeSpan duration) where T : class
     {
         var startTime = DateTime.Now;
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+        var timer = CreateAnimationTimer(TimeSpan.FromMilliseconds(16));
         
         timer.Tick += (s, e) =>
         {
@@ -575,7 +601,7 @@ public partial class MainWindow : Window
             
             if (progress >= 1.0)
             {
-                timer.Stop();
+                RemoveAnimationTimer(timer);
                 setValue(keyframes[keyframes.Length - 1]);
             }
         };

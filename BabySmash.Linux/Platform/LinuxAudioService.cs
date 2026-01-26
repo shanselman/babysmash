@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -6,12 +7,14 @@ using BabySmash.Core.Interfaces;
 
 namespace BabySmash.Linux.Platform;
 
-public class LinuxAudioService : IAudioService
+public class LinuxAudioService : IAudioService, IDisposable
 {
     private bool _warningShown = false;
     private bool _audioAvailable = true;
     private string? _audioPlayer;
     private string _tempDir;
+    private readonly List<Process> _runningProcesses = new();
+    private readonly object _processLock = new();
 
     public LinuxAudioService()
     {
@@ -32,7 +35,7 @@ public class LinuxAudioService : IAudioService
         {
             try
             {
-                var process = new Process
+                using var process = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -104,10 +107,25 @@ public class LinuxAudioService : IAudioService
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardError = true
-                }
+                },
+                EnableRaisingEvents = true
             };
+            
+            process.Exited += (s, e) =>
+            {
+                lock (_processLock)
+                {
+                    _runningProcesses.Remove(process);
+                }
+                process.Dispose();
+            };
+            
+            lock (_processLock)
+            {
+                _runningProcesses.Add(process);
+            }
+            
             process.Start();
-            // Don't wait - let it play asynchronously
         }
         catch (Exception ex)
         {
@@ -158,27 +176,46 @@ public class LinuxAudioService : IAudioService
 
     public void StopAll()
     {
+        lock (_processLock)
+        {
+            foreach (var process in _runningProcesses.ToArray())
+            {
+                try
+                {
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                    }
+                    process.Dispose();
+                }
+                catch
+                {
+                    // Ignore errors
+                }
+            }
+            _runningProcesses.Clear();
+        }
+    }
+
+    public void Cleanup()
+    {
+        // Clean up temp sound files
         try
         {
-            // Kill any running audio processes
-            if (_audioPlayer != null)
+            if (Directory.Exists(_tempDir))
             {
-                var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "pkill",
-                        Arguments = $"-9 {_audioPlayer}",
-                        CreateNoWindow = true,
-                        UseShellExecute = false
-                    }
-                };
-                process.Start();
+                Directory.Delete(_tempDir, true);
             }
         }
         catch
         {
-            // Ignore errors
+            // Ignore cleanup errors
         }
+    }
+
+    public void Dispose()
+    {
+        StopAll();
+        Cleanup();
     }
 }

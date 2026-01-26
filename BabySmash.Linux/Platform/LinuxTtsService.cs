@@ -1,15 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using BabySmash.Core.Interfaces;
 
 namespace BabySmash.Linux.Platform;
 
-public class LinuxTtsService : ITtsService
+public class LinuxTtsService : ITtsService, IDisposable
 {
     private bool _warningShown = false;
     private bool _espeakAvailable = true;
     private string? _currentLanguage;
+    private readonly List<Process> _runningProcesses = new();
+    private readonly object _processLock = new();
 
     public LinuxTtsService()
     {
@@ -21,7 +24,7 @@ public class LinuxTtsService : ITtsService
     {
         try
         {
-            var process = new Process
+            using var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -65,6 +68,9 @@ public class LinuxTtsService : ITtsService
 
         try
         {
+            // Cancel any current speech first
+            CancelSpeech();
+            
             var args = $"\"{text}\"";
             if (!string.IsNullOrEmpty(_currentLanguage))
             {
@@ -80,10 +86,25 @@ public class LinuxTtsService : ITtsService
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardError = true
-                }
+                },
+                EnableRaisingEvents = true
             };
+            
+            process.Exited += (s, e) =>
+            {
+                lock (_processLock)
+                {
+                    _runningProcesses.Remove(process);
+                }
+                process.Dispose();
+            };
+            
+            lock (_processLock)
+            {
+                _runningProcesses.Add(process);
+            }
+            
             process.Start();
-            // Don't wait - let it play asynchronously
         }
         catch (Exception ex)
         {
@@ -111,24 +132,29 @@ public class LinuxTtsService : ITtsService
 
     public void CancelSpeech()
     {
-        try
+        lock (_processLock)
         {
-            // Kill any running espeak processes
-            var process = new Process
+            foreach (var process in _runningProcesses.ToArray())
             {
-                StartInfo = new ProcessStartInfo
+                try
                 {
-                    FileName = "pkill",
-                    Arguments = "-9 espeak",
-                    CreateNoWindow = true,
-                    UseShellExecute = false
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                    }
+                    process.Dispose();
                 }
-            };
-            process.Start();
+                catch
+                {
+                    // Ignore errors
+                }
+            }
+            _runningProcesses.Clear();
         }
-        catch
-        {
-            // Ignore errors
-        }
+    }
+
+    public void Dispose()
+    {
+        CancelSpeech();
     }
 }
