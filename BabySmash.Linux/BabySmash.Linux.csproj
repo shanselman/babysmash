@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    
+    <!-- Linux-specific settings -->
+    <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    
+    <!-- Assembly Information -->
+    <AssemblyVersion>5.0.0.0</AssemblyVersion>
+    <FileVersion>5.0.0.0</FileVersion>
+    <Version>5.0.0</Version>
+    <Authors>Scott Hanselman</Authors>
+    <Company>Scott Hanselman</Company>
+    <Product>BabySmash! for Linux</Product>
+    <Description>A game for babies who like to bang on the keyboard - Linux version</Description>
+    
+    <!-- Suppress nullable warnings when disabled -->
+    <NoWarn>$(NoWarn);CS8632</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.11" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.11">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Shared resources (linked from Shared folder) -->
+    <EmbeddedResource Include="..\Shared\Resources\Sounds\*.wav" Link="Core\Resources\Sounds\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\Shared\Resources\Strings\*.json" Link="Core\Resources\Strings\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\Shared\Resources\Words.txt" Link="Core\Resources\Words.txt" />
+  </ItemGroup>
+</Project>

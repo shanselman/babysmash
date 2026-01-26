@@ -99,6 +99,21 @@ Originally developed by [Scott Hanselman](https://www.hanselman.com), based on A
 
 > **Looking for the original code?** The legacy .NET Framework 3.5 version is preserved in the [legacy-dotnet35](https://github.com/shanselman/babysmash/tree/legacy-dotnet35) branch.
 
+## Cross-Platform (Future)
+
+Planning is underway for an **Avalonia port** to bring BabySmash to **Linux**!
+
+📋 See the [Avalonia Port Plan](AVALONIA_PORT_PLAN.md) for the complete roadmap and architecture.
+
+**Documentation**:
+- [Planning Document](AVALONIA_PORT_PLAN.md) - Comprehensive plan for Linux port
+- [Architecture](docs/AVALONIA_ARCHITECTURE.md) - Technical architecture details
+- [Quick Start Guide](docs/AVALONIA_QUICKSTART.md) - Developer getting started guide
+
+**Focus**: Linux support via Avalonia while keeping the existing Windows WPF version
+
+**Interested in contributing?** The Linux port is a great opportunity to help bring BabySmash to Linux users!
+
 ## License
 
 See [LICENSE](LICENSE)

@@ -1,0 +1,15 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="BabySmash.Linux.Shapes.CoolLetter">
+    <Canvas x:Name="Letter">
+        <TextBlock x:Name="LetterText"
+                   FontSize="300"
+                   FontWeight="Heavy"
+                   FontFamily="Arial, Helvetica, sans-serif">
+            <TextBlock.Effect>
+                <DropShadowEffect BlurRadius="8" Color="Black" OffsetX="4" OffsetY="4" Opacity="0.5"/>
+            </TextBlock.Effect>
+        </TextBlock>
+        <!-- Stroke outline effect achieved via text rendering -->
+    </Canvas>
+</UserControl>

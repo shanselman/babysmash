@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="BabySmash.Linux.Shapes.CoolTrapezoid"
+             Width="310" Height="165">
+    <Canvas x:Name="Trapezoid">
+        <!-- Trapezoid body - exact path from Windows -->
+        <Path x:Name="Body" 
+              StrokeThickness="10" 
+              Stroke="Black"
+              Data="F1 M 302.564941,159.833984 L 6.651855,159.833984 L 51.451172,5 L 257.766113,5 L 302.564941,159.833984 Z">
+            <Path.Fill>
+                <RadialGradientBrush GradientOrigin="0.75,0.25">
+                    <GradientStop Offset="0" Color="#FF00FFFF"/>
+                    <GradientStop Offset="1" Color="#FF0000FF"/>
+                </RadialGradientBrush>
+            </Path.Fill>
+        </Path>
+        
+        <Canvas x:Name="Face">
+            <!-- Smile - exact path from Windows -->
+            <Path Fill="Black" Data="F1 M 172.153809,102.869141 C 172.137207,112.559570 164.296387,120.399414 154.608887,120.416016 L 154.608887,120.416016 C 144.918457,120.399414 137.077637,112.559570 137.061035,102.869141 L 137.061035,102.869141 C 137.061035,100.108398 134.821777,97.869141 132.061035,97.869141 L 132.061035,97.869141 C 129.300293,97.869141 127.061035,100.108398 127.061035,102.869141 L 127.061035,102.869141 C 127.064941,118.084961 139.393066,130.413086 154.608887,130.416992 L 154.608887,130.416992 C 169.822754,130.413086 182.151855,118.084961 182.154785,102.869141 L 182.154785,102.869141 C 182.154785,100.108398 179.916504,97.869141 177.153809,97.869141 L 177.153809,97.869141 C 174.393066,97.869141 172.153809,100.108398 172.153809,102.869141 L 172.153809,102.869141 Z"/>
+            <!-- Eyes - pill-shaped eyes from Windows -->
+            <Canvas x:Name="Eye1">
+                <Path Fill="Black" Stretch="Fill" Width="13" Height="34" Canvas.Left="139.608" Canvas.Top="34.417" 
+                      Data="M6.5,0 C10.089844,0 13,2.9101563 13,6.5 L13,27.5 C13,31.089844 10.089844,34 6.5,34 2.9101563,34 0,31.089844 0,27.5 L0,6.5 C0,2.9101563 2.9101563,0 6.5,0 z"/>
+            </Canvas>
+            <Canvas x:Name="Eye2">
+                <Path Fill="Black" Stretch="Fill" Width="13" Height="34" Canvas.Left="156.608" Canvas.Top="34.417" 
+                      Data="M6.5,0 C10.089844,0 13,2.9101563 13,6.5 L13,27.5 C13,31.089844 10.089844,34 6.5,34 2.9101563,34 0,31.089844 0,27.5 L0,6.5 C0,2.9101563 2.9101563,0 6.5,0 z"/>
+            </Canvas>
+        </Canvas>
+    </Canvas>
+</UserControl>

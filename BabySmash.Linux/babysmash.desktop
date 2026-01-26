@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=BabySmash
+GenericName=Baby Keyboard Game
+Comment=Let your baby smash the keyboard and see colorful shapes and letters
+Exec=babysmash
+Icon=babysmash
+Terminal=false
+Categories=Game;Education;KidsGame;
+Keywords=baby;kids;toddler;keyboard;learning;
+StartupWMClass=BabySmash.Linux

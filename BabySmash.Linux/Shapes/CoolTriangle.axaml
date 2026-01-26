@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="BabySmash.Linux.Shapes.CoolTriangle"
+             Width="248" Height="180">
+    <Canvas x:Name="Triangle">
+        <!-- Triangle body - exact path from Windows -->
+        <Path x:Name="Body" 
+              Stretch="Fill" 
+              Stroke="Black" 
+              StrokeThickness="10"
+              Width="248" Height="180"
+              Data="M-182.61185,-253.00014 L-301.61203,-82.000235 C-301.61203,-82.000235 -67,-81 -64,-82 -61,-83 -182.61185,-253.00014 -182.61185,-253.00014 z">
+            <Path.Fill>
+                <RadialGradientBrush GradientOrigin="0.75,0.25">
+                    <GradientStop Offset="0" Color="#FFFF00F9"/>
+                    <GradientStop Offset="1" Color="#FFF0ECEA"/>
+                </RadialGradientBrush>
+            </Path.Fill>
+        </Path>
+        
+        <!-- Face - adjusted to center on triangle -->
+        <Canvas x:Name="Face" Canvas.Left="15" Canvas.Top="0">
+            <!-- Eyes -->
+            <Canvas x:Name="Eye1">
+                <Path Fill="Black" 
+                      Data="F1 M10.294922,23.294434 C13.813476,23.294434 17.250976,23.633789 20.589844,24.25293 L20.589844,5.3139647 C20.589844,2.3793947 18.210937,-3.125E-07 15.275391,-3.125E-07 L5.3125001,-3.125E-07 C2.3789061,-3.125E-07 1.25E-07,2.3793947 1.25E-07,5.3139647 L1.25E-07,24.25293 C3.3388671,23.633789 6.7763671,23.294434 10.294922,23.294434 z" 
+                      Canvas.Left="85.14" Canvas.Top="83.747"/>
+            </Canvas>
+            <Canvas x:Name="Eye2">
+                <Path Fill="Black" 
+                      Data="F1 M10.294922,23.294434 C13.813476,23.294434 17.250976,23.633789 20.589844,24.25293 L20.589844,5.3139647 C20.589844,2.3793947 18.210937,-3.125E-07 15.275391,-3.125E-07 L5.3125001,-3.125E-07 C2.3789061,-3.125E-07 1.25E-07,2.3793947 1.25E-07,5.3139647 L1.25E-07,24.25293 C3.3388671,23.633789 6.7763671,23.294434 10.294922,23.294434 z" 
+                      Canvas.Left="112.853" Canvas.Top="83.747"/>
+            </Canvas>
+            <!-- Mouth -->
+            <Path Fill="Black" 
+                  Data="F1 M 122.779297,145.530762 C 122.779297,156.178223 114.147461,164.810059 103.5,164.810059 C 92.852539,164.810059 84.220703,156.178223 84.220703,145.530762 C 84.220703,134.883301 92.852539,145.530762 103.5,145.530762 C 114.147461,145.530762 122.779297,134.883301 122.779297,145.530762 Z" 
+                  Canvas.Left="6" Canvas.Top="-1"/>
+        </Canvas>
+    </Canvas>
+</UserControl>

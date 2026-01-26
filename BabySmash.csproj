@@ -47,6 +47,10 @@
     <None Remove="BuildProcessTemplates\**" />
     <Page Remove="BuildProcessTemplates\**" />
     <Compile Remove="BuildProcessTemplates\**" />
+    <!-- Exclude Linux project from Windows build -->
+    <Compile Remove="BabySmash.Linux\**" />
+    <None Remove="BabySmash.Linux\**" />
+    <EmbeddedResource Remove="BabySmash.Linux\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,10 +60,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- All resources embedded for single-file deployment -->
-    <EmbeddedResource Include="Resources\Sounds\*.wav" />
-    <EmbeddedResource Include="Resources\Strings\*.json" />
-    <EmbeddedResource Include="Words.txt" />
+    <!-- Shared resources (linked from Shared folder) -->
+    <EmbeddedResource Include="Shared\Resources\Sounds\*.wav" Link="Resources\Sounds\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Shared\Resources\Strings\*.json" Link="Resources\Strings\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Shared\Resources\Words.txt" Link="Words.txt" />
     <EmbeddedResource Include="App.ico" />
   </ItemGroup>
 
