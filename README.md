@@ -22,7 +22,9 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 |----------|----------|-------|
 | **Windows** | [BabySmash-Setup.exe](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-Setup.exe) | Installer with auto-updates |
 | **Windows** | [BabySmash-win-x64.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-win-x64.zip) | Portable version |
-| **Linux** | [BabySmash-linux-x64.tar.gz](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-linux-x64.tar.gz) | Self-contained executable |
+| **Debian/Ubuntu** | [.deb package](https://github.com/shanselman/babysmash/releases/latest) | Easy install with package manager |
+| **Fedora/RHEL** | [.rpm package](https://github.com/shanselman/babysmash/releases/latest) | Easy install with package manager |
+| **Linux** | [BabySmash-linux-x64.tar.gz](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-linux-x64.tar.gz) | Manual installation |
 
 ---
 
@@ -57,6 +59,34 @@ BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (lik
 
 ### Installation
 
+#### Option 1: Package Manager (Recommended)
+
+**Debian/Ubuntu:**
+```bash
+# Download the .deb package from the latest release
+wget https://github.com/shanselman/babysmash/releases/latest/download/babysmash_*_amd64.deb
+sudo dpkg -i babysmash_*_amd64.deb
+sudo apt-get install -f  # Install dependencies if needed
+```
+
+**Fedora/RHEL/CentOS:**
+```bash
+# Download the .rpm package from the latest release
+wget https://github.com/shanselman/babysmash/releases/latest/download/babysmash-*.x86_64.rpm
+sudo rpm -i babysmash-*.x86_64.rpm
+# or on Fedora:
+sudo dnf install babysmash-*.x86_64.rpm
+```
+
+After installation, BabySmash will appear in your application menu under Games!
+
+To run from terminal:
+```bash
+babysmash
+```
+
+#### Option 2: Manual Installation (Tarball)
+
 1. Download and extract:
    ```bash
    tar -xzf BabySmash-linux-x64.tar.gz
@@ -78,9 +108,9 @@ BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (lik
    ./babysmash
    ```
 
-### Add to Application Menu (Optional)
+### Add to Application Menu (Manual Install Only)
 
-To make BabySmash appear in your desktop's app launcher:
+If you used the tarball (manual installation), you can optionally add BabySmash to your desktop's app launcher:
 
 ```bash
 # Copy executable to a permanent location
@@ -96,6 +126,8 @@ cp babysmash.desktop ~/.local/share/applications/
 gtk-update-icon-cache /usr/share/icons/hicolor/ 2>/dev/null || true
 ```
 
+**Note:** This is automatically done when using .deb or .rpm packages!
+
 ### Keyboard Shortcuts
 
 | Shortcut | Action |
@@ -110,6 +142,8 @@ gtk-update-icon-cache /usr/share/icons/hicolor/ 2>/dev/null || true
 - `espeak` for text-to-speech
 - `paplay` or `aplay` for audio
 - No .NET installation required (self-contained)
+
+**Note:** Dependencies are automatically installed when using .deb or .rpm packages!
 
 ---
 

@@ -64,7 +64,7 @@ Quick context for coding agents working on BabySmash.
 ## CI and versioning
 - CI is defined in `.github/workflows/build.yml` (Build BabySmash).
 - Runs on all branches and PRs; release jobs run only on tags `v*`.
-- Versioning uses GitVersion in the Windows build:
+- Versioning uses GitVersion in both Windows and Linux builds:
   - SemVer from GitVersion is injected into `Version`, `AssemblyVersion`, and `FileVersion`.
   - GitVersion config (`GitVersion.yml`):
     - `mode: ContinuousDelivery`
@@ -72,13 +72,20 @@ Quick context for coding agents working on BabySmash.
     - `assembly-versioning-scheme: MajorMinorPatch`
     - `main` branch increments `Patch` with no label
 - Windows artifacts are code-signed via Azure Trusted Signing (exe and installer).
-- Linux build produces a tarball with `babysmash`, desktop entry, icon, and README.
-- Release is created via `softprops/action-gh-release` with the three artifacts.
+- Linux builds produce three artifact types:
+  - `.deb` package (Debian/Ubuntu) via nfpm
+  - `.rpm` package (Fedora/RHEL) via nfpm
+  - Tarball with `babysmash`, desktop entry, icon, and README
+- Release is created via `softprops/action-gh-release` with all artifacts.
 
 ## Release packaging
 - Windows artifacts are built as self-contained single-file (`BabySmash.csproj`).
 - Linux artifacts are built as self-contained single-file (`BabySmash.Linux/BabySmash.Linux.csproj`).
-- Installer is configured in `installer.iss`.
+- Installer is configured in `installer.iss` (Windows) and `nfpm.yaml` (Linux).
+- nfpm configuration:
+  - Defines package metadata, dependencies, and file locations
+  - Post-install/post-remove scripts in `scripts/` update icon cache
+  - Automatically declares dependencies: `espeak`, `pulseaudio-utils | alsa-utils`
 
 ## Contribution guardrails
 - Avoid breaking kiosk-style behavior on Windows (keyboard hook).

@@ -1,0 +1,73 @@
+# nfpm configuration for BabySmash Linux packages
+name: "babysmash"
+arch: "amd64"
+platform: "linux"
+version: "${VERSION}"
+section: "games"
+priority: "optional"
+maintainer: "Scott Hanselman"
+description: |
+  BabySmash - A game for babies who like to bang on the keyboard
+  As babies or children smash on the keyboard, colored shapes, letters and 
+  numbers appear on the screen and are spoken aloud to help with letter and 
+  number recognition.
+vendor: "Scott Hanselman"
+homepage: "https://github.com/shanselman/babysmash"
+license: "MIT"
+
+# Dependencies
+depends:
+  - espeak
+  - pulseaudio-utils | alsa-utils
+
+# Recommended packages
+recommends:
+  - pulseaudio-utils
+
+# Files to include in the package
+contents:
+  # Main executable
+  - src: ./BabySmash.Linux/bin/Release/net10.0/linux-x64/publish/BabySmash.Linux
+    dst: /usr/bin/babysmash
+    file_info:
+      mode: 0755
+
+  # Desktop entry for application menu
+  - src: ./BabySmash.Linux/babysmash.desktop
+    dst: /usr/share/applications/babysmash.desktop
+    file_info:
+      mode: 0644
+
+  # Application icon
+  - src: ./Shared/Resources/babysmash.png
+    dst: /usr/share/icons/hicolor/256x256/apps/babysmash.png
+    file_info:
+      mode: 0644
+
+  # Documentation
+  - src: ./README.md
+    dst: /usr/share/doc/babysmash/README.md
+    file_info:
+      mode: 0644
+
+  # License file
+  - src: ./LICENSE
+    dst: /usr/share/doc/babysmash/LICENSE
+    file_info:
+      mode: 0644
+
+# Post-install script to update icon cache
+scripts:
+  postinstall: ./scripts/postinstall.sh
+  postremove: ./scripts/postremove.sh
+
+# RPM-specific configuration
+rpm:
+  group: Amusements/Games
+  summary: A keyboard smash game for babies and toddlers
+  compression: lzma
+
+# Deb-specific configuration  
+deb:
+  fields:
+    Bugs: https://github.com/shanselman/babysmash/issues
