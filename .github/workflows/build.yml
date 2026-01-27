@@ -64,12 +64,11 @@ jobs:
     - name: Install nfpm
       run: |
         echo "Installing nfpm..."
-        sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://repo.goreleaser.com/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/goreleaser.gpg
-        echo "deb [signed-by=/etc/apt/keyrings/goreleaser.gpg] https://repo.goreleaser.com/apt/ /" | sudo tee /etc/apt/sources.list.d/goreleaser.list
-        sudo apt-get update
-        sudo apt-get install -y nfpm
-        nfpm --version
+        go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+        echo "$HOME/go/bin" >> $GITHUB_PATH
+
+    - name: Verify nfpm installation
+      run: nfpm --version
 
     - name: Create .deb package
       run: |
