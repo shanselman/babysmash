@@ -64,7 +64,9 @@ jobs:
     - name: Install nfpm
       run: |
         echo "Installing nfpm..."
-        curl -sfL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sudo sh -s -- -b /usr/local/bin
+        echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | sudo tee /etc/apt/sources.list.d/goreleaser.list
+        sudo apt-get update
+        sudo apt-get install -y nfpm
         nfpm --version
 
     - name: Create .deb package
