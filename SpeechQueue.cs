@@ -169,10 +169,104 @@ namespace BabySmash
                     return cached;
                 }
 
-                var voice = _synth.GetInstalledVoices(culture).FirstOrDefault();
+                var voice = TryGetVoiceWithFallback(culture);
                 _voiceCache[key] = voice;
                 return voice;
             }
+        }
+
+        private InstalledVoice TryGetVoiceWithFallback(CultureInfo culture)
+        {
+            // Try exact culture match (e.g., "es-MX")
+            var voice = _synth.GetInstalledVoices(culture).FirstOrDefault();
+            if (voice != null)
+            {
+                return voice;
+            }
+
+            // Try fallback from specific locale to base language (e.g., from "es-MX" to "es-ES")
+            if (culture.Name.Contains('-'))
+            {
+                string baseLanguage = culture.Name.Split('-')[0];
+                
+                // Try common base language variants (es-ES, de-DE, etc.)
+                try
+                {
+                    var baseCulture = new CultureInfo($"{baseLanguage}-{baseLanguage.ToUpper()}");
+                    voice = _synth.GetInstalledVoices(baseCulture).FirstOrDefault();
+                    if (voice != null)
+                    {
+                        return voice;
+                    }
+                }
+                catch (CultureNotFoundException)
+                {
+                    // Invalid culture, continue to next fallback
+                }
+                catch (ArgumentException)
+                {
+                    // Invalid culture name format, continue to next fallback
+                }
+
+                // Try just the base language (e.g., "es")
+                try
+                {
+                    var langOnlyCulture = new CultureInfo(baseLanguage);
+                    voice = _synth.GetInstalledVoices(langOnlyCulture).FirstOrDefault();
+                    if (voice != null)
+                    {
+                        return voice;
+                    }
+                }
+                catch (CultureNotFoundException)
+                {
+                    // Invalid culture, continue to next fallback
+                }
+                catch (ArgumentException)
+                {
+                    // Invalid culture name format, continue to next fallback
+                }
+            }
+
+            // Final fallback to English
+            try
+            {
+                var enUsCulture = new CultureInfo("en-US");
+                voice = _synth.GetInstalledVoices(enUsCulture).FirstOrDefault();
+                if (voice != null)
+                {
+                    return voice;
+                }
+            }
+            catch (CultureNotFoundException)
+            {
+                // If even en-US fails, try just "en"
+            }
+            catch (ArgumentException)
+            {
+                // Invalid culture name format, try just "en"
+            }
+
+            try
+            {
+                var enCulture = new CultureInfo("en");
+                voice = _synth.GetInstalledVoices(enCulture).FirstOrDefault();
+                if (voice != null)
+                {
+                    return voice;
+                }
+            }
+            catch (CultureNotFoundException)
+            {
+                // All fallbacks failed
+            }
+            catch (ArgumentException)
+            {
+                // Invalid culture name format
+            }
+
+            // Last resort: return any available voice
+            return _synth.GetInstalledVoices().FirstOrDefault();
         }
     }
 }
