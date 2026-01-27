@@ -199,9 +199,13 @@ namespace BabySmash
                         return voice;
                     }
                 }
-                catch
+                catch (CultureNotFoundException)
                 {
                     // Invalid culture, continue to next fallback
+                }
+                catch (ArgumentException)
+                {
+                    // Invalid culture name format, continue to next fallback
                 }
 
                 // Try just the base language (e.g., "es")
@@ -214,9 +218,13 @@ namespace BabySmash
                         return voice;
                     }
                 }
-                catch
+                catch (CultureNotFoundException)
                 {
                     // Invalid culture, continue to next fallback
+                }
+                catch (ArgumentException)
+                {
+                    // Invalid culture name format, continue to next fallback
                 }
             }
 
@@ -230,9 +238,13 @@ namespace BabySmash
                     return voice;
                 }
             }
-            catch
+            catch (CultureNotFoundException)
             {
                 // If even en-US fails, try just "en"
+            }
+            catch (ArgumentException)
+            {
+                // Invalid culture name format, try just "en"
             }
 
             try
@@ -244,9 +256,13 @@ namespace BabySmash
                     return voice;
                 }
             }
-            catch
+            catch (CultureNotFoundException)
             {
                 // All fallbacks failed
+            }
+            catch (ArgumentException)
+            {
+                // Invalid culture name format
             }
 
             // Last resort: return any available voice
