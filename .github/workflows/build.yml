@@ -67,6 +67,9 @@ jobs:
         go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
         echo "$HOME/go/bin" >> $GITHUB_PATH
 
+    - name: Verify nfpm installation
+      run: nfpm --version
+
     - name: Create .deb package
       run: |
         mkdir -p artifacts
