@@ -9,9 +9,9 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="BitmapEffects" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="ClearAfter" Type="System.Int32" Scope="User">
+    <Setting Name="ClearAfter"Type="System.Int32" Scope="User">
       <Value Profile="(Default)">35</Value>
     </Setting>
     <Setting Name="MouseDraw" Type="System.Boolean" Scope="User">

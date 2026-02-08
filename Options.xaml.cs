@@ -31,7 +31,7 @@ namespace BabySmash
             base.OnActivated(e);
             Mouse.Capture(this, CaptureMode.SubTree);
             // Get version from assembly
-            versionLabel.Text = "Version " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "2.0.0";
+            versionLabel.Text = "Version " + (System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "2.0.0");
         }
 
         protected override void OnDeactivated(EventArgs e)
