@@ -1,0 +1,36 @@
+# Created using wingetcreate
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.10.0.schema.json
+
+PackageIdentifier: ScottHanselman.BabySmash
+PackageVersion: {VERSION}
+PackageLocale: en-US
+Publisher: Scott Hanselman
+PublisherUrl: https://www.hanselman.com
+PublisherSupportUrl: https://github.com/shanselman/babysmash/issues
+Author: Scott Hanselman
+PackageName: BabySmash
+PackageUrl: https://github.com/shanselman/babysmash
+License: MIT
+LicenseUrl: https://github.com/shanselman/babysmash/blob/main/LICENSE
+Copyright: Copyright © 2008-2026 Scott Hanselman
+ShortDescription: A game for babies who like to bang on the keyboard
+Description: |-
+  BabySmash is a fun, educational game for babies and toddlers who love to bang on the keyboard.
+  As babies or children smash on the keyboard, colored shapes, letters and numbers appear on the screen and are spoken aloud to help with letter and number recognition.
+  Features include colorful shapes with happy faces, letters and numbers with text-to-speech, fun sounds and giggles, multi-monitor support, and system key lockout to prevent accidental exits.
+Moniker: babysmash
+Tags:
+  - baby
+  - children
+  - educational
+  - game
+  - keyboard
+  - toddler
+  - learning
+  - shapes
+  - letters
+  - numbers
+ReleaseNotes: See release notes at https://github.com/shanselman/babysmash/releases/tag/v{VERSION}
+ReleaseNotesUrl: https://github.com/shanselman/babysmash/releases/tag/v{VERSION}
+ManifestType: defaultLocale
+ManifestVersion: 1.10.0

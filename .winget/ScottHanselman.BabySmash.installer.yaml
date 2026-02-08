@@ -1,0 +1,20 @@
+# Created using wingetcreate
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.10.0.schema.json
+
+PackageIdentifier: ScottHanselman.BabySmash
+PackageVersion: {VERSION}
+MinimumOSVersion: 10.0.0.0
+InstallerType: inno
+Scope: user
+InstallModes:
+  - interactive
+  - silent
+  - silentWithProgress
+UpgradeBehavior: install
+ReleaseDate: {RELEASE_DATE}
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/shanselman/babysmash/releases/download/v{VERSION}/BabySmash-Setup.exe
+    InstallerSha256: {SHA256}
+ManifestType: installer
+ManifestVersion: 1.10.0
