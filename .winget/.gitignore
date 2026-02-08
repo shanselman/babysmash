@@ -1,0 +1,9 @@
+# Ignore downloaded installers
+*.exe
+
+# Ignore generated manifests
+output/
+
+# Ignore temporary files
+*.tmp
+*.bak
