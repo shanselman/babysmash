@@ -97,7 +97,7 @@ jobs:
         rm -rf temp-linux
 
     - name: Upload Linux artifacts
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: BabySmash-Linux
         path: artifacts/*
@@ -230,7 +230,7 @@ jobs:
         Remove-Item "temp-x64" -Recurse -Force
                   
     - name: Upload artifacts
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: BabySmash-Windows
         path: artifacts/*
