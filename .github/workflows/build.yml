@@ -242,13 +242,13 @@ jobs:
     
     steps:
     - name: Download Linux artifacts
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         name: BabySmash-Linux
         path: artifacts/
 
     - name: Download Windows artifacts
-      uses: actions/download-artifact@v7
+      uses: actions/download-artifact@v8
       with:
         name: BabySmash-Windows
         path: artifacts/
