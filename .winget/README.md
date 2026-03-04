@@ -56,18 +56,38 @@ If you prefer manual control:
 
 Replace the placeholders in the manifest files:
 
+**PowerShell (Windows):**
+
+```powershell
+# Set your version
+$VERSION = "4.0.0"
+
+# Download the installer to calculate hash
+Invoke-WebRequest "https://github.com/shanselman/babysmash/releases/download/v$VERSION/BabySmash-Setup.exe" -OutFile BabySmash-Setup.exe
+
+# Calculate SHA256 hash
+$hash = (Get-FileHash BabySmash-Setup.exe -Algorithm SHA256).Hash
+
+# Get release date
+$RELEASE_DATE = Get-Date -Format "yyyy-MM-dd"
+
+# Replace placeholders in all three manifest files
+(Get-Content .winget\*.yaml) -replace '\{VERSION\}', $VERSION | Set-Content .winget\*.yaml
+(Get-Content .winget\ScottHanselman.BabySmash.installer.yaml) -replace '\{SHA256\}', $hash | Set-Content .winget\ScottHanselman.BabySmash.installer.yaml
+(Get-Content .winget\ScottHanselman.BabySmash.installer.yaml) -replace '\{RELEASE_DATE\}', $RELEASE_DATE | Set-Content .winget\ScottHanselman.BabySmash.installer.yaml
+```
+
+**Bash (Linux/Mac):**
+
 ```bash
 # Set your version
 VERSION="4.0.0"
 
 # Download the installer to calculate hash
-wget https://github.com/shanselman/babysmash/releases/download/v${VERSION}/BabySmash-Setup.exe
+wget "https://github.com/shanselman/babysmash/releases/download/v${VERSION}/BabySmash-Setup.exe"
 
-# Calculate SHA256 hash (PowerShell)
-$hash = (Get-FileHash BabySmash-Setup.exe -Algorithm SHA256).Hash
-
-# Or on Linux/Mac
-sha256sum BabySmash-Setup.exe
+# Calculate SHA256 hash
+hash=$(sha256sum BabySmash-Setup.exe | awk '{print toupper($1)}')
 
 # Get release date
 RELEASE_DATE=$(date +%Y-%m-%d)
