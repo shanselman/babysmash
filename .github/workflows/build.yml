@@ -102,6 +102,27 @@ jobs:
         name: BabySmash-Linux
         path: artifacts/*
 
+  build-windows-check:
+    runs-on: windows-latest
+    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: '10.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore BabySmash.csproj
+
+    - name: Build
+      run: dotnet build BabySmash.csproj -c Release --no-restore
+
   build-windows:
     runs-on: windows-latest
     if: startsWith(github.ref, 'refs/tags/')
