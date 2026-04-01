@@ -18,10 +18,24 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 
 ## Downloads
 
+### Windows
+
+**Quick Install with WinGet:**
+```powershell
+winget install ScottHanselman.BabySmash
+```
+
+**Or download manually:**
+
 | Platform | Download | Notes |
 |----------|----------|-------|
 | **Windows** | [BabySmash-Setup.exe](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-Setup.exe) | Installer with auto-updates |
 | **Windows** | [BabySmash-win-x64.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-win-x64.zip) | Portable version |
+
+### Linux
+
+| Platform | Download | Notes |
+|----------|----------|-------|
 | **Debian/Ubuntu** | [.deb package](https://github.com/shanselman/babysmash/releases/latest) | Easy install with package manager |
 | **Fedora/RHEL** | [.rpm package](https://github.com/shanselman/babysmash/releases/latest) | Easy install with package manager |
 | **Linux** | [BabySmash-linux-x64.tar.gz](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-linux-x64.tar.gz) | Manual installation |
