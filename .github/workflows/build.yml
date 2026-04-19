@@ -31,12 +31,12 @@ jobs:
         dotnet-version: '10.0.x'
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.4.2
+      uses: gittools/actions/gitversion/setup@v4.5.0
       with:
         versionSpec: '6.4.x'
 
     - name: GitVersion
-      uses: gittools/actions/gitversion/execute@v4.4.2
+      uses: gittools/actions/gitversion/execute@v4.5.0
       id: gitversion
 
     - name: Set version environment variable
@@ -142,12 +142,12 @@ jobs:
       run: dotnet restore BabySmash.csproj
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.4.2
+      uses: gittools/actions/gitversion/setup@v4.5.0
       with:
         versionSpec: '6.4.x'
 
     - name: GitVersion
-      uses: gittools/actions/gitversion/execute@v4.4.2
+      uses: gittools/actions/gitversion/execute@v4.5.0
       id: gitversion
 
     - name: Set version environment variables
