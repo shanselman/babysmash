@@ -55,7 +55,7 @@
 
   <ItemGroup>
     <!-- NuGet packages -->
-    <PackageReference Include="System.Speech" Version="10.0.6" />
+    <PackageReference Include="System.Speech" Version="10.0.7" />
     <PackageReference Include="Updatum" Version="1.3.7" />
   </ItemGroup>
 
