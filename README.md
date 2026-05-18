@@ -20,6 +20,7 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 
 | Platform | Download | Notes |
 |----------|----------|-------|
+| **Windows** | `winget install Hanselman.BabySmash` | Windows Package Manager |
 | **Windows** | [BabySmash-Setup.exe](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-Setup.exe) | Installer with auto-updates |
 | **Windows** | [BabySmash-win-x64.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-win-x64.zip) | Portable version |
 | **Debian/Ubuntu** | [.deb package](https://github.com/shanselman/babysmash/releases/latest) | Easy install with package manager |
