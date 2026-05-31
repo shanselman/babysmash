@@ -63,13 +63,13 @@ BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (lik
 
 ### Installation
 
-1. Download the app bundle for your Mac, if it is available in the latest release:
+1. Download the app bundle for your Mac:
    - Apple Silicon (M1/M2/M3): `BabySmash-osx-arm64.app.zip`
    - Intel: `BabySmash-osx-x64.app.zip`
 2. Unzip it and drag `BabySmash.app` to Applications, or run it from the extracted folder.
 3. On first launch, macOS Gatekeeper may require right-clicking the app and choosing **Open**, or approving BabySmash in **System Settings → Privacy & Security**.
 
-macOS release assets, when present, are self-contained and use built-in `/usr/bin/say` for text-to-speech and `/usr/bin/afplay` for sound playback. Current bundles are ad-hoc signed but not Developer ID signed or notarized. Until Developer ID signing and notarization are configured for releases, building from source is a fallback if macOS blocks the downloaded app.
+macOS release assets are self-contained and use built-in `/usr/bin/say` for text-to-speech and `/usr/bin/afplay` for sound playback. Current bundles are ad-hoc signed but not Developer ID signed or notarized. Until Developer ID signing and notarization are configured for releases, building from source is a fallback if macOS blocks the downloaded app.
 
 BabySmash uses fullscreen mode on macOS, but it does not globally block system shortcuts such as Command+Tab, Mission Control, or Command+Q.
 
