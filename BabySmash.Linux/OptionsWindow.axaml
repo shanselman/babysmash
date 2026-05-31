@@ -5,6 +5,7 @@
         Width="500" Height="400"
         WindowStartupLocation="CenterScreen"
         CanResize="False"
+        RequestedThemeVariant="Light"
         Background="#F5F5F5">
     
     <Grid Margin="20">
