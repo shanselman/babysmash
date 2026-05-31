@@ -24,8 +24,8 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 | **Windows** | `winget install Hanselman.BabySmash` | Windows Package Manager |
 | **Windows** | [BabySmash-Setup.exe](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-Setup.exe) | Installer with auto-updates |
 | **Windows** | [BabySmash-win-x64.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-win-x64.zip) | Portable version |
-| **macOS Apple Silicon** | [BabySmash-osx-arm64.app.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-osx-arm64.app.zip) | Minimal app bundle, ad-hoc signed |
-| **macOS Intel** | [BabySmash-osx-x64.app.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-osx-x64.app.zip) | Minimal app bundle, ad-hoc signed |
+| **macOS Apple Silicon** | [BabySmash-osx-arm64.app.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-osx-arm64.app.zip) | Ad-hoc signed app bundle; may require right-click Open |
+| **macOS Intel** | [BabySmash-osx-x64.app.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-osx-x64.app.zip) | Ad-hoc signed app bundle; may require right-click Open |
 | **Debian/Ubuntu** | [.deb package](https://github.com/shanselman/babysmash/releases/latest) | Easy install with package manager |
 | **Fedora/RHEL** | [.rpm package](https://github.com/shanselman/babysmash/releases/latest) | Easy install with package manager |
 | **Linux** | [BabySmash-linux-x64.tar.gz](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-linux-x64.tar.gz) | Manual installation |
@@ -63,13 +63,13 @@ BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (lik
 
 ### Installation
 
-1. Download the app bundle for your Mac:
+1. Download the app bundle for your Mac, if it is available in the latest release:
    - Apple Silicon (M1/M2/M3): `BabySmash-osx-arm64.app.zip`
    - Intel: `BabySmash-osx-x64.app.zip`
 2. Unzip it and drag `BabySmash.app` to Applications, or run it from the extracted folder.
 3. On first launch, macOS Gatekeeper may require right-clicking the app and choosing **Open**, or approving BabySmash in **System Settings → Privacy & Security**.
 
-The macOS release is self-contained and uses built-in `/usr/bin/say` for text-to-speech and `/usr/bin/afplay` for sound playback. Current release bundles are ad-hoc signed but not notarized.
+macOS release assets, when present, are self-contained and use built-in `/usr/bin/say` for text-to-speech and `/usr/bin/afplay` for sound playback. Current bundles are ad-hoc signed but not Developer ID signed or notarized. Until Developer ID signing and notarization are configured for releases, building from source is a fallback if macOS blocks the downloaded app.
 
 BabySmash uses fullscreen mode on macOS, but it does not globally block system shortcuts such as Command+Tab, Mission Control, or Command+Q.
 
