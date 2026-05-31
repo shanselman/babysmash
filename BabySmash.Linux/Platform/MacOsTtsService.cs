@@ -65,23 +65,39 @@ public class MacOsTtsService : ITtsService, IDisposable
                 process.Dispose();
             };
 
-            lock (_processLock)
+            if (!TryStartSpeechProcess(process))
             {
-                _runningProcesses.Add(process);
-            }
-
-            if (!process.Start())
-            {
-                lock (_processLock)
-                {
-                    _runningProcesses.Remove(process);
-                }
                 process.Dispose();
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"TTS error: {ex.Message}");
+        }
+    }
+
+    private bool TryStartSpeechProcess(Process process)
+    {
+        lock (_processLock)
+        {
+            _runningProcesses.Add(process);
+
+            try
+            {
+                if (process.Start())
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                _runningProcesses.Remove(process);
+                process.Dispose();
+                throw;
+            }
+
+            _runningProcesses.Remove(process);
+            return false;
         }
     }
 

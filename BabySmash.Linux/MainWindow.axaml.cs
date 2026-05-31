@@ -175,6 +175,9 @@ public partial class MainWindow : Window
 
     private void CloseAllWindows()
     {
+        _audioService.StopAll();
+        _ttsService.CancelSpeech();
+
         foreach (var window in App.Windows)
         {
             if (window != this)

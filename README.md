@@ -12,7 +12,7 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 - 🔤 Letters and numbers with text-to-speech
 - 🔊 Fun sounds and giggles
 - 🖥️ Multi-monitor support
-- 🔒 Locks out system keys to prevent accidental exits
+- 🔒 Locks out system keys on Windows to prevent accidental exits
 - 🔄 **Auto-updates** via GitHub Releases (Windows)
 - 🐧 **Linux support** via Avalonia
 - 🍎 **macOS support** via Avalonia

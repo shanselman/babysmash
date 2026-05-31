@@ -9,6 +9,7 @@ namespace BabySmash.Linux.Platform;
 public class MacOsAudioService : IAudioService, IDisposable
 {
     private const string AfplayPath = "/usr/bin/afplay";
+    private const int MaxConcurrentSounds = 8;
     private readonly string _tempDir;
     private readonly List<Process> _runningProcesses = new();
     private readonly object _processLock = new();
@@ -57,23 +58,67 @@ public class MacOsAudioService : IAudioService, IDisposable
                 process.Dispose();
             };
 
-            lock (_processLock)
+            if (!TryStartSoundProcess(process))
             {
-                _runningProcesses.Add(process);
-            }
-
-            if (!process.Start())
-            {
-                lock (_processLock)
-                {
-                    _runningProcesses.Remove(process);
-                }
                 process.Dispose();
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Audio error: {ex.Message}");
+        }
+    }
+
+    private bool TryStartSoundProcess(Process process)
+    {
+        lock (_processLock)
+        {
+            RemoveExitedProcesses();
+            if (_runningProcesses.Count >= MaxConcurrentSounds)
+            {
+                return false;
+            }
+
+            _runningProcesses.Add(process);
+
+            try
+            {
+                if (process.Start())
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                _runningProcesses.Remove(process);
+                process.Dispose();
+                throw;
+            }
+
+            _runningProcesses.Remove(process);
+            return false;
+        }
+    }
+
+    private void RemoveExitedProcesses()
+    {
+        for (var i = _runningProcesses.Count - 1; i >= 0; i--)
+        {
+            var process = _runningProcesses[i];
+            try
+            {
+                if (!process.HasExited)
+                {
+                    continue;
+                }
+            }
+            catch
+            {
+                // Treat inaccessible process handles as no longer usable.
+            }
+
+            _runningProcesses.RemoveAt(i);
+            process.Dispose();
         }
     }
 

@@ -16,6 +16,7 @@ public partial class App : Application
 {
     public static IServiceProvider Services { get; private set; } = null!;
     public static List<MainWindow> Windows { get; } = new();
+    private static ServiceProvider? _serviceProvider;
 
     public override void Initialize()
     {
@@ -45,10 +46,13 @@ public partial class App : Application
         // Register core services
         services.AddSingleton<WordFinder>();
 
-        Services = services.BuildServiceProvider();
+        _serviceProvider = services.BuildServiceProvider();
+        Services = _serviceProvider;
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            desktop.Exit += (_, _) => ShutdownServices();
+
             // Create first window to get screen info
             var firstWindow = new MainWindow();
             desktop.MainWindow = firstWindow;
@@ -88,5 +92,18 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void ShutdownServices()
+    {
+        if (_serviceProvider == null)
+        {
+            return;
+        }
+
+        Services.GetRequiredService<IAudioService>().StopAll();
+        Services.GetRequiredService<ITtsService>().CancelSpeech();
+        _serviceProvider.Dispose();
+        _serviceProvider = null;
     }
 }
