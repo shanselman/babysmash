@@ -34,14 +34,15 @@ public partial class App : Application
             services.AddSingleton<ITtsService, MacOsTtsService>();
             services.AddSingleton<IAudioService, MacOsAudioService>();
             services.AddSingleton<ISettingsService, MacOsSettingsService>();
+            services.AddSingleton<IKeyboardHookService, MacOsKeyboardHookService>();
         }
         else
         {
             services.AddSingleton<ITtsService, LinuxTtsService>();
             services.AddSingleton<IAudioService, LinuxAudioService>();
             services.AddSingleton<ISettingsService, LinuxSettingsService>();
+            services.AddSingleton<IKeyboardHookService, LinuxKeyboardHookService>();
         }
-        services.AddSingleton<IKeyboardHookService, LinuxKeyboardHookService>();
 
         // Register core services
         services.AddSingleton<WordFinder>();

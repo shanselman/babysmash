@@ -91,8 +91,11 @@ public partial class MainWindow : Window
 
     private void SetupCustomCursor()
     {
-        // Hide system cursor
-        Cursor = new Cursor(StandardCursorType.None);
+        var canvas = this.FindControl<Canvas>("mouseCursorCanvas");
+        if (canvas == null)
+        {
+            return;
+        }
 
         // Create custom cursor (arrow)
         _customCursor = new FunCursor1();
@@ -100,8 +103,10 @@ public partial class MainWindow : Window
         _customCursor.IsHitTestVisible = false;
         _customCursor.RenderTransform = new ScaleTransform(0.5, 0.5); // Make it smaller
 
-        var canvas = this.FindControl<Canvas>("mainCanvas");
-        canvas?.Children.Add(_customCursor);
+        canvas.Children.Add(_customCursor);
+
+        // Hide system cursor only after the replacement cursor is visible.
+        Cursor = new Cursor(StandardCursorType.None);
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)

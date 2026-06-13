@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using BabySmash.Linux.Core.Interfaces;
 
 namespace BabySmash.Linux.Platform;
@@ -169,13 +170,22 @@ public class MacOsTtsService : ITtsService, IDisposable
             process.StartInfo.ArgumentList.Add("?");
 
             process.Start();
+            var outputTask = process.StandardOutput.ReadToEndAsync();
+            var errorTask = process.StandardError.ReadToEndAsync();
+
             if (!process.WaitForExit(2000))
             {
-                process.Kill(entireProcessTree: true);
+                if (!process.HasExited)
+                {
+                    process.Kill(entireProcessTree: true);
+                }
+                process.WaitForExit();
+                Task.WaitAll(outputTask, errorTask);
                 return voices;
             }
 
-            var output = process.StandardOutput.ReadToEnd();
+            Task.WaitAll(outputTask, errorTask);
+            var output = outputTask.Result;
             foreach (var line in output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 var match = Regex.Match(line, @"^(?<name>.+?)\s+(?<locale>[a-z]{2}[_-][A-Z]{2}|[a-z]{2})\s+#", RegexOptions.CultureInvariant);
