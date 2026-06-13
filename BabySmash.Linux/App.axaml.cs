@@ -16,6 +16,7 @@ public partial class App : Application
 {
     public static IServiceProvider Services { get; private set; } = null!;
     public static List<MainWindow> Windows { get; } = new();
+    private static ServiceProvider? _serviceProvider;
 
     public override void Initialize()
     {
@@ -27,35 +28,48 @@ public partial class App : Application
         // Configure dependency injection
         var services = new ServiceCollection();
 
-        // Register Linux-specific platform services
-        services.AddSingleton<ITtsService, LinuxTtsService>();
-        services.AddSingleton<IAudioService, LinuxAudioService>();
-        services.AddSingleton<IKeyboardHookService, LinuxKeyboardHookService>();
-        services.AddSingleton<ISettingsService, LinuxSettingsService>();
+        // Register platform services
+        if (PlatformInfo.IsMacOs)
+        {
+            services.AddSingleton<ITtsService, MacOsTtsService>();
+            services.AddSingleton<IAudioService, MacOsAudioService>();
+            services.AddSingleton<ISettingsService, MacOsSettingsService>();
+            services.AddSingleton<IKeyboardHookService, MacOsKeyboardHookService>();
+        }
+        else
+        {
+            services.AddSingleton<ITtsService, LinuxTtsService>();
+            services.AddSingleton<IAudioService, LinuxAudioService>();
+            services.AddSingleton<ISettingsService, LinuxSettingsService>();
+            services.AddSingleton<IKeyboardHookService, LinuxKeyboardHookService>();
+        }
 
         // Register core services
         services.AddSingleton<WordFinder>();
 
-        Services = services.BuildServiceProvider();
+        _serviceProvider = services.BuildServiceProvider();
+        Services = _serviceProvider;
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            desktop.Exit += (_, _) => ShutdownServices();
+
             // Create first window to get screen info
             var firstWindow = new MainWindow();
             desktop.MainWindow = firstWindow;
-            
+
             // Need to show first window briefly to access Screens
             firstWindow.Show();
-            
+
             // Create a window for each screen (multi-monitor support)
             var screens = firstWindow.Screens;
             bool isFirst = true;
-            
+
             // Put primary screen first, then others (fixes issue on some multi-monitor setups)
             var orderedScreens = screens.All
                 .OrderByDescending(s => s.IsPrimary)
                 .ToList();
-            
+
             foreach (var screen in orderedScreens)
             {
                 MainWindow window;
@@ -69,15 +83,28 @@ public partial class App : Application
                     window = new MainWindow();
                     window.Show();
                 }
-                
+
                 window.Position = new PixelPoint(screen.Bounds.X, screen.Bounds.Y);
                 window.Width = screen.Bounds.Width;
                 window.Height = screen.Bounds.Height;
-                
+
                 Windows.Add(window);
             }
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void ShutdownServices()
+    {
+        if (_serviceProvider == null)
+        {
+            return;
+        }
+
+        Services.GetRequiredService<IAudioService>().StopAll();
+        Services.GetRequiredService<ITtsService>().CancelSpeech();
+        _serviceProvider.Dispose();
+        _serviceProvider = null;
     }
 }

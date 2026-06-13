@@ -12,9 +12,10 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 - 🔤 Letters and numbers with text-to-speech
 - 🔊 Fun sounds and giggles
 - 🖥️ Multi-monitor support
-- 🔒 Locks out system keys to prevent accidental exits
+- 🔒 Locks out system keys on Windows to prevent accidental exits
 - 🔄 **Auto-updates** via GitHub Releases (Windows)
 - 🐧 **Linux support** via Avalonia
+- 🍎 **macOS support** via Avalonia
 
 ## Downloads
 
@@ -23,6 +24,8 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 | **Windows** | `winget install Hanselman.BabySmash` | Windows Package Manager |
 | **Windows** | [BabySmash-Setup.exe](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-Setup.exe) | Installer with auto-updates |
 | **Windows** | [BabySmash-win-x64.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-win-x64.zip) | Portable version |
+| **macOS Apple Silicon** | [BabySmash-osx-arm64.app.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-osx-arm64.app.zip) | Ad-hoc signed app bundle; may require right-click Open |
+| **macOS Intel** | [BabySmash-osx-x64.app.zip](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-osx-x64.app.zip) | Ad-hoc signed app bundle; may require right-click Open |
 | **Debian/Ubuntu** | [.deb package](https://github.com/shanselman/babysmash/releases/latest) | Easy install with package manager |
 | **Fedora/RHEL** | [.rpm package](https://github.com/shanselman/babysmash/releases/latest) | Easy install with package manager |
 | **Linux** | [BabySmash-linux-x64.tar.gz](https://github.com/shanselman/babysmash/releases/latest/download/BabySmash-linux-x64.tar.gz) | Manual installation |
@@ -53,6 +56,36 @@ BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (lik
 1. Open **Windows Settings** → **Bluetooth & devices** → **Touchpad**
 2. Under **Three-finger gestures**, set "Swipes" to **Nothing**
 3. Optionally disable four-finger gestures too
+
+---
+
+## macOS
+
+### Installation
+
+1. Download the app bundle for your Mac:
+   - Apple Silicon (M1/M2/M3): `BabySmash-osx-arm64.app.zip`
+   - Intel: `BabySmash-osx-x64.app.zip`
+2. Unzip it and drag `BabySmash.app` to Applications, or run it from the extracted folder.
+3. On first launch, macOS Gatekeeper may require right-clicking the app and choosing **Open**, or approving BabySmash in **System Settings → Privacy & Security**.
+
+macOS release assets are self-contained and use built-in `/usr/bin/say` for text-to-speech and `/usr/bin/afplay` for sound playback. Current bundles are ad-hoc signed but not Developer ID signed or notarized. Until Developer ID signing and notarization are configured for releases, building from source is a fallback if macOS blocks the downloaded app.
+
+BabySmash uses fullscreen mode on macOS, but it does not globally block system shortcuts such as Command+Tab, Mission Control, or Command+Q.
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| Any key | Display shapes/letters! |
+| `Alt+O` | Options dialog |
+| `Escape` | Exit |
+
+### Requirements
+
+- macOS 12 or later
+- Apple Silicon (`osx-arm64`) or Intel (`osx-x64`)
+- No .NET installation required (self-contained)
 
 ---
 
@@ -187,7 +220,7 @@ cd babysmash
 # Windows
 dotnet run
 
-# Linux
+# Linux/macOS Avalonia frontend
 dotnet run --project BabySmash.Linux
 ```
 
@@ -199,6 +232,10 @@ dotnet publish -c Release -r win-x64 --self-contained
 
 # Linux
 dotnet publish BabySmash.Linux -c Release -r linux-x64 --self-contained
+
+# macOS
+dotnet publish BabySmash.Linux -c Release -r osx-arm64 --self-contained
+dotnet publish BabySmash.Linux -c Release -r osx-x64 --self-contained
 ```
 
 ---
@@ -210,6 +247,7 @@ Originally developed by [Scott Hanselman](https://www.hanselman.com), based on A
 - **v1-v2**: Original .NET Framework 3.5 version
 - **v3.0**: Migrated to .NET 10, single-file deployment
 - **v4.0**: Linux support via Avalonia, shared resources, auto-updates
+- **v5.0**: macOS support via Avalonia
 
 > **Looking for the original code?** The legacy .NET Framework 3.5 version is preserved in the [legacy-dotnet35](https://github.com/shanselman/babysmash/tree/legacy-dotnet35) branch.
 

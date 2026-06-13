@@ -11,6 +11,7 @@ using BabySmash.Linux.Core.Interfaces;
 using BabySmash.Linux.Core.Models;
 using BabySmash.Linux.Core.Services;
 using BabySmash.Linux.Shapes;
+using BabySmash.Linux.Platform;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BabySmash.Linux;
@@ -33,20 +34,20 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        
+
         // Get services from DI
         _ttsService = App.Services.GetRequiredService<ITtsService>();
         _audioService = App.Services.GetRequiredService<IAudioService>();
         _settingsService = App.Services.GetRequiredService<ISettingsService>();
         _wordFinder = App.Services.GetRequiredService<WordFinder>();
-        
+
         // Hook up input events
         KeyDown += OnKeyDown;
         PointerPressed += OnPointerPressed;
         PointerReleased += OnPointerReleased;
         PointerMoved += OnPointerMoved;
         PointerWheelChanged += OnPointerWheelChanged;
-        
+
         // Focus management timer
         _focusTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _focusTimer.Tick += (s, e) =>
@@ -57,35 +58,55 @@ public partial class MainWindow : Window
                 Focus();
             }
         };
-        
+
         Loaded += OnLoaded;
     }
 
     private void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        ApplyPlatformWindowMode();
         Focus();
-        _focusTimer.Start();
-        
+        if (!PlatformInfo.IsMacOs)
+        {
+            _focusTimer.Start();
+        }
+
         // Play startup sound
         _audioService.PlaySound("EditedJackPlaysBabySmash.wav");
-        
+
         // Setup custom cursor
         SetupCustomCursor();
     }
 
+    private void ApplyPlatformWindowMode()
+    {
+        Title = $"BabySmash! for {PlatformInfo.DisplayName}";
+
+        if (PlatformInfo.IsMacOs)
+        {
+            WindowState = WindowState.FullScreen;
+            Topmost = false;
+        }
+    }
+
     private void SetupCustomCursor()
     {
-        // Hide system cursor
-        Cursor = new Cursor(StandardCursorType.None);
-        
+        var canvas = this.FindControl<Canvas>("mouseCursorCanvas");
+        if (canvas == null)
+        {
+            return;
+        }
+
         // Create custom cursor (arrow)
         _customCursor = new FunCursor1();
         _customCursor.ZIndex = 10000; // Always on top
         _customCursor.IsHitTestVisible = false;
         _customCursor.RenderTransform = new ScaleTransform(0.5, 0.5); // Make it smaller
-        
-        var canvas = this.FindControl<Canvas>("mainCanvas");
-        canvas?.Children.Add(_customCursor);
+
+        canvas.Children.Add(_customCursor);
+
+        // Hide system cursor only after the replacement cursor is visible.
+        Cursor = new Cursor(StandardCursorType.None);
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
@@ -96,7 +117,7 @@ public partial class MainWindow : Window
         {
             infoLabel.IsVisible = false;
         }
-        
+
         // Exit on Escape
         if (e.Key == Key.Escape)
         {
@@ -119,16 +140,16 @@ public partial class MainWindow : Window
         if (displayChar.HasValue)
         {
             char c = displayChar.Value;
-            
+
             // Apply ForceUppercase setting
             var forceUpper = _settingsService.Get(SettingsKeys.ForceUppercase, SettingsDefaults.ForceUppercase);
             if (forceUpper && char.IsLetter(c))
             {
                 c = char.ToUpper(c);
             }
-            
+
             var template = BabySmashUtils.GenerateFigureTemplate(c);
-            
+
             // Add figure to ALL windows first (matching Windows behavior)
             foreach (var window in App.Windows)
             {
@@ -138,7 +159,7 @@ public partial class MainWindow : Window
             // Find the last word typed using first window's queue
             var firstWindow = App.Windows.FirstOrDefault();
             string? lastWord = firstWindow != null ? _wordFinder.LastWord(firstWindow._figuresList) : null;
-            
+
             if (lastWord != null)
             {
                 // Animate on ALL windows
@@ -159,6 +180,9 @@ public partial class MainWindow : Window
 
     private void CloseAllWindows()
     {
+        _audioService.StopAll();
+        _ttsService.CancelSpeech();
+
         foreach (var window in App.Windows)
         {
             if (window != this)
@@ -201,19 +225,19 @@ public partial class MainWindow : Window
         {
             return (char)('A' + (key - Key.A));
         }
-        
+
         // Numbers 0-9 (top row)
         if (key >= Key.D0 && key <= Key.D9)
         {
             return (char)('0' + (key - Key.D0));
         }
-        
+
         // Numpad 0-9
         if (key >= Key.NumPad0 && key <= Key.NumPad9)
         {
             return (char)('0' + (key - Key.NumPad0));
         }
-        
+
         // Any other key generates a random shape (matching Windows behavior)
         return '*';
     }
@@ -221,24 +245,24 @@ public partial class MainWindow : Window
     public void AddFigure(FigureTemplate template)
     {
         var figure = FigureGenerator.CreateFigure(template);
-        
+
         // Set face visibility based on settings
         var showFaces = _settingsService.Get(SettingsKeys.FacesOnShapes, SettingsDefaults.FacesOnShapes);
         FigureGenerator.SetFaceVisibility(figure, showFaces);
-        
+
         // Calculate size and position
         double figureWidth = figure.Width > 0 ? figure.Width : 200;
         double figureHeight = figure.Height > 0 ? figure.Height : 200;
-        
+
         var x = BabySmashUtils.RandomBetweenTwoNumbers(0, (int)Math.Max(1, Bounds.Width - figureWidth));
         var y = BabySmashUtils.RandomBetweenTwoNumbers(0, (int)Math.Max(1, Bounds.Height - figureHeight));
-        
+
         Canvas.SetLeft(figure, x);
         Canvas.SetTop(figure, y);
-        
+
         // Add spawn animation (scale + rotate)
         ApplySpawnAnimation(figure);
-        
+
         figuresCanvas.Children.Add(figure);
         _figuresQueue.Enqueue(figure);
         _figuresList.Add(figure);
@@ -269,32 +293,32 @@ public partial class MainWindow : Window
         var rotateTransform = new RotateTransform(360);
         transformGroup.Children.Add(scaleTransform);
         transformGroup.Children.Add(rotateTransform);
-        
+
         figure.RenderTransform = transformGroup;
         figure.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
-        
+
         // Use random easing type like Windows
         var easingType = BabySmashUtils.RandomBetweenTwoNumbers(0, 4);
-        
+
         var startTime = DateTime.Now;
         var duration = TimeSpan.FromSeconds(1.0); // 1 second like Windows
-        
+
         var timer = CreateAnimationTimer(TimeSpan.FromMilliseconds(16));
         timer.Tick += (s, e) =>
         {
             var elapsed = DateTime.Now - startTime;
             var progress = Math.Min(1.0, elapsed.TotalMilliseconds / duration.TotalMilliseconds);
-            
+
             // Apply easing
             var easedProgress = ApplyEasing(progress, easingType);
-            
+
             // Scale: 0 → 1
             scaleTransform.ScaleX = easedProgress;
             scaleTransform.ScaleY = easedProgress;
-            
+
             // Rotate: 360 → 0
             rotateTransform.Angle = 360 * (1 - easedProgress);
-            
+
             if (progress >= 1.0)
             {
                 RemoveAnimationTimer(timer);
@@ -367,7 +391,7 @@ public partial class MainWindow : Window
         // Find the letter figures that make up this word (the last N figures that are CoolLetters)
         var letterFigures = new List<CoolLetter>();
         var figureList = _figuresList.ToArray();
-        
+
         for (int i = figureList.Length - 1; i >= 0 && letterFigures.Count < word.Length; i--)
         {
             if (figureList[i] is CoolLetter letter)
@@ -379,58 +403,58 @@ public partial class MainWindow : Window
                 break; // Stop if we hit a non-letter
             }
         }
-        
+
         if (letterFigures.Count < word.Length)
             return; // Not enough letters
-        
+
         // Calculate word center (average position of letters)
         double centerX = letterFigures.Average(l => Canvas.GetLeft(l) + l.Width / 2);
         double centerY = letterFigures.Average(l => Canvas.GetTop(l) + l.Height / 2);
-        
+
         // Calculate total word width
         double totalWidth = letterFigures.Sum(l => l.Width);
         double leftEdge = centerX - totalWidth / 2;
-        
+
         // Animate each letter to its position in the word
         var duration = TimeSpan.FromMilliseconds(1200);
         double currentX = leftEdge;
-        
+
         foreach (var letter in letterFigures)
         {
             double startX = Canvas.GetLeft(letter);
             double startY = Canvas.GetTop(letter);
             double targetX = currentX;
             double targetY = centerY - letter.Height / 2;
-            
+
             var startTime = DateTime.Now;
             var timer = CreateAnimationTimer(TimeSpan.FromMilliseconds(16));
-            
+
             var capturedLetter = letter;
             var capturedTargetX = targetX;
             var capturedTargetY = targetY;
             var capturedStartX = startX;
             var capturedStartY = startY;
             var capturedTimer = timer;
-            
+
             timer.Tick += (s, e) =>
             {
                 var elapsed = DateTime.Now - startTime;
                 var progress = Math.Min(1.0, elapsed.TotalMilliseconds / duration.TotalMilliseconds);
                 var easedProgress = QuadEaseOut(progress);
-                
+
                 double newX = capturedStartX + (capturedTargetX - capturedStartX) * easedProgress;
                 double newY = capturedStartY + (capturedTargetY - capturedStartY) * easedProgress;
-                
+
                 Canvas.SetLeft(capturedLetter, newX);
                 Canvas.SetTop(capturedLetter, newY);
-                
+
                 if (progress >= 1.0)
                 {
                     RemoveAnimationTimer(capturedTimer);
                 }
             };
             timer.Start();
-            
+
             currentX += letter.Width;
         }
     }
@@ -440,15 +464,15 @@ public partial class MainWindow : Window
         // Simple fade using timer
         var startTime = DateTime.Now;
         var duration = TimeSpan.FromSeconds(fadeAfterSeconds);
-        
+
         var timer = CreateAnimationTimer(TimeSpan.FromMilliseconds(50));
         timer.Tick += (s, e) =>
         {
             var elapsed = DateTime.Now - startTime;
             var progress = Math.Min(1.0, elapsed.TotalMilliseconds / duration.TotalMilliseconds);
-            
+
             figure.Opacity = 1.0 - progress;
-            
+
             if (progress >= 1.0)
             {
                 RemoveAnimationTimer(timer);
@@ -461,7 +485,7 @@ public partial class MainWindow : Window
     private void PlaySound(FigureTemplate template)
     {
         var soundMode = _settingsService.Get(SettingsKeys.Sounds, SettingsDefaults.Sounds);
-        
+
         if (soundMode == "Laughter")
         {
             _audioService.PlaySound(BabySmashUtils.GetRandomSoundFile());
@@ -483,11 +507,11 @@ public partial class MainWindow : Window
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         var mouseDraw = _settingsService.Get(SettingsKeys.MouseDraw, SettingsDefaults.MouseDraw);
-        
+
         // Check if we clicked on an existing figure
         var point = e.GetPosition(figuresCanvas);
         var clickedFigure = FindFigureAtPoint(point);
-        
+
         if (clickedFigure != null && clickedFigure.Opacity > 0.1)
         {
             // Apply random animation effect to the clicked figure
@@ -496,13 +520,13 @@ public partial class MainWindow : Window
             _isDrawing = true; // Prevent mouse draw on this click
             return;
         }
-        
+
         if (_isDrawing || mouseDraw) return;
 
         MouseDraw(point);
         _isDrawing = true;
         e.Pointer.Capture(this);
-        
+
         _audioService.PlaySound("smallbumblebee.wav");
     }
 
@@ -515,7 +539,7 @@ public partial class MainWindow : Window
             var left = Canvas.GetLeft(figure);
             var top = Canvas.GetTop(figure);
             var bounds = new Rect(left, top, figure.Bounds.Width, figure.Bounds.Height);
-            
+
             if (bounds.Contains(point))
             {
                 return figure;
@@ -527,7 +551,7 @@ public partial class MainWindow : Window
     private void ApplyRandomClickAnimation(Control figure)
     {
         var animationType = BabySmashUtils.RandomBetweenTwoNumbers(0, 3);
-        
+
         switch (animationType)
         {
             case 0:
@@ -550,7 +574,7 @@ public partial class MainWindow : Window
         figure.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
         var rotateTransform = new RotateTransform(0);
         figure.RenderTransform = rotateTransform;
-        
+
         var keyframes = new[] { 0.0, 10.0, 0.0, -10.0, 0.0, 5.0, 0.0, -5.0, 0.0 };
         AnimateWithKeyframes(rotateTransform, keyframes, angle => rotateTransform.Angle = angle, TimeSpan.FromSeconds(0.5));
     }
@@ -560,7 +584,7 @@ public partial class MainWindow : Window
         figure.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
         var scaleTransform = new ScaleTransform(1, 1);
         figure.RenderTransform = scaleTransform;
-        
+
         var keyframes = new[] { 1.0, 1.1, 1.0, 0.9, 1.0, 1.05, 1.0, 0.95, 1.0 };
         AnimateWithKeyframes(scaleTransform, keyframes, scale =>
         {
@@ -574,7 +598,7 @@ public partial class MainWindow : Window
         figure.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
         var rotateTransform = new RotateTransform(0);
         figure.RenderTransform = rotateTransform;
-        
+
         var keyframes = new[] { 0.0, -5.0, 0.0, 90.0, 180.0, 270.0, 360.0, 365.0, 360.0 };
         AnimateWithKeyframes(rotateTransform, keyframes, angle => rotateTransform.Angle = angle, TimeSpan.FromSeconds(1.0));
     }
@@ -584,7 +608,7 @@ public partial class MainWindow : Window
         figure.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
         var scaleTransform = new ScaleTransform(1, 1);
         figure.RenderTransform = scaleTransform;
-        
+
         var keyframes = new[] { 1.0, 0.0, 1.0 };
         AnimateWithKeyframes(scaleTransform, keyframes, scale => scaleTransform.ScaleY = scale, TimeSpan.FromSeconds(0.3));
     }
@@ -593,21 +617,21 @@ public partial class MainWindow : Window
     {
         var startTime = DateTime.Now;
         var timer = CreateAnimationTimer(TimeSpan.FromMilliseconds(16));
-        
+
         timer.Tick += (s, e) =>
         {
             var elapsed = DateTime.Now - startTime;
             var progress = Math.Min(1.0, elapsed.TotalMilliseconds / duration.TotalMilliseconds);
-            
+
             // Interpolate between keyframes
             var frameIndex = progress * (keyframes.Length - 1);
             var lowerIndex = (int)Math.Floor(frameIndex);
             var upperIndex = Math.Min(lowerIndex + 1, keyframes.Length - 1);
             var frameFraction = frameIndex - lowerIndex;
-            
+
             var value = keyframes[lowerIndex] + (keyframes[upperIndex] - keyframes[lowerIndex]) * frameFraction;
             setValue(value);
-            
+
             if (progress >= 1.0)
             {
                 RemoveAnimationTimer(timer);
@@ -626,18 +650,18 @@ public partial class MainWindow : Window
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
         if (_isOptionsDialogShown) return;
-        
+
         var point = e.GetPosition(this);
-        
+
         // Update custom cursor position
         if (_customCursor != null)
         {
             Canvas.SetLeft(_customCursor, point.X - 5);
             Canvas.SetTop(_customCursor, point.Y - 5);
         }
-        
+
         var mouseDraw = _settingsService.Get(SettingsKeys.MouseDraw, SettingsDefaults.MouseDraw);
-        
+
         if (_isDrawing || mouseDraw)
         {
             MouseDraw(point);
@@ -689,7 +713,7 @@ public partial class MainWindow : Window
     {
         var lighter = color.LightenOrDarken(50);
         var darker = color.LightenOrDarken(-50);
-        
+
         return new RadialGradientBrush
         {
             GradientOrigin = new RelativePoint(0.75, 0.25, RelativeUnit.Relative),
@@ -706,19 +730,22 @@ public partial class MainWindow : Window
     {
         _isOptionsDialogShown = true;
         Topmost = false;
-        
+
         try
         {
             var optionsWindow = new OptionsWindow();
-            optionsWindow.Topmost = true;
+            optionsWindow.Topmost = !PlatformInfo.IsMacOs;
             await optionsWindow.ShowDialog(this);
         }
         finally
         {
             _isOptionsDialogShown = false;
-            Topmost = true;
-            Activate();
-            Focus();
+            Topmost = !PlatformInfo.IsMacOs;
+            if (!PlatformInfo.IsMacOs)
+            {
+                Activate();
+                Focus();
+            }
         }
     }
 }
