@@ -13,6 +13,7 @@ namespace BabySmash.Linux.Platform;
 public class MacOsTtsService : ITtsService, IDisposable
 {
     private const string SayPath = "/usr/bin/say";
+    private const int VoiceProbeTimeoutMilliseconds = 2000;
     private readonly List<Process> _runningProcesses = new();
     private readonly object _processLock = new();
     private readonly List<SayVoice> _voices;
@@ -172,19 +173,23 @@ public class MacOsTtsService : ITtsService, IDisposable
             process.Start();
             var outputTask = process.StandardOutput.ReadToEndAsync();
             var errorTask = process.StandardError.ReadToEndAsync();
+            var probeTasks = new Task[] { outputTask, errorTask };
 
-            if (!process.WaitForExit(2000))
+            if (!process.WaitForExit(VoiceProbeTimeoutMilliseconds))
             {
                 if (!process.HasExited)
                 {
                     process.Kill(entireProcessTree: true);
                 }
-                process.WaitForExit();
-                Task.WaitAll(outputTask, errorTask);
+                process.WaitForExit(VoiceProbeTimeoutMilliseconds);
+                Task.WaitAll(probeTasks, VoiceProbeTimeoutMilliseconds);
                 return voices;
             }
 
-            Task.WaitAll(outputTask, errorTask);
+            if (!Task.WaitAll(probeTasks, VoiceProbeTimeoutMilliseconds))
+            {
+                return voices;
+            }
             var output = outputTask.Result;
             foreach (var line in output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
             {
