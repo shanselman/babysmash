@@ -21,7 +21,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
       
@@ -31,12 +31,12 @@ jobs:
         dotnet-version: '10.0.x'
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.5.0
+      uses: gittools/actions/gitversion/setup@v4.7.0
       with:
         versionSpec: '6.4.x'
 
     - name: GitVersion
-      uses: gittools/actions/gitversion/execute@v4.5.0
+      uses: gittools/actions/gitversion/execute@v4.7.0
       id: gitversion
 
     - name: Set version environment variable
@@ -216,7 +216,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
       
@@ -237,7 +237,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
       
@@ -250,12 +250,12 @@ jobs:
       run: dotnet restore BabySmash.csproj
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.5.0
+      uses: gittools/actions/gitversion/setup@v4.7.0
       with:
         versionSpec: '6.4.x'
 
     - name: GitVersion
-      uses: gittools/actions/gitversion/execute@v4.5.0
+      uses: gittools/actions/gitversion/execute@v4.7.0
       id: gitversion
 
     - name: Set version environment variables
@@ -395,7 +395,7 @@ jobs:
         path: artifacts/
         
     - name: Create Release
-      uses: softprops/action-gh-release@v3.0.0
+      uses: softprops/action-gh-release@v3.0.1
       with:
         files: artifacts/*
         generate_release_notes: true
