@@ -2,21 +2,40 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using BabySmash.Linux.Core.Interfaces;
 
 namespace BabySmash.Linux.Platform;
 
 public sealed class LinuxKeyboardHookService : IKeyboardHookService
 {
+    private const int GSettingsTimeoutMilliseconds = 1000;
+    private const int ShutdownWaitMilliseconds = 5000;
+
     private static readonly GSettingsKey[] ScreenshotShortcutKeys =
     [
         new("org.cinnamon.desktop.keybindings.media-keys", "screenshot"),
         new("org.gnome.settings-daemon.plugins.media-keys", "screenshot")
     ];
 
-    private readonly Dictionary<GSettingsKey, string> _disabledShortcuts = new();
+    private readonly object _operationLock = new();
+    private readonly string _shortcutBackupPath;
+    private Task _shortcutOperation = Task.CompletedTask;
     private int _activeWindows;
+    private volatile bool _shutdownRequested;
+
+    public LinuxKeyboardHookService()
+    {
+        var configDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".config",
+            "babysmash");
+        Directory.CreateDirectory(configDirectory);
+        _shortcutBackupPath = Path.Combine(configDirectory, "screenshot-shortcuts.json");
+    }
 
     public event EventHandler<KeyboardHookEventArgs> KeyPressed;
 
@@ -32,30 +51,55 @@ public sealed class LinuxKeyboardHookService : IKeyboardHookService
     {
         Start();
 
-        if (_activeWindows++ == 0)
+        lock (_operationLock)
         {
-            DisableDesktopScreenshotShortcuts();
+            if (_activeWindows++ == 0)
+            {
+                QueueShortcutOperation(DisableDesktopScreenshotShortcuts);
+            }
         }
     }
 
     public void RestoreSystemScreenshotShortcut()
     {
-        if (_activeWindows > 0)
+        lock (_operationLock)
         {
-            _activeWindows--;
-        }
+            if (_activeWindows > 0)
+            {
+                _activeWindows--;
+            }
 
-        if (_activeWindows == 0)
-        {
-            RestoreDesktopScreenshotShortcuts();
+            if (_activeWindows == 0)
+            {
+                QueueShortcutOperation(() => RestoreDesktopScreenshotShortcuts());
+            }
         }
     }
 
     public void Stop()
     {
-        _activeWindows = 0;
-        RestoreDesktopScreenshotShortcuts();
-        IsActive = false;
+        Task shortcutOperation;
+
+        lock (_operationLock)
+        {
+            _shutdownRequested = true;
+            _activeWindows = 0;
+            QueueShortcutOperation(() => RestoreDesktopScreenshotShortcuts());
+            shortcutOperation = _shortcutOperation;
+            IsActive = false;
+        }
+
+        try
+        {
+            if (!shortcutOperation.Wait(ShutdownWaitMilliseconds))
+            {
+                Console.Error.WriteLine("Timed out while restoring screenshot shortcuts.");
+            }
+        }
+        catch (AggregateException exception)
+        {
+            Console.Error.WriteLine($"Could not restore screenshot shortcuts during shutdown: {exception.GetBaseException().Message}");
+        }
     }
 
     public void SimulateKeyPress(char character)
@@ -69,11 +113,19 @@ public sealed class LinuxKeyboardHookService : IKeyboardHookService
 
     private void DisableDesktopScreenshotShortcuts()
     {
+        if (!RestoreDesktopScreenshotShortcuts())
+        {
+            Console.Error.WriteLine("Could not restore the previous screenshot shortcut backup; shortcuts were not changed.");
+            return;
+        }
+
+        var shortcutsToDisable = new List<GSettingsBackup>();
+
         foreach (var shortcut in ScreenshotShortcutKeys)
         {
-            if (_disabledShortcuts.ContainsKey(shortcut) || !GSettingsKeyExists(shortcut))
+            if (_shutdownRequested)
             {
-                continue;
+                return;
             }
 
             var currentValue = RunGSettings("get", shortcut.Schema, shortcut.Name);
@@ -82,27 +134,121 @@ public sealed class LinuxKeyboardHookService : IKeyboardHookService
                 continue;
             }
 
-            if (RunGSettings("set", shortcut.Schema, shortcut.Name, "[]") is not null)
+            shortcutsToDisable.Add(new GSettingsBackup(shortcut.Schema, shortcut.Name, currentValue.Trim()));
+        }
+
+        if (shortcutsToDisable.Count == 0 || !SaveShortcutBackup(shortcutsToDisable))
+        {
+            return;
+        }
+
+        if (_shutdownRequested)
+        {
+            RestoreDesktopScreenshotShortcuts();
+            return;
+        }
+
+        foreach (var shortcut in shortcutsToDisable)
+        {
+            if (_shutdownRequested)
             {
-                _disabledShortcuts[shortcut] = currentValue.Trim();
+                RestoreDesktopScreenshotShortcuts();
+                return;
+            }
+
+            if (RunGSettings("set", shortcut.Schema, shortcut.Name, "[]") is null)
+            {
+                Console.Error.WriteLine($"Could not disable screenshot shortcut {shortcut.Schema}/{shortcut.Name}.");
+                RestoreDesktopScreenshotShortcuts();
+                return;
             }
         }
     }
 
-    private void RestoreDesktopScreenshotShortcuts()
+    private bool RestoreDesktopScreenshotShortcuts()
     {
-        foreach (var shortcut in _disabledShortcuts)
+        if (!File.Exists(_shortcutBackupPath))
         {
-            RunGSettings("set", shortcut.Key.Schema, shortcut.Key.Name, shortcut.Value);
+            return true;
         }
 
-        _disabledShortcuts.Clear();
+        try
+        {
+            var json = File.ReadAllText(_shortcutBackupPath);
+            var shortcuts = JsonSerializer.Deserialize<List<GSettingsBackup>>(json);
+            if (shortcuts is null)
+            {
+                Console.Error.WriteLine("Screenshot shortcut backup is invalid; leaving it in place for recovery.");
+                return false;
+            }
+
+            var shortcutsNotRestored = new List<GSettingsBackup>();
+
+            foreach (var shortcut in shortcuts)
+            {
+                if (RunGSettings("set", shortcut.Schema, shortcut.Name, shortcut.Value) is null)
+                {
+                    Console.Error.WriteLine($"Could not restore screenshot shortcut {shortcut.Schema}/{shortcut.Name}.");
+                    shortcutsNotRestored.Add(shortcut);
+                }
+            }
+
+            if (shortcutsNotRestored.Count > 0)
+            {
+                SaveShortcutBackup(shortcutsNotRestored);
+                return false;
+            }
+
+            File.Delete(_shortcutBackupPath);
+            return true;
+        }
+        catch (IOException exception)
+        {
+            Console.Error.WriteLine($"Could not restore screenshot shortcuts: {exception.Message}");
+            return false;
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            Console.Error.WriteLine($"Could not restore screenshot shortcuts: {exception.Message}");
+            return false;
+        }
+        catch (JsonException exception)
+        {
+            Console.Error.WriteLine($"Could not read screenshot shortcut backup: {exception.Message}");
+            return false;
+        }
     }
 
-    private static bool GSettingsKeyExists(GSettingsKey shortcut)
+    private bool SaveShortcutBackup(List<GSettingsBackup> shortcuts)
     {
-        var keys = RunGSettings("list-keys", shortcut.Schema);
-        return keys?.Split('\n').Contains(shortcut.Name) == true;
+        var temporaryPath = $"{_shortcutBackupPath}.tmp";
+
+        try
+        {
+            var json = JsonSerializer.Serialize(shortcuts, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(temporaryPath, json);
+            File.Move(temporaryPath, _shortcutBackupPath, true);
+            return true;
+        }
+        catch (IOException exception)
+        {
+            Console.Error.WriteLine($"Could not save screenshot shortcut backup: {exception.Message}");
+            return false;
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            Console.Error.WriteLine($"Could not save screenshot shortcut backup: {exception.Message}");
+            return false;
+        }
+    }
+
+    private void QueueShortcutOperation(Action operation)
+    {
+        _shortcutOperation = _shortcutOperation.ContinueWith(
+            _ => operation(),
+            CancellationToken.None,
+            TaskContinuationOptions.None,
+            TaskScheduler.Default);
     }
 
     private static string? RunGSettings(params string[] arguments)
@@ -112,8 +258,10 @@ public sealed class LinuxKeyboardHookService : IKeyboardHookService
             var startInfo = new ProcessStartInfo
             {
                 FileName = "gsettings",
+                CreateNoWindow = true,
                 RedirectStandardError = true,
-                RedirectStandardOutput = true
+                RedirectStandardOutput = true,
+                UseShellExecute = false
             };
 
             foreach (var argument in arguments)
@@ -127,14 +275,53 @@ public sealed class LinuxKeyboardHookService : IKeyboardHookService
                 return null;
             }
 
-            process.WaitForExit();
-            return process.ExitCode == 0 ? process.StandardOutput.ReadToEnd() : null;
+            var outputTask = process.StandardOutput.ReadToEndAsync();
+            var errorTask = process.StandardError.ReadToEndAsync();
+
+            if (!process.WaitForExit(GSettingsTimeoutMilliseconds))
+            {
+                process.Kill(entireProcessTree: true);
+                process.WaitForExit(GSettingsTimeoutMilliseconds);
+                Console.Error.WriteLine($"gsettings timed out: {string.Join(' ', arguments)}");
+                return null;
+            }
+
+            if (!Task.WaitAll([outputTask, errorTask], GSettingsTimeoutMilliseconds))
+            {
+                Console.Error.WriteLine($"Timed out while reading gsettings output: {string.Join(' ', arguments)}");
+                return null;
+            }
+
+            var output = outputTask.GetAwaiter().GetResult();
+            var error = errorTask.GetAwaiter().GetResult();
+            if (process.ExitCode != 0)
+            {
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    Console.Error.WriteLine(error.Trim());
+                }
+                return null;
+            }
+
+            return output;
         }
-        catch (Win32Exception)
+        catch (Win32Exception exception)
         {
+            Console.Error.WriteLine($"Could not run gsettings: {exception.Message}");
+            return null;
+        }
+        catch (InvalidOperationException exception)
+        {
+            Console.Error.WriteLine($"Could not run gsettings: {exception.Message}");
+            return null;
+        }
+        catch (AggregateException exception)
+        {
+            Console.Error.WriteLine($"Could not read gsettings output: {exception.GetBaseException().Message}");
             return null;
         }
     }
 
     private readonly record struct GSettingsKey(string Schema, string Name);
+    private sealed record GSettingsBackup(string Schema, string Name, string Value);
 }

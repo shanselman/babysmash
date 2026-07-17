@@ -10,7 +10,6 @@ using Avalonia.Threading;
 using BabySmash.Linux.Core.Interfaces;
 using BabySmash.Linux.Core.Models;
 using BabySmash.Linux.Core.Services;
-using BabySmash.Linux.Platform;
 using BabySmash.Linux.Shapes;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,7 +20,7 @@ public partial class MainWindow : Window
     private readonly ITtsService _ttsService;
     private readonly IAudioService _audioService;
     private readonly ISettingsService _settingsService;
-    private readonly LinuxKeyboardHookService? _keyboardHookService;
+    private readonly IKeyboardHookService _keyboardHookService;
     private readonly WordFinder _wordFinder;
     private readonly Queue<Control> _figuresQueue = new();
     private readonly Queue<Shape> _mouseEllipsesQueue = new();
@@ -40,7 +39,7 @@ public partial class MainWindow : Window
         _ttsService = App.Services.GetRequiredService<ITtsService>();
         _audioService = App.Services.GetRequiredService<IAudioService>();
         _settingsService = App.Services.GetRequiredService<ISettingsService>();
-        _keyboardHookService = App.Services.GetRequiredService<IKeyboardHookService>() as LinuxKeyboardHookService;
+        _keyboardHookService = App.Services.GetRequiredService<IKeyboardHookService>();
         _wordFinder = App.Services.GetRequiredService<WordFinder>();
         
         // Hook up input events
@@ -76,12 +75,12 @@ public partial class MainWindow : Window
         // Setup custom cursor
         SetupCustomCursor();
 
-        _keyboardHookService?.DisableSystemScreenshotShortcut();
+        _keyboardHookService.DisableSystemScreenshotShortcut();
     }
 
     private void OnClosed(object? sender, EventArgs e)
     {
-        _keyboardHookService?.RestoreSystemScreenshotShortcut();
+        _keyboardHookService.RestoreSystemScreenshotShortcut();
     }
 
     private void SetupCustomCursor()
