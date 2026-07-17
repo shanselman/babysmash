@@ -40,6 +40,8 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            desktop.Exit += (_, _) => Services.GetRequiredService<IKeyboardHookService>().Stop();
+
             // Create first window to get screen info
             var firstWindow = new MainWindow();
             desktop.MainWindow = firstWindow;
