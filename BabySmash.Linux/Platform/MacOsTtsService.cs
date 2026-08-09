@@ -72,9 +72,9 @@ public class MacOsTtsService : ITtsService, IDisposable
                 process.Dispose();
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine($"TTS error: {ex.Message}");
+            Console.WriteLine("Text-to-speech playback failed.");
         }
     }
 

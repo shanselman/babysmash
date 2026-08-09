@@ -63,9 +63,9 @@ public class MacOsAudioService : IAudioService, IDisposable
                 process.Dispose();
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine($"Audio error: {ex.Message}");
+            Console.WriteLine("Audio playback failed.");
         }
     }
 
