@@ -21,6 +21,7 @@ public partial class MainWindow : Window
     private readonly ITtsService _ttsService;
     private readonly IAudioService _audioService;
     private readonly ISettingsService _settingsService;
+    private readonly IKeyboardHookService _keyboardHookService;
     private readonly WordFinder _wordFinder;
     private readonly Queue<Control> _figuresQueue = new();
     private readonly Queue<Shape> _mouseEllipsesQueue = new();
@@ -39,6 +40,7 @@ public partial class MainWindow : Window
         _ttsService = App.Services.GetRequiredService<ITtsService>();
         _audioService = App.Services.GetRequiredService<IAudioService>();
         _settingsService = App.Services.GetRequiredService<ISettingsService>();
+        _keyboardHookService = App.Services.GetRequiredService<IKeyboardHookService>();
         _wordFinder = App.Services.GetRequiredService<WordFinder>();
 
         // Hook up input events
@@ -60,6 +62,7 @@ public partial class MainWindow : Window
         };
 
         Loaded += OnLoaded;
+        Closed += OnClosed;
     }
 
     private void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -76,6 +79,13 @@ public partial class MainWindow : Window
 
         // Setup custom cursor
         SetupCustomCursor();
+
+        _keyboardHookService.DisableSystemScreenshotShortcut();
+    }
+
+    private void OnClosed(object? sender, EventArgs e)
+    {
+        _keyboardHookService.RestoreSystemScreenshotShortcut();
     }
 
     private void ApplyPlatformWindowMode()
@@ -111,6 +121,12 @@ public partial class MainWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (IsSystemShortcutKey(e.Key))
+        {
+            e.Handled = true;
+            return;
+        }
+
         // Hide info label on first keypress
         var infoLabel = this.FindControl<StackPanel>("infoLabel");
         if (infoLabel != null && infoLabel.IsVisible)
@@ -176,6 +192,11 @@ public partial class MainWindow : Window
         }
 
         e.Handled = true;
+    }
+
+    private static bool IsSystemShortcutKey(Key key)
+    {
+        return key == Key.Print || key == Key.Snapshot;
     }
 
     private void CloseAllWindows()

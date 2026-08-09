@@ -102,6 +102,7 @@ public partial class App : Application
             return;
         }
 
+        Services.GetRequiredService<IKeyboardHookService>().Stop();
         Services.GetRequiredService<IAudioService>().StopAll();
         Services.GetRequiredService<ITtsService>().CancelSpeech();
         _serviceProvider.Dispose();

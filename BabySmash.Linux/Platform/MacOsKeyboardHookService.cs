@@ -19,6 +19,14 @@ public class MacOsKeyboardHookService : IKeyboardHookService
         return true;
     }
 
+    public void DisableSystemScreenshotShortcut()
+    {
+    }
+
+    public void RestoreSystemScreenshotShortcut()
+    {
+    }
+
     public void Stop()
     {
         IsActive = false;

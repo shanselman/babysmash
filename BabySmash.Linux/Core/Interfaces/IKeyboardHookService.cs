@@ -12,6 +12,8 @@ public interface IKeyboardHookService
 {
     event EventHandler<KeyboardHookEventArgs>? KeyPressed;
     bool Start();
+    void DisableSystemScreenshotShortcut();
+    void RestoreSystemScreenshotShortcut();
     void Stop();
     bool IsActive { get; }
 }
