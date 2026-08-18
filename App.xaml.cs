@@ -17,6 +17,9 @@ namespace BabySmash
 {
     public partial class App : Application
     {
+        private const int WmKeyDown = 0x0100;
+        private const int WmSysKeyDown = 0x0104;
+        private const int LlkhfAltDown = 0x20;
         private static readonly InterceptKeys.LowLevelKeyboardProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
         private static Mutex _singleInstanceMutex;
@@ -199,13 +202,17 @@ namespace BabySmash
         {
             if (nCode >= 0)
             {
-                bool alt = (WinForms.Control.ModifierKeys & Keys.Alt) != 0;
+                int message = wParam.ToInt32();
+                int flags = Marshal.ReadInt32(lParam, 8);
+                bool alt = (flags & LlkhfAltDown) != 0 ||
+                           (WinForms.Control.ModifierKeys & Keys.Alt) != 0;
                 bool control = (WinForms.Control.ModifierKeys & Keys.Control) != 0;
 
                 int vkCode = Marshal.ReadInt32(lParam);
                 Keys key = (Keys)vkCode;
 
-                if (alt && key == Keys.F4)
+                if (alt && key == Keys.F4 &&
+                    (message == WmKeyDown || message == WmSysKeyDown))
                 {
                     Application.Current.Shutdown();
                     return (IntPtr)1; // Handled.
