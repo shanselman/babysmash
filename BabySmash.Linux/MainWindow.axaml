@@ -5,7 +5,7 @@
         Background="WhiteSmoke"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
-        SystemDecorations="None"
+        WindowDecorations="None"
         Topmost="True">
     
     <Grid>
