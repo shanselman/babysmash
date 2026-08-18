@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
+using System.Windows.Threading;
 using BabySmash.Properties;
 using Updatum;
 using Application = System.Windows.Application;
@@ -218,6 +219,14 @@ namespace BabySmash
                     return (IntPtr)1; // Handled.
                 }
 
+                if ((message == WmKeyDown || message == WmSysKeyDown) &&
+                    !IsOptionsGestureKey(key))
+                {
+                    Application.Current.Dispatcher.BeginInvoke(
+                        DispatcherPriority.Input,
+                        new Action(Controller.Instance.CancelOptionsGesture));
+                }
+
                 if (!AllowKeyboardInput(alt, control, key))
                 {
                     return (IntPtr)1; // Handled.
@@ -225,6 +234,14 @@ namespace BabySmash
             }
 
             return InterceptKeys.CallNextHookEx(_hookID, nCode, wParam, lParam);
+        }
+
+        private static bool IsOptionsGestureKey(Keys key)
+        {
+            return key == Keys.O ||
+                   key == Keys.ControlKey || key == Keys.LControlKey || key == Keys.RControlKey ||
+                   key == Keys.Menu || key == Keys.LMenu || key == Keys.RMenu ||
+                   key == Keys.ShiftKey || key == Keys.LShiftKey || key == Keys.RShiftKey;
         }
 
         /// <summary>Determines whether the specified keyboard input should be allowed to be processed by the system.</summary>

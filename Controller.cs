@@ -58,11 +58,11 @@ namespace BabySmash
         public bool isOptionsDialogShown { get; set; }
         private bool isDrawing = false;
         private readonly List<MainWindow> windows = new List<MainWindow>();
-        private readonly Dictionary<MainWindow, WinForms.Screen> windowScreens = new Dictionary<MainWindow, WinForms.Screen>();
+        private readonly Dictionary<MainWindow, string> windowScreenDeviceNames = new Dictionary<MainWindow, string>();
         private bool isRestoringKioskState;
         private readonly SpeechQueue _speechQueue = new SpeechQueue(5);
 
-        private DispatcherTimer timer = new DispatcherTimer();
+        private DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Normal);
         private Queue<Shape> ellipsesQueue = new Queue<Shape>();
         private Dictionary<string, List<UserControl>> figuresUserControlQueue = new Dictionary<string, List<UserControl>>();
         private WordFinder wordFinder = new WordFinder("Words.txt");
@@ -106,17 +106,22 @@ namespace BabySmash
 
                 figuresUserControlQueue[m.Name] = new List<UserControl>();
                 windows.Add(m);
-                windowScreens[m] = s;
+                windowScreenDeviceNames[m] = s.DeviceName;
 
                 m.Show();
                 PositionWindowOnScreen(m, s);
+                m.Closed += HandleWindowClosed;
                 m.MouseLeftButtonDown += HandleMouseLeftButtonDown;
                 m.MouseWheel += HandleMouseWheel;
                 m.WindowState = WindowState.Maximized;
             }
 
             //Only show the info label on the FIRST monitor.
-            windows[0].infoLabel.Visibility = Visibility.Visible;
+            MainWindow firstWindow = GetFirstLoadedWindow();
+            if (firstWindow != null)
+            {
+                firstWindow.infoLabel.Visibility = Visibility.Visible;
+            }
 
             //Startup sound
             Win32Audio.PlayWavResourceYield("EditedJackPlaysBabySmash.wav");
@@ -432,12 +437,16 @@ namespace BabySmash
 
         public void Shutdown()
         {
+            timer.Stop();
+            timer.Tick -= timer_Tick;
             _speechQueue.Dispose();
         }
 
         public void ShowOptionsDialog()
         {
-            if (isOptionsDialogShown || windows.Count == 0)
+            PruneClosedWindows();
+            MainWindow owner = GetFirstLoadedWindow();
+            if (isOptionsDialogShown || owner == null)
             {
                 return;
             }
@@ -448,15 +457,18 @@ namespace BabySmash
             {
                 var options = new Options
                 {
-                    Owner = windows[0],
+                    Owner = owner,
                     Topmost = true
                 };
 
                 Mouse.Capture(null);
-                foreach (MainWindow window in windows)
+                foreach (MainWindow window in windows.Where(window => window.IsLoaded).ToList())
                 {
                     window.Topmost = false;
-                    window.CustomCursor.Visibility = Visibility.Hidden;
+                    if (window.CustomCursor != null)
+                    {
+                        window.CustomCursor.Visibility = Visibility.Hidden;
+                    }
                 }
 
                 options.ShowDialog();
@@ -464,8 +476,14 @@ namespace BabySmash
                 if (transparentBackground != Settings.Default.TransparentBackground)
                 {
                     RestoreKioskStateCore(restoreCursor: false);
+                    owner = GetFirstLoadedWindow();
+                    if (owner == null)
+                    {
+                        return;
+                    }
+
                     MessageBoxResult result = MessageBox.Show(
-                        windows[0],
+                        owner,
                         "You've changed the Window Transparency Option. We'll need to restart BabySmash! for you to see the change. Pressing YES will restart BabySmash!. Is that OK?",
                         "Need to Restart", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
@@ -479,6 +497,11 @@ namespace BabySmash
             finally
             {
                 isOptionsDialogShown = false;
+                foreach (MainWindow window in windows.Where(window => window.IsLoaded).ToList())
+                {
+                    window.ResetOptionsGestureAfterDialog();
+                }
+
                 RestoreKioskStateCore(restoreCursor: true);
             }
         }
@@ -493,8 +516,18 @@ namespace BabySmash
             RestoreKioskStateCore(restoreCursor: false);
         }
 
+        public void CancelOptionsGesture()
+        {
+            PruneClosedWindows();
+            foreach (MainWindow window in windows.Where(window => window.IsLoaded).ToList())
+            {
+                window.CancelOptionsGestureFromHook();
+            }
+        }
+
         private void RestoreKioskStateCore(bool restoreCursor)
         {
+            PruneClosedWindows();
             if (isRestoringKioskState || windows.Count == 0)
             {
                 return;
@@ -503,51 +536,95 @@ namespace BabySmash
             isRestoringKioskState = true;
             try
             {
-                foreach (MainWindow window in windows)
+                foreach (MainWindow window in windows.ToList())
                 {
-                    if (!window.IsLoaded)
+                    if (!windowScreenDeviceNames.TryGetValue(window, out string assignedDeviceName))
                     {
                         continue;
                     }
 
-                    window.WindowStyle = WindowStyle.None;
-                    window.ResizeMode = ResizeMode.NoResize;
-
-                    if (window.WindowState != WindowState.Maximized)
-                    {
-                        WinForms.Screen screen = windowScreens[window];
-                        window.WindowState = WindowState.Normal;
-                        PositionWindowOnScreen(window, screen);
-                        window.WindowState = WindowState.Maximized;
-                    }
-
-                    window.Topmost = true;
-                    if (restoreCursor)
-                    {
-                        window.RestoreCursor();
-                    }
+                    RestoreWindow(window, assignedDeviceName, restoreCursor);
                 }
 
-                MainWindow primaryWindow = windows[0];
-                if (!primaryWindow.IsLoaded)
+                MainWindow primaryWindow = GetFirstLoadedWindow();
+                if (primaryWindow == null)
                 {
                     return;
                 }
 
-                primaryWindow.Activate();
-                Keyboard.Focus(primaryWindow);
-
-                IntPtr windowHandle = new WindowInteropHelper(primaryWindow).Handle;
-                if (windowHandle != IntPtr.Zero)
+                try
                 {
-                    SetForegroundWindow(windowHandle);
-                    SetFocus(windowHandle);
+                    primaryWindow.Activate();
+                    Keyboard.Focus(primaryWindow);
+
+                    IntPtr windowHandle = new WindowInteropHelper(primaryWindow).Handle;
+                    if (windowHandle != IntPtr.Zero)
+                    {
+                        SetForegroundWindow(windowHandle);
+                        SetFocus(windowHandle);
+                    }
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Debug.WriteLine($"Unable to reactivate a BabySmash window during teardown: {ex.Message}");
                 }
             }
             finally
             {
                 isRestoringKioskState = false;
             }
+        }
+
+        private void RestoreWindow(MainWindow window, string assignedDeviceName, bool restoreCursor)
+        {
+            if (!window.IsLoaded)
+            {
+                return;
+            }
+
+            try
+            {
+                WinForms.Screen assignedScreen = ResolveScreen(assignedDeviceName);
+                IntPtr handle = new WindowInteropHelper(window).Handle;
+                bool isOnAssignedScreen = assignedScreen != null &&
+                    string.Equals(
+                        WinForms.Screen.FromHandle(handle).DeviceName,
+                        assignedScreen.DeviceName,
+                        StringComparison.OrdinalIgnoreCase);
+
+                window.WindowStyle = WindowStyle.None;
+                window.ResizeMode = ResizeMode.NoResize;
+
+                if (window.WindowState != WindowState.Maximized || !isOnAssignedScreen)
+                {
+                    window.WindowState = WindowState.Normal;
+                    if (assignedScreen != null)
+                    {
+                        PositionWindowOnScreen(window, assignedScreen);
+                    }
+
+                    window.WindowState = WindowState.Maximized;
+                }
+
+                window.Topmost = true;
+                if (restoreCursor)
+                {
+                    window.RestoreCursor();
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"Unable to restore {window.Name} during teardown: {ex.Message}");
+            }
+        }
+
+        private static WinForms.Screen ResolveScreen(string deviceName)
+        {
+            WinForms.Screen[] screens = WinForms.Screen.AllScreens;
+            return screens.FirstOrDefault(
+                       screen => string.Equals(screen.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase))
+                   ?? WinForms.Screen.PrimaryScreen
+                   ?? screens.FirstOrDefault();
         }
 
         private static void PositionWindowOnScreen(MainWindow window, WinForms.Screen screen)
@@ -566,6 +643,35 @@ namespace BabySmash
                     $"Failed to position {window.Name} on {screen.DeviceName}: " +
                     new Win32Exception(Marshal.GetLastWin32Error()).Message);
             }
+        }
+
+        private MainWindow GetFirstLoadedWindow()
+        {
+            return windows.FirstOrDefault(window => window.IsLoaded);
+        }
+
+        private void HandleWindowClosed(object sender, EventArgs e)
+        {
+            if (sender is MainWindow window)
+            {
+                RemoveWindow(window);
+            }
+        }
+
+        private void PruneClosedWindows()
+        {
+            foreach (MainWindow window in windows.Where(window => !window.IsLoaded).ToList())
+            {
+                RemoveWindow(window);
+            }
+        }
+
+        private void RemoveWindow(MainWindow window)
+        {
+            window.Closed -= HandleWindowClosed;
+            windows.Remove(window);
+            windowScreenDeviceNames.Remove(window);
+            figuresUserControlQueue.Remove(window.Name);
         }
 
         public void MouseDown(MainWindow main, MouseButtonEventArgs e)

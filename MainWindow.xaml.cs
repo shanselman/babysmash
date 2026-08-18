@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,10 +18,19 @@ namespace BabySmash
     {
         private readonly Controller controller;
         public Controller Controller { get { return controller; } }
-        private static readonly ModifierKeys OptionsModifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift;
+        private const int VkShift = 0x10;
+        private const int VkControl = 0x11;
+        private const int VkMenu = 0x12;
+        private const int VkLeftWindows = 0x5B;
+        private const int VkRightWindows = 0x5C;
+        private const int VkO = 0x4F;
         private readonly DispatcherTimer optionsGestureTimer;
-        private bool optionsGestureReady = true;
-        private bool suppressOptionsKeyUp;
+        private readonly Stopwatch optionsGestureStopwatch = new();
+        private readonly HashSet<Key> pressedKeys = new();
+        private bool optionsGestureRequiresRelease;
+
+        [DllImport("user32.dll")]
+        private static extern short GetAsyncKeyState(int virtualKey);
 
         private UserControl customCursor;
         public UserControl CustomCursor { get { return customCursor; } set { customCursor = value; } }
@@ -47,9 +57,9 @@ namespace BabySmash
             _showFps = showFps;
             InitializeComponent();
 
-            optionsGestureTimer = new DispatcherTimer
+            optionsGestureTimer = new DispatcherTimer(DispatcherPriority.Input)
             {
-                Interval = TimeSpan.FromSeconds(3)
+                Interval = TimeSpan.FromMilliseconds(50)
             };
             optionsGestureTimer.Tick += OptionsGestureTimer_Tick;
 
@@ -78,7 +88,7 @@ namespace BabySmash
 
         protected override void OnClosed(EventArgs e)
         {
-            optionsGestureTimer.Stop();
+            ResetOptionsGesture();
             optionsGestureTimer.Tick -= OptionsGestureTimer_Tick;
 
             if (_showFps)
@@ -141,14 +151,13 @@ namespace BabySmash
             base.OnKeyUp(e);
 
             Key key = e.Key == Key.System ? e.SystemKey : e.Key;
+            pressedKeys.Remove(key);
             if (IsOptionsGestureKey(key) &&
-                (optionsGestureTimer.IsEnabled || !optionsGestureReady || suppressOptionsKeyUp))
+                (optionsGestureStopwatch.IsRunning || optionsGestureRequiresRelease))
             {
-                optionsGestureTimer.Stop();
                 if (IsOptionsGestureReleased())
                 {
-                    suppressOptionsKeyUp = false;
-                    optionsGestureReady = true;
+                    ResetOptionsGesture();
                 }
 
                 e.Handled = true;
@@ -164,11 +173,22 @@ namespace BabySmash
             base.OnKeyDown(e);
 
             Key key = e.Key == Key.System ? e.SystemKey : e.Key;
-            if (key == Key.O && Keyboard.Modifiers == OptionsModifiers)
+            pressedKeys.Add(key);
+            if (optionsGestureRequiresRelease)
             {
-                if (optionsGestureReady && !optionsGestureTimer.IsEnabled)
+                if (IsOptionsGestureKey(key))
                 {
-                    suppressOptionsKeyUp = true;
+                    e.Handled = true;
+                }
+
+                return;
+            }
+
+            if (key == Key.O && IsExactOptionsGestureHeld())
+            {
+                if (!optionsGestureStopwatch.IsRunning)
+                {
+                    optionsGestureStopwatch.Restart();
                     optionsGestureTimer.Start();
                 }
 
@@ -176,10 +196,24 @@ namespace BabySmash
                 return;
             }
 
-            if (optionsGestureTimer.IsEnabled && !IsOptionsModifier(key))
+            if (optionsGestureStopwatch.IsRunning)
             {
-                optionsGestureTimer.Stop();
+                CancelOptionsGestureUntilRelease();
             }
+        }
+
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            ResetOptionsGestureAfterDialog();
+        }
+
+        protected override void OnDeactivated(EventArgs e)
+        {
+            ResetOptionsGesture();
+            optionsGestureRequiresRelease = true;
+            pressedKeys.Clear();
+            base.OnDeactivated(e);
         }
 
         protected override void OnStateChanged(EventArgs e)
@@ -189,7 +223,7 @@ namespace BabySmash
             if (IsLoaded && !controller.isOptionsDialogShown)
             {
                 Dispatcher.BeginInvoke(
-                    DispatcherPriority.ApplicationIdle,
+                    DispatcherPriority.Normal,
                     new Action(() => controller.RestoreKioskState()));
             }
         }
@@ -226,6 +260,11 @@ namespace BabySmash
             AssertCursor();
             Cursor = Cursors.None;
 
+            if (CustomCursor == null)
+            {
+                return;
+            }
+
             Point position = Mouse.GetPosition(mouseDragCanvas);
             Canvas.SetTop(CustomCursor, position.Y);
             Canvas.SetLeft(CustomCursor, position.X);
@@ -235,21 +274,64 @@ namespace BabySmash
 
         private void OptionsGestureTimer_Tick(object sender, EventArgs e)
         {
-            optionsGestureTimer.Stop();
-
-            if (optionsGestureReady &&
-                Keyboard.Modifiers == OptionsModifiers &&
-                Keyboard.IsKeyDown(Key.O))
+            if (optionsGestureRequiresRelease)
             {
-                optionsGestureReady = false;
-                controller.ShowOptionsDialog();
-
                 if (IsOptionsGestureReleased())
                 {
-                    suppressOptionsKeyUp = false;
-                    optionsGestureReady = true;
+                    ResetOptionsGesture();
                 }
+
+                return;
             }
+
+            if (!optionsGestureStopwatch.IsRunning)
+            {
+                optionsGestureTimer.Stop();
+                return;
+            }
+
+            if (!IsExactOptionsGestureHeld())
+            {
+                CancelOptionsGestureUntilRelease();
+                return;
+            }
+
+            if (optionsGestureStopwatch.Elapsed >= TimeSpan.FromSeconds(3))
+            {
+                optionsGestureStopwatch.Reset();
+                optionsGestureTimer.Stop();
+                optionsGestureRequiresRelease = true;
+                controller.ShowOptionsDialog();
+            }
+        }
+
+        internal void ResetOptionsGestureAfterDialog()
+        {
+            ResetOptionsGesture();
+            optionsGestureRequiresRelease = !IsOptionsGestureReleased();
+            if (optionsGestureRequiresRelease)
+            {
+                optionsGestureTimer.Start();
+            }
+        }
+
+        internal void CancelOptionsGestureFromHook()
+        {
+            CancelOptionsGestureUntilRelease();
+        }
+
+        private void CancelOptionsGestureUntilRelease()
+        {
+            optionsGestureStopwatch.Reset();
+            optionsGestureRequiresRelease = true;
+            optionsGestureTimer.Start();
+        }
+
+        private void ResetOptionsGesture()
+        {
+            optionsGestureStopwatch.Reset();
+            optionsGestureTimer.Stop();
+            optionsGestureRequiresRelease = false;
         }
 
         private static bool IsOptionsGestureKey(Key key)
@@ -260,15 +342,28 @@ namespace BabySmash
                    key == Key.LeftShift || key == Key.RightShift;
         }
 
-        private static bool IsOptionsModifier(Key key)
+        private bool IsExactOptionsGestureHeld()
         {
-            return IsOptionsGestureKey(key) && key != Key.O;
+            return IsKeyDown(VkO) &&
+                   IsKeyDown(VkControl) &&
+                   IsKeyDown(VkMenu) &&
+                   IsKeyDown(VkShift) &&
+                   !IsKeyDown(VkLeftWindows) &&
+                   !IsKeyDown(VkRightWindows) &&
+                   pressedKeys.All(IsOptionsGestureKey);
         }
 
         private static bool IsOptionsGestureReleased()
         {
-            return !Keyboard.IsKeyDown(Key.O) &&
-                   (Keyboard.Modifiers & OptionsModifiers) == ModifierKeys.None;
+            return !IsKeyDown(VkO) &&
+                   !IsKeyDown(VkControl) &&
+                   !IsKeyDown(VkMenu) &&
+                   !IsKeyDown(VkShift);
+        }
+
+        private static bool IsKeyDown(int virtualKey)
+        {
+            return (GetAsyncKeyState(virtualKey) & 0x8000) != 0;
         }
     }
 }
