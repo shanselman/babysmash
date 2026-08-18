@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -37,6 +38,19 @@ namespace BabySmash
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(
+            IntPtr hWnd,
+            IntPtr hWndInsertAfter,
+            int x,
+            int y,
+            int width,
+            int height,
+            uint flags);
+
+        private const uint SwpNoZOrder = 0x0004;
+        private const uint SwpNoActivate = 0x0010;
+
         private static Controller instance = new Controller();
 
         public static bool ShowFps { get; set; }
@@ -44,6 +58,8 @@ namespace BabySmash
         public bool isOptionsDialogShown { get; set; }
         private bool isDrawing = false;
         private readonly List<MainWindow> windows = new List<MainWindow>();
+        private readonly Dictionary<MainWindow, WinForms.Screen> windowScreens = new Dictionary<MainWindow, WinForms.Screen>();
+        private bool isRestoringKioskState;
         private readonly SpeechQueue _speechQueue = new SpeechQueue(5);
 
         private DispatcherTimer timer = new DispatcherTimer();
@@ -89,12 +105,14 @@ namespace BabySmash
                 };
 
                 figuresUserControlQueue[m.Name] = new List<UserControl>();
+                windows.Add(m);
+                windowScreens[m] = s;
 
                 m.Show();
+                PositionWindowOnScreen(m, s);
                 m.MouseLeftButtonDown += HandleMouseLeftButtonDown;
                 m.MouseWheel += HandleMouseWheel;
                 m.WindowState = WindowState.Maximized;
-                windows.Add(m);
             }
 
             //Only show the info label on the FIRST monitor.
@@ -110,21 +128,7 @@ namespace BabySmash
 
         void timer_Tick(object sender, EventArgs e)
         {
-            if (isOptionsDialogShown)
-            {
-                return;
-            }
-
-            try
-            {
-                IntPtr windowHandle = new WindowInteropHelper(Application.Current.MainWindow).Handle;
-                SetForegroundWindow(windowHandle);
-                SetFocus(windowHandle);
-            }
-            catch (Exception)
-            {
-                //Wish me luck!
-            }
+            RestoreKioskState();
         }
 
         public void ProcessKey(FrameworkElement uie, KeyEventArgs e)
@@ -433,35 +437,134 @@ namespace BabySmash
 
         public void ShowOptionsDialog()
         {
-            bool foo = Settings.Default.TransparentBackground;
-            isOptionsDialogShown = true;
-            var o = new Options();
-            Mouse.Capture(null);
-            foreach (MainWindow m in this.windows)
+            if (isOptionsDialogShown || windows.Count == 0)
             {
-                m.Topmost = false;
+                return;
             }
-            o.Topmost = true;
-            o.Focus();
-            o.ShowDialog();
-            Debug.Write("test");
-            foreach (MainWindow m in this.windows)
-            {
-                m.Topmost = true;
-                //m.ResetCanvas();
-            }
-            isOptionsDialogShown = false;
 
-            if (foo != Settings.Default.TransparentBackground)
+            bool transparentBackground = Settings.Default.TransparentBackground;
+            isOptionsDialogShown = true;
+            try
             {
-                MessageBoxResult result = MessageBox.Show(
+                var options = new Options
+                {
+                    Owner = windows[0],
+                    Topmost = true
+                };
+
+                Mouse.Capture(null);
+                foreach (MainWindow window in windows)
+                {
+                    window.Topmost = false;
+                    window.CustomCursor.Visibility = Visibility.Hidden;
+                }
+
+                options.ShowDialog();
+
+                if (transparentBackground != Settings.Default.TransparentBackground)
+                {
+                    RestoreKioskStateCore(restoreCursor: false);
+                    MessageBoxResult result = MessageBox.Show(
+                        windows[0],
                         "You've changed the Window Transparency Option. We'll need to restart BabySmash! for you to see the change. Pressing YES will restart BabySmash!. Is that OK?",
                         "Need to Restart", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result == MessageBoxResult.Yes)
-                {
-                    Application.Current.Shutdown();
-                    System.Windows.Forms.Application.Restart();
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Application.Current.Shutdown();
+                        System.Windows.Forms.Application.Restart();
+                    }
                 }
+            }
+            finally
+            {
+                isOptionsDialogShown = false;
+                RestoreKioskStateCore(restoreCursor: true);
+            }
+        }
+
+        public void RestoreKioskState()
+        {
+            if (isOptionsDialogShown)
+            {
+                return;
+            }
+
+            RestoreKioskStateCore(restoreCursor: false);
+        }
+
+        private void RestoreKioskStateCore(bool restoreCursor)
+        {
+            if (isRestoringKioskState || windows.Count == 0)
+            {
+                return;
+            }
+
+            isRestoringKioskState = true;
+            try
+            {
+                foreach (MainWindow window in windows)
+                {
+                    if (!window.IsLoaded)
+                    {
+                        continue;
+                    }
+
+                    window.WindowStyle = WindowStyle.None;
+                    window.ResizeMode = ResizeMode.NoResize;
+
+                    if (window.WindowState != WindowState.Maximized)
+                    {
+                        WinForms.Screen screen = windowScreens[window];
+                        window.WindowState = WindowState.Normal;
+                        PositionWindowOnScreen(window, screen);
+                        window.WindowState = WindowState.Maximized;
+                    }
+
+                    window.Topmost = true;
+                    if (restoreCursor)
+                    {
+                        window.RestoreCursor();
+                    }
+                }
+
+                MainWindow primaryWindow = windows[0];
+                if (!primaryWindow.IsLoaded)
+                {
+                    return;
+                }
+
+                primaryWindow.Activate();
+                Keyboard.Focus(primaryWindow);
+
+                IntPtr windowHandle = new WindowInteropHelper(primaryWindow).Handle;
+                if (windowHandle != IntPtr.Zero)
+                {
+                    SetForegroundWindow(windowHandle);
+                    SetFocus(windowHandle);
+                }
+            }
+            finally
+            {
+                isRestoringKioskState = false;
+            }
+        }
+
+        private static void PositionWindowOnScreen(MainWindow window, WinForms.Screen screen)
+        {
+            IntPtr handle = new WindowInteropHelper(window).Handle;
+            if (!SetWindowPos(
+                    handle,
+                    IntPtr.Zero,
+                    screen.Bounds.Left,
+                    screen.Bounds.Top,
+                    screen.Bounds.Width,
+                    screen.Bounds.Height,
+                    SwpNoZOrder | SwpNoActivate))
+            {
+                Debug.WriteLine(
+                    $"Failed to position {window.Name} on {screen.DeviceName}: " +
+                    new Win32Exception(Marshal.GetLastWin32Error()).Message);
             }
         }
 
