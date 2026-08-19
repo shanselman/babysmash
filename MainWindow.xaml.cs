@@ -205,14 +205,27 @@ namespace BabySmash
         protected override void OnActivated(EventArgs e)
         {
             base.OnActivated(e);
-            ResetOptionsGestureAfterDialog();
+            if (optionsGestureStopwatch.IsRunning || optionsGestureRequiresRelease)
+            {
+                ResetOptionsGestureAfterDialog();
+            }
+            else
+            {
+                pressedKeys.Clear();
+            }
         }
 
         protected override void OnDeactivated(EventArgs e)
         {
+            bool gestureWasActive = optionsGestureStopwatch.IsRunning || optionsGestureRequiresRelease;
             ResetOptionsGesture();
-            optionsGestureRequiresRelease = true;
             pressedKeys.Clear();
+            if (gestureWasActive && !IsOptionsGestureReleased())
+            {
+                optionsGestureRequiresRelease = true;
+                optionsGestureTimer.Start();
+            }
+
             base.OnDeactivated(e);
         }
 
@@ -317,8 +330,13 @@ namespace BabySmash
 
         internal void CancelOptionsGestureFromHook()
         {
-            CancelOptionsGestureUntilRelease();
+            if (optionsGestureStopwatch.IsRunning)
+            {
+                CancelOptionsGestureUntilRelease();
+            }
         }
+
+        internal bool IsOptionsGestureArmed => optionsGestureStopwatch.IsRunning;
 
         private void CancelOptionsGestureUntilRelease()
         {

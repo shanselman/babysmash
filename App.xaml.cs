@@ -196,7 +196,10 @@ namespace BabySmash
         private static void DetachKeyboardHook()
         {
             if (_hookID != IntPtr.Zero)
+            {
                 InterceptKeys.UnhookWindowsHookEx(_hookID);
+                _hookID = IntPtr.Zero;
+            }
         }
 
         public static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
@@ -215,16 +218,30 @@ namespace BabySmash
                 if (alt && key == Keys.F4 &&
                     (message == WmKeyDown || message == WmSysKeyDown))
                 {
-                    Application.Current.Shutdown();
+                    Application.Current?.Shutdown();
                     return (IntPtr)1; // Handled.
                 }
 
                 if ((message == WmKeyDown || message == WmSysKeyDown) &&
-                    !IsOptionsGestureKey(key))
+                    !IsOptionsGestureKey(key) &&
+                    Controller.Instance.HasActiveOptionsGesture)
                 {
-                    Application.Current.Dispatcher.BeginInvoke(
-                        DispatcherPriority.Input,
-                        new Action(Controller.Instance.CancelOptionsGesture));
+                    Dispatcher dispatcher = Application.Current?.Dispatcher;
+                    if (dispatcher != null &&
+                        !dispatcher.HasShutdownStarted &&
+                        !dispatcher.HasShutdownFinished)
+                    {
+                        try
+                        {
+                            dispatcher.BeginInvoke(
+                                DispatcherPriority.Input,
+                                new Action(Controller.Instance.CancelOptionsGesture));
+                        }
+                        catch (InvalidOperationException ex)
+                        {
+                            Debug.WriteLine($"Unable to cancel Options gesture during shutdown: {ex.Message}");
+                        }
+                    }
                 }
 
                 if (!AllowKeyboardInput(alt, control, key))
