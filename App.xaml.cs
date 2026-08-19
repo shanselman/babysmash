@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
+using System.Windows.Threading;
 using BabySmash.Properties;
 using Updatum;
 using Application = System.Windows.Application;
@@ -17,6 +18,9 @@ namespace BabySmash
 {
     public partial class App : Application
     {
+        private const int WmKeyDown = 0x0100;
+        private const int WmSysKeyDown = 0x0104;
+        private const int LlkhfAltDown = 0x20;
         private static readonly InterceptKeys.LowLevelKeyboardProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
         private static Mutex _singleInstanceMutex;
@@ -192,23 +196,52 @@ namespace BabySmash
         private static void DetachKeyboardHook()
         {
             if (_hookID != IntPtr.Zero)
+            {
                 InterceptKeys.UnhookWindowsHookEx(_hookID);
+                _hookID = IntPtr.Zero;
+            }
         }
 
         public static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0)
             {
-                bool alt = (WinForms.Control.ModifierKeys & Keys.Alt) != 0;
+                int message = wParam.ToInt32();
+                int flags = Marshal.ReadInt32(lParam, 8);
+                bool alt = (flags & LlkhfAltDown) != 0 ||
+                           (WinForms.Control.ModifierKeys & Keys.Alt) != 0;
                 bool control = (WinForms.Control.ModifierKeys & Keys.Control) != 0;
 
                 int vkCode = Marshal.ReadInt32(lParam);
                 Keys key = (Keys)vkCode;
 
-                if (alt && key == Keys.F4)
+                if (alt && key == Keys.F4 &&
+                    (message == WmKeyDown || message == WmSysKeyDown))
                 {
-                    Application.Current.Shutdown();
+                    Application.Current?.Shutdown();
                     return (IntPtr)1; // Handled.
+                }
+
+                if ((message == WmKeyDown || message == WmSysKeyDown) &&
+                    !IsOptionsGestureKey(key) &&
+                    Controller.Instance.HasActiveOptionsGesture)
+                {
+                    Dispatcher dispatcher = Application.Current?.Dispatcher;
+                    if (dispatcher != null &&
+                        !dispatcher.HasShutdownStarted &&
+                        !dispatcher.HasShutdownFinished)
+                    {
+                        try
+                        {
+                            dispatcher.BeginInvoke(
+                                DispatcherPriority.Input,
+                                new Action(Controller.Instance.CancelOptionsGesture));
+                        }
+                        catch (InvalidOperationException ex)
+                        {
+                            Debug.WriteLine($"Unable to cancel Options gesture during shutdown: {ex.Message}");
+                        }
+                    }
                 }
 
                 if (!AllowKeyboardInput(alt, control, key))
@@ -218,6 +251,14 @@ namespace BabySmash
             }
 
             return InterceptKeys.CallNextHookEx(_hookID, nCode, wParam, lParam);
+        }
+
+        private static bool IsOptionsGestureKey(Keys key)
+        {
+            return key == Keys.O ||
+                   key == Keys.ControlKey || key == Keys.LControlKey || key == Keys.RControlKey ||
+                   key == Keys.Menu || key == Keys.LMenu || key == Keys.RMenu ||
+                   key == Keys.ShiftKey || key == Keys.LShiftKey || key == Keys.RShiftKey;
         }
 
         /// <summary>Determines whether the specified keyboard input should be allowed to be processed by the system.</summary>

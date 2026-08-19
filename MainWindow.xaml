@@ -18,14 +18,6 @@
         </Storyboard>
     </Window.Resources>
 
-    <Window.CommandBindings>
-        <CommandBinding Command="Properties" Executed="Properties_Executed"/>
-    </Window.CommandBindings>
-    
-    <Window.InputBindings>
-        <KeyBinding Gesture="CTRL+ALT+SHIFT+O" Command="{x:Static ApplicationCommands.Properties}" />
-    </Window.InputBindings>
-
     <Window.Triggers>
         <EventTrigger RoutedEvent="FrameworkElement.Loaded">
             <BeginStoryboard Storyboard="{StaticResource Timeline1}"/>
@@ -87,7 +79,7 @@
                 </TextBlock.BitmapEffect>
             <Bold>BabySmash!</Bold> by Scott Hanselman <Italic>with community contributions!</Italic> - http://www.babysmash.com 
             <LineBreak/>
-            <Bold>Ctrl-Shift-Alt-O</Bold> for options, <Bold>ALT-F4</Bold> to exit
+            Hold <Bold>Ctrl-Shift-Alt-O for 3 seconds</Bold> for options, <Bold>ALT-F4</Bold> to exit
             </TextBlock>
             <TextBlock x:Name="UpdateAvailableLabel" Visibility="Hidden" Margin="15,10,0,0" FontSize="12">
                 <TextBlock.BitmapEffect>

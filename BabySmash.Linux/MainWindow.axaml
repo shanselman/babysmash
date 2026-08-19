@@ -5,19 +5,19 @@
         Background="WhiteSmoke"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
-        SystemDecorations="None"
+        WindowDecorations="None"
         Topmost="True">
-
+    
     <Grid>
         <!-- Main canvas for figures -->
         <Canvas Name="figuresCanvas" Background="Transparent"/>
-
+        
         <!-- Mouse drag canvas (for mouse drawing mode) -->
         <Canvas Name="mouseDragCanvas" Background="Transparent"/>
-
+        
         <!-- Mouse cursor canvas -->
         <Canvas Name="mouseCursorCanvas" Background="Transparent"/>
-
+        
         <!-- Info label (shown on first window only) -->
         <StackPanel Name="infoLabel" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="15" IsVisible="True">
             <TextBlock FontSize="24" FontWeight="Bold" Foreground="#333333">
