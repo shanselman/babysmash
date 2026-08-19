@@ -81,12 +81,24 @@ public partial class App : Application
                 else
                 {
                     window = new MainWindow();
-                    window.Show();
                 }
 
                 window.Position = new PixelPoint(screen.Bounds.X, screen.Bounds.Y);
-                window.Width = screen.Bounds.Width;
-                window.Height = screen.Bounds.Height;
+                if (PlatformInfo.IsMacOs)
+                {
+                    window.Width = screen.Bounds.Width / screen.Scaling;
+                    window.Height = screen.Bounds.Height / screen.Scaling;
+                }
+                else
+                {
+                    window.Width = screen.Bounds.Width;
+                    window.Height = screen.Bounds.Height;
+                }
+
+                if (window != firstWindow)
+                {
+                    window.Show();
+                }
 
                 Windows.Add(window);
             }

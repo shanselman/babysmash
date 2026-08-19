@@ -42,8 +42,7 @@ public class MacOsAudioService : IAudioService, IDisposable
                 {
                     FileName = AfplayPath,
                     CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardError = true
+                    UseShellExecute = false
                 },
                 EnableRaisingEvents = true
             };

@@ -16,7 +16,8 @@ public class MacOsTtsService : ITtsService, IDisposable
     private const int VoiceProbeTimeoutMilliseconds = 2000;
     private readonly List<Process> _runningProcesses = new();
     private readonly object _processLock = new();
-    private readonly List<SayVoice> _voices;
+    private readonly object _voiceLock = new();
+    private List<SayVoice>? _voices;
     private readonly bool _sayAvailable;
     private bool _warningShown;
     private string? _currentVoice;
@@ -24,7 +25,6 @@ public class MacOsTtsService : ITtsService, IDisposable
     public MacOsTtsService()
     {
         _sayAvailable = File.Exists(SayPath);
-        _voices = _sayAvailable ? ProbeVoices() : new List<SayVoice>();
     }
 
     public void Speak(string text)
@@ -45,8 +45,7 @@ public class MacOsTtsService : ITtsService, IDisposable
                 {
                     FileName = SayPath,
                     CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardError = true
+                    UseShellExecute = false
                 },
                 EnableRaisingEvents = true
             };
@@ -111,15 +110,26 @@ public class MacOsTtsService : ITtsService, IDisposable
             return false;
         }
 
+        var voices = EnsureVoices();
+
         var normalizedName = NormalizeCulture(culture.Name);
         var languageName = NormalizeCulture(culture.TwoLetterISOLanguageName);
 
-        var voice = _voices.FirstOrDefault(v => v.NormalizedLocale == normalizedName)
-            ?? _voices.FirstOrDefault(v => v.NormalizedLocale.StartsWith(languageName + "-", StringComparison.OrdinalIgnoreCase))
-            ?? _voices.FirstOrDefault(v => v.NormalizedLocale.Equals(languageName, StringComparison.OrdinalIgnoreCase));
+        var voice = voices.FirstOrDefault(v => v.NormalizedLocale == normalizedName)
+            ?? voices.FirstOrDefault(v => v.NormalizedLocale.StartsWith(languageName + "-", StringComparison.OrdinalIgnoreCase))
+            ?? voices.FirstOrDefault(v => v.NormalizedLocale.Equals(languageName, StringComparison.OrdinalIgnoreCase));
 
         _currentVoice = voice?.Name;
-        return voice != null || _voices.Count == 0;
+        return voice != null || voices.Count == 0;
+    }
+
+    private List<SayVoice> EnsureVoices()
+    {
+        lock (_voiceLock)
+        {
+            _voices ??= ProbeVoices();
+            return _voices;
+        }
     }
 
     public void CancelSpeech()

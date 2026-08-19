@@ -63,11 +63,13 @@ public partial class MainWindow : Window
 
         Loaded += OnLoaded;
         Closed += OnClosed;
+
+        ApplyPlatformWindowState();
     }
 
     private void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        ApplyPlatformWindowMode();
+        ApplyPlatformWindowTitle();
         Focus();
         if (!PlatformInfo.IsMacOs)
         {
@@ -88,15 +90,18 @@ public partial class MainWindow : Window
         _keyboardHookService.RestoreSystemScreenshotShortcut();
     }
 
-    private void ApplyPlatformWindowMode()
+    private void ApplyPlatformWindowState()
     {
-        Title = $"BabySmash! for {PlatformInfo.DisplayName}";
-
         if (PlatformInfo.IsMacOs)
         {
-            WindowState = WindowState.FullScreen;
+            WindowState = WindowState.Normal;
             Topmost = false;
         }
+    }
+
+    private void ApplyPlatformWindowTitle()
+    {
+        Title = $"BabySmash! for {PlatformInfo.DisplayName}";
     }
 
     private void SetupCustomCursor()

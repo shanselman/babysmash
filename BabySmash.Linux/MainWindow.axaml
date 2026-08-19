@@ -4,7 +4,7 @@
         Title="BabySmash!"
         Background="WhiteSmoke"
         WindowState="Maximized"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="Manual"
         WindowDecorations="None"
         Topmost="True">
     

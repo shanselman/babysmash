@@ -116,7 +116,7 @@ jobs:
         fetch-depth: 0
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: '10.0.x'
 
@@ -193,7 +193,7 @@ jobs:
           <key>CFBundlePackageType</key>
           <string>APPL</string>
           <key>LSMinimumSystemVersion</key>
-          <string>12.0</string>
+          <string>14.0</string>
           <key>NSHighResolutionCapable</key>
           <true/>
         </dict>
@@ -366,9 +366,9 @@ jobs:
 
   create-release:
     runs-on: ubuntu-latest
-    needs: [build-linux, build-macos, build-windows]
+    needs: [build-linux, build-windows]
     if: startsWith(github.ref, 'refs/tags/')
-    
+
     steps:
     - name: Download Linux artifacts
       uses: actions/download-artifact@v8
@@ -382,18 +382,6 @@ jobs:
         name: BabySmash-Windows
         path: artifacts/
 
-    - name: Download macOS ARM64 artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: BabySmash-macOS-osx-arm64
-        path: artifacts/
-
-    - name: Download macOS Intel artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: BabySmash-macOS-osx-x64
-        path: artifacts/
-        
     - name: Create Release
       uses: softprops/action-gh-release@v3.0.2
       with:
@@ -410,13 +398,11 @@ jobs:
           |------|-------------|
           | `BabySmash-Setup.exe` | **Windows** - Installer with Start Menu shortcut |
           | `BabySmash-win-x64.zip` | **Windows** - Portable version (also used by auto-updater) |
-          | `BabySmash-osx-arm64.app.zip` | **macOS Apple Silicon** - Minimal app bundle |
-          | `BabySmash-osx-x64.app.zip` | **macOS Intel** - Minimal app bundle |
           | `babysmash_*_amd64.deb` | **Debian/Ubuntu** - Install with `sudo dpkg -i babysmash_*_amd64.deb` |
           | `babysmash-*.x86_64.rpm` | **Fedora/RHEL** - Install with `sudo rpm -i babysmash-*.x86_64.rpm` |
           | `BabySmash-linux-x64.tar.gz` | **Linux** - Manual install, extract and run `./babysmash` |
-          
-          **Self-contained** - No .NET installation required. macOS bundles are ad-hoc signed but not notarized; first launch may require right-click → Open or approval in Privacy & Security.
+
+          **Self-contained** - No .NET installation required.
           
           ### ⌨️ Usage
           - Press keys and watch shapes and letters appear!
