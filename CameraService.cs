@@ -4,10 +4,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using BabySmash.Properties;
-using Windows.Devices.Enumeration;
-using Windows.Media.Capture;
-using Windows.Media.MediaProperties;
-using Windows.Storage.Streams;
+using FlashCap;
 using Application = System.Windows.Application;
 
 namespace BabySmash
@@ -26,22 +23,28 @@ namespace BabySmash
     }
 
     /// <summary>
-    /// Keeps a recent webcam snapshot around for "silly selfie" shapes.
+    /// Keeps a recent webcam snapshot around for "silly selfie" shapes, using FlashCap.
     /// Every camera failure is caught and reported through <see cref="Status"/>;
     /// nothing in here should ever take the game down.
     /// </summary>
     public sealed class CameraService : IDisposable
     {
         private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(1.5);
+        private static readonly TimeSpan FrameTimeout = TimeSpan.FromSeconds(6);
+        private static readonly TimeSpan DisposeTimeout = TimeSpan.FromSeconds(2);
         private const int MaxConsecutiveFailures = 3;
+        private const int PreferredCaptureWidth = 640;
         private const int SnapshotWidth = 480;
+        private const int AccessDeniedHResult = unchecked((int)0x80070005);
 
         private readonly SemaphoreSlim applyLock = new SemaphoreSlim(1, 1);
-        private MediaCapture mediaCapture;
-        private LowLagPhotoCapture photoCapture;
-        private CancellationTokenSource refreshCts;
-        private Task refreshTask;
+        private CaptureDevice captureDevice;
+        private CancellationTokenSource watchdogCts;
+        private Task watchdogTask;
         private string activeRequestedDeviceId;
+        private long lastFrameTicks;
+        private long lastDecodeTicks;
+        private int consecutiveFailures;
         private volatile BitmapSource latestFrame;
         private volatile CameraStatus status = CameraStatus.Disabled;
         private volatile string statusText = string.Empty;
@@ -61,8 +64,8 @@ namespace BabySmash
         {
             try
             {
-                DeviceInformationCollection devices = await DeviceInformation.FindAllAsync(DeviceClass.VideoCapture);
-                return devices.Select(device => new CameraInfo(device.Id, device.Name)).ToList();
+                List<CaptureDeviceDescriptor> descriptors = await Task.Run(FindDescriptors);
+                return descriptors.Select(descriptor => new CameraInfo(GetDeviceId(descriptor), descriptor.Name)).ToList();
             }
             catch (Exception ex)
             {
@@ -94,7 +97,7 @@ namespace BabySmash
                         return;
                     }
 
-                    if (mediaCapture != null &&
+                    if (captureDevice != null &&
                         status == CameraStatus.Enabled &&
                         requestedDeviceId == activeRequestedDeviceId)
                     {
@@ -117,120 +120,136 @@ namespace BabySmash
             }
         }
 
+        /// <summary>
+        /// FlashCap lists each camera once per backend (DirectShow, Media Foundation, VfW, ...).
+        /// Keep one entry per camera, preferring DirectShow, and skip the legacy VfW "Default" device.
+        /// </summary>
+        private static List<CaptureDeviceDescriptor> FindDescriptors()
+        {
+            return new CaptureDevices()
+                .EnumerateDescriptors()
+                .Where(descriptor => descriptor.DeviceType != DeviceTypes.VideoForWindows &&
+                                     descriptor.Characteristics.Any(IsUsable))
+                .OrderBy(descriptor => descriptor.DeviceType == DeviceTypes.DirectShow ? 0 : 1)
+                .GroupBy(descriptor => descriptor.Name)
+                .Select(group => group.First())
+                .ToList();
+        }
+
+        private static bool IsUsable(VideoCharacteristics characteristics) =>
+            characteristics.PixelFormat != PixelFormats.Unknown;
+
+        private static string GetDeviceId(CaptureDeviceDescriptor descriptor) =>
+            descriptor.Identity?.ToString() ?? descriptor.Name;
+
+        /// <summary>Picks a modest resolution (about 640 wide), preferring JPEG since it is cheap to decode.</summary>
+        private static VideoCharacteristics ChooseCharacteristics(CaptureDeviceDescriptor descriptor)
+        {
+            return descriptor.Characteristics
+                .Where(IsUsable)
+                .OrderBy(characteristics => Math.Abs(characteristics.Width - PreferredCaptureWidth))
+                .ThenBy(characteristics => characteristics.PixelFormat == PixelFormats.JPEG ? 0 : 1)
+                .First();
+        }
+
         private async Task StartAsync(string requestedDeviceId)
         {
             SetStatus(CameraStatus.Starting, "Camera starting...");
 
-            IReadOnlyList<CameraInfo> cameras = await GetCamerasAsync();
-            CameraInfo camera = cameras.FirstOrDefault(candidate => candidate.Id == requestedDeviceId)
-                                ?? cameras.FirstOrDefault();
-            if (camera == null)
+            List<CaptureDeviceDescriptor> descriptors = await Task.Run(FindDescriptors);
+            CaptureDeviceDescriptor descriptor = descriptors.FirstOrDefault(candidate => GetDeviceId(candidate) == requestedDeviceId)
+                                                 ?? descriptors.FirstOrDefault();
+            if (descriptor == null)
             {
                 SetStatus(CameraStatus.Error, "Camera error: no camera found");
                 return;
             }
 
-            var capture = new MediaCapture();
+            VideoCharacteristics characteristics = ChooseCharacteristics(descriptor);
+            Interlocked.Exchange(ref lastFrameTicks, Environment.TickCount64);
+            Interlocked.Exchange(ref lastDecodeTicks, 0);
+            consecutiveFailures = 0;
+
+            // Open on a worker thread so camera driver start-up never stalls the game.
+            CaptureDevice device = await Task.Run(() => descriptor.OpenAsync(characteristics, OnPixelBufferArrived));
             try
             {
-                capture.Failed += HandleCaptureFailed;
-                await InitializeCaptureAsync(capture, camera.Id);
-                photoCapture = await capture.PrepareLowLagPhotoCaptureAsync(ImageEncodingProperties.CreateJpeg());
+                await Task.Run(() => device.StartAsync());
             }
             catch
             {
-                capture.Failed -= HandleCaptureFailed;
-                photoCapture = null;
-                capture.Dispose();
+                DisposeDevice(device);
                 throw;
             }
 
-            mediaCapture = capture;
+            captureDevice = device;
             activeRequestedDeviceId = requestedDeviceId;
-            SetStatus(CameraStatus.Enabled, $"Camera enabled - {camera.Name}");
+            SetStatus(CameraStatus.Enabled, $"Camera enabled - {descriptor.Name}");
 
-            refreshCts = new CancellationTokenSource();
-            CancellationToken token = refreshCts.Token;
-            LowLagPhotoCapture lowLagCapture = photoCapture;
-            refreshTask = Task.Run(() => RefreshLoopAsync(lowLagCapture, token));
+            watchdogCts = new CancellationTokenSource();
+            CancellationToken token = watchdogCts.Token;
+            watchdogTask = Task.Run(() => WatchdogAsync(token));
         }
 
-        private static async Task InitializeCaptureAsync(MediaCapture capture, string deviceId)
+        /// <summary>Called by FlashCap for every frame on its own thread; only decodes one every RefreshInterval.</summary>
+        private void OnPixelBufferArrived(PixelBufferScope bufferScope)
         {
+            long now = Environment.TickCount64;
+            Interlocked.Exchange(ref lastFrameTicks, now);
+            if (now - Interlocked.Read(ref lastDecodeTicks) < RefreshInterval.TotalMilliseconds)
+            {
+                return;
+            }
+
+            Interlocked.Exchange(ref lastDecodeTicks, now);
             try
             {
-                await capture.InitializeAsync(CreateSettings(deviceId, MediaCaptureSharingMode.ExclusiveControl));
-            }
-            catch (UnauthorizedAccessException)
-            {
-                throw;
+                latestFrame = DecodeFrame(bufferScope.Buffer.ReferImage());
+                consecutiveFailures = 0;
             }
             catch (Exception ex)
             {
-                // Another app may own the camera; a read-only share still lets us grab snapshots.
-                Debug.WriteLine($"Exclusive camera access failed, retrying shared: {ex.Message}");
-                await capture.InitializeAsync(CreateSettings(deviceId, MediaCaptureSharingMode.SharedReadOnly));
+                Debug.WriteLine($"Camera snapshot failed: {ex.Message}");
+                if (++consecutiveFailures >= MaxConsecutiveFailures && status == CameraStatus.Enabled)
+                {
+                    latestFrame = null;
+                    SetStatus(CameraStatus.Error, DescribeError(ex));
+                }
             }
         }
 
-        private static MediaCaptureInitializationSettings CreateSettings(string deviceId, MediaCaptureSharingMode sharingMode)
+        /// <summary>
+        /// FlashCap has no "device lost" event, so treat a long gap between frames
+        /// (camera unplugged, blocked by privacy settings, grabbed by another app) as an error.
+        /// The next ApplySettingsAsync (e.g. after closing Options) will try again.
+        /// </summary>
+        private async Task WatchdogAsync(CancellationToken token)
         {
-            return new MediaCaptureInitializationSettings
-            {
-                VideoDeviceId = deviceId,
-                StreamingCaptureMode = StreamingCaptureMode.Video,
-                SharingMode = sharingMode
-            };
-        }
-
-        private async Task RefreshLoopAsync(LowLagPhotoCapture capture, CancellationToken token)
-        {
-            int failures = 0;
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    CapturedPhoto photo = await capture.CaptureAsync().AsTask(token).ConfigureAwait(false);
-                    using (CapturedFrame frame = photo.Frame)
-                    {
-                        latestFrame = DecodeFrame(frame);
-                    }
-
-                    failures = 0;
+                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
                     break;
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Camera snapshot failed: {ex.Message}");
-                    if (++failures >= MaxConsecutiveFailures)
-                    {
-                        latestFrame = null;
-                        SetStatus(CameraStatus.Error, DescribeError(ex));
-                        break;
-                    }
-                }
 
-                try
+                long silence = Environment.TickCount64 - Interlocked.Read(ref lastFrameTicks);
+                if (status == CameraStatus.Enabled && silence > FrameTimeout.TotalMilliseconds)
                 {
-                    await Task.Delay(RefreshInterval, token).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
+                    latestFrame = null;
+                    SetStatus(CameraStatus.Error, "Camera error: no picture from camera (unplugged or in use?)");
                     break;
                 }
             }
         }
 
-        private static BitmapSource DecodeFrame(IRandomAccessStream frame)
+        private static BitmapSource DecodeFrame(ArraySegment<byte> image)
         {
-            using Stream source = frame.AsStreamForRead();
-            using var buffer = new MemoryStream();
-            source.CopyTo(buffer);
-            buffer.Position = 0;
-
+            // FlashCap hands us a complete BMP or JPEG image; decode it fully before the buffer is reused.
+            using var buffer = new MemoryStream(image.Array, image.Offset, image.Count, writable: false);
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
@@ -241,80 +260,57 @@ namespace BabySmash
             return bitmap;
         }
 
-        private void HandleCaptureFailed(MediaCapture sender, MediaCaptureFailedEventArgs args)
-        {
-            // Typically the camera was unplugged or grabbed by another app. Stop snapshotting;
-            // the next ApplySettingsAsync (e.g. after closing Options) will try again.
-            try
-            {
-                refreshCts?.Cancel();
-            }
-            catch (ObjectDisposedException)
-            {
-                // Already stopping.
-            }
-
-            latestFrame = null;
-            SetStatus(CameraStatus.Error, $"Camera error: {Shorten(args.Message)}");
-        }
-
         private async Task StopAsync()
         {
-            refreshCts?.Cancel();
-            if (refreshTask != null)
+            watchdogCts?.Cancel();
+            if (watchdogTask != null)
             {
                 try
                 {
-                    await refreshTask;
+                    await watchdogTask;
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Camera refresh loop ended with: {ex.Message}");
+                    Debug.WriteLine($"Camera watchdog ended with: {ex.Message}");
                 }
 
-                refreshTask = null;
+                watchdogTask = null;
             }
 
-            refreshCts?.Dispose();
-            refreshCts = null;
+            watchdogCts?.Dispose();
+            watchdogCts = null;
 
-            if (photoCapture != null)
+            CaptureDevice device = captureDevice;
+            captureDevice = null;
+            if (device != null)
             {
                 try
                 {
-                    await photoCapture.FinishAsync();
+                    await Task.Run(() => device.StopAsync());
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"Unable to finish photo capture: {ex.Message}");
+                    Debug.WriteLine($"Unable to stop camera: {ex.Message}");
                 }
 
-                photoCapture = null;
+                DisposeDevice(device);
             }
 
-            ReleaseMediaCapture();
             activeRequestedDeviceId = null;
             latestFrame = null;
         }
 
-        private void ReleaseMediaCapture()
+        private static void DisposeDevice(CaptureDevice device)
         {
-            if (mediaCapture == null)
-            {
-                return;
-            }
-
-            mediaCapture.Failed -= HandleCaptureFailed;
             try
             {
-                mediaCapture.Dispose();
+                // Bounded so a misbehaving driver can't hang shutdown.
+                Task.Run(device.Dispose).Wait(DisposeTimeout);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Unable to release camera: {ex.Message}");
             }
-
-            mediaCapture = null;
         }
 
         private void SetStatus(CameraStatus newStatus, string newText)
@@ -344,7 +340,7 @@ namespace BabySmash
 
         private static string DescribeError(Exception ex)
         {
-            if (ex is UnauthorizedAccessException)
+            if (ex is UnauthorizedAccessException || ex.HResult == AccessDeniedHResult)
             {
                 return "Camera error: access denied (check Windows camera privacy settings)";
             }
@@ -367,9 +363,22 @@ namespace BabySmash
 
             disposed = true;
             StatusChanged = null;
-            refreshCts?.Cancel();
-            photoCapture = null;
-            ReleaseMediaCapture();
+            try
+            {
+                watchdogCts?.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Already stopping.
+            }
+
+            CaptureDevice device = captureDevice;
+            captureDevice = null;
+            if (device != null)
+            {
+                DisposeDevice(device);
+            }
+
             latestFrame = null;
         }
     }
