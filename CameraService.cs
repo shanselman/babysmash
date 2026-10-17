@@ -17,10 +17,7 @@ namespace BabySmash
         Error
     }
 
-    public sealed record CameraInfo(string Id, string Name)
-    {
-        public override string ToString() => Name;
-    }
+    public sealed record CameraInfo(string Id, string Name);
 
     /// <summary>
     /// Keeps a recent webcam snapshot around for "silly selfie" shapes, using FlashCap.
@@ -31,6 +28,7 @@ namespace BabySmash
     {
         private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(1.5);
         private static readonly TimeSpan FrameTimeout = TimeSpan.FromSeconds(6);
+        private static readonly TimeSpan WarmUpPeriod = TimeSpan.FromSeconds(3);
         private static readonly TimeSpan DisposeTimeout = TimeSpan.FromSeconds(2);
         private const int MaxConsecutiveFailures = 3;
         private const int PreferredCaptureWidth = 640;
@@ -42,13 +40,15 @@ namespace BabySmash
         private CancellationTokenSource watchdogCts;
         private Task watchdogTask;
         private string activeRequestedDeviceId;
+        private int generation;
+        private long startedTicks;
         private long lastFrameTicks;
         private long lastDecodeTicks;
         private int consecutiveFailures;
         private volatile BitmapSource latestFrame;
         private volatile CameraStatus status = CameraStatus.Disabled;
         private volatile string statusText = string.Empty;
-        private bool disposed;
+        private volatile bool disposed;
 
         /// <summary>Raised on the WPF dispatcher whenever <see cref="Status"/> changes.</summary>
         public event EventHandler StatusChanged;
@@ -122,17 +122,25 @@ namespace BabySmash
 
         /// <summary>
         /// FlashCap lists each camera once per backend (DirectShow, Media Foundation, VfW, ...).
-        /// Keep one entry per camera, preferring DirectShow, and skip the legacy VfW "Default" device.
+        /// Use DirectShow devices, plus any camera that only another backend can see, and skip
+        /// the legacy VfW "Default" device. Two different cameras with the same name both stay listed.
         /// </summary>
         private static List<CaptureDeviceDescriptor> FindDescriptors()
         {
-            return new CaptureDevices()
+            List<CaptureDeviceDescriptor> usable = new CaptureDevices()
                 .EnumerateDescriptors()
                 .Where(descriptor => descriptor.DeviceType != DeviceTypes.VideoForWindows &&
                                      descriptor.Characteristics.Any(IsUsable))
-                .OrderBy(descriptor => descriptor.DeviceType == DeviceTypes.DirectShow ? 0 : 1)
-                .GroupBy(descriptor => descriptor.Name)
-                .Select(group => group.First())
+                .ToList();
+
+            List<CaptureDeviceDescriptor> directShow = usable
+                .Where(descriptor => descriptor.DeviceType == DeviceTypes.DirectShow)
+                .ToList();
+            var directShowNames = new HashSet<string>(directShow.Select(descriptor => descriptor.Name));
+
+            return directShow
+                .Concat(usable.Where(descriptor => descriptor.DeviceType != DeviceTypes.DirectShow &&
+                                                   !directShowNames.Contains(descriptor.Name)))
                 .ToList();
         }
 
@@ -142,13 +150,17 @@ namespace BabySmash
         private static string GetDeviceId(CaptureDeviceDescriptor descriptor) =>
             descriptor.Identity?.ToString() ?? descriptor.Name;
 
-        /// <summary>Picks a modest resolution (about 640 wide), preferring JPEG since it is cheap to decode.</summary>
+        /// <summary>
+        /// Picks a modest resolution (about 640 wide). Uncompressed formats come first: FlashCap turns them
+        /// into BMPs that always decode, while many webcams send MJPEG frames without Huffman tables,
+        /// which WPF's JPEG decoder can reject.
+        /// </summary>
         private static VideoCharacteristics ChooseCharacteristics(CaptureDeviceDescriptor descriptor)
         {
             return descriptor.Characteristics
                 .Where(IsUsable)
-                .OrderBy(characteristics => Math.Abs(characteristics.Width - PreferredCaptureWidth))
-                .ThenBy(characteristics => characteristics.PixelFormat == PixelFormats.JPEG ? 0 : 1)
+                .OrderBy(characteristics => characteristics.PixelFormat == PixelFormats.JPEG ? 1 : 0)
+                .ThenBy(characteristics => Math.Abs(characteristics.Width - PreferredCaptureWidth))
                 .First();
         }
 
@@ -166,33 +178,49 @@ namespace BabySmash
             }
 
             VideoCharacteristics characteristics = ChooseCharacteristics(descriptor);
-            Interlocked.Exchange(ref lastFrameTicks, Environment.TickCount64);
-            Interlocked.Exchange(ref lastDecodeTicks, 0);
+            int deviceGeneration = Interlocked.Increment(ref generation);
             consecutiveFailures = 0;
+            Interlocked.Exchange(ref lastDecodeTicks, 0);
 
             // Open on a worker thread so camera driver start-up never stalls the game.
-            CaptureDevice device = await Task.Run(() => descriptor.OpenAsync(characteristics, OnPixelBufferArrived));
+            CaptureDevice device = await Task.Run(
+                () => descriptor.OpenAsync(characteristics, bufferScope => OnPixelBufferArrived(bufferScope, deviceGeneration)));
             try
             {
-                await Task.Run(() => device.StartAsync());
+                if (!disposed)
+                {
+                    await Task.Run(() => device.StartAsync());
+                }
             }
             catch
             {
-                DisposeDevice(device);
+                await DisposeDeviceAsync(device);
                 throw;
+            }
+
+            // The app may have shut down while the driver was starting; don't leave the camera on.
+            if (disposed)
+            {
+                await DisposeDeviceAsync(device);
+                return;
             }
 
             captureDevice = device;
             activeRequestedDeviceId = requestedDeviceId;
+
+            // Start the clocks only now, so slow driver start-up doesn't count as "no frames".
+            long now = Environment.TickCount64;
+            Interlocked.Exchange(ref startedTicks, now);
+            Interlocked.Exchange(ref lastFrameTicks, now);
             SetStatus(CameraStatus.Enabled, $"Camera enabled - {descriptor.Name}");
 
             watchdogCts = new CancellationTokenSource();
             CancellationToken token = watchdogCts.Token;
-            watchdogTask = Task.Run(() => WatchdogAsync(token));
+            watchdogTask = Task.Run(() => WatchdogAsync(deviceGeneration, token));
         }
 
         /// <summary>Called by FlashCap for every frame on its own thread; only decodes one every RefreshInterval.</summary>
-        private void OnPixelBufferArrived(PixelBufferScope bufferScope)
+        private void OnPixelBufferArrived(PixelBufferScope bufferScope, int deviceGeneration)
         {
             long now = Environment.TickCount64;
             Interlocked.Exchange(ref lastFrameTicks, now);
@@ -210,10 +238,14 @@ namespace BabySmash
             catch (Exception ex)
             {
                 Debug.WriteLine($"Camera snapshot failed: {ex.Message}");
-                if (++consecutiveFailures >= MaxConsecutiveFailures && status == CameraStatus.Enabled)
+
+                // Cameras often send a few bad frames while warming up; only count failures after that.
+                bool warmingUp = now - Interlocked.Read(ref startedTicks) < WarmUpPeriod.TotalMilliseconds;
+                if (!warmingUp && ++consecutiveFailures == MaxConsecutiveFailures)
                 {
-                    latestFrame = null;
-                    SetStatus(CameraStatus.Error, DescribeError(ex));
+                    // Leave FlashCap's callback thread before stopping the device.
+                    string message = DescribeError(ex);
+                    _ = Task.Run(() => FailAsync(deviceGeneration, message));
                 }
             }
         }
@@ -221,9 +253,8 @@ namespace BabySmash
         /// <summary>
         /// FlashCap has no "device lost" event, so treat a long gap between frames
         /// (camera unplugged, blocked by privacy settings, grabbed by another app) as an error.
-        /// The next ApplySettingsAsync (e.g. after closing Options) will try again.
         /// </summary>
-        private async Task WatchdogAsync(CancellationToken token)
+        private async Task WatchdogAsync(int deviceGeneration, CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
@@ -237,12 +268,42 @@ namespace BabySmash
                 }
 
                 long silence = Environment.TickCount64 - Interlocked.Read(ref lastFrameTicks);
-                if (status == CameraStatus.Enabled && silence > FrameTimeout.TotalMilliseconds)
+                if (silence > FrameTimeout.TotalMilliseconds)
                 {
-                    latestFrame = null;
-                    SetStatus(CameraStatus.Error, "Camera error: no picture from camera (unplugged or in use?)");
+                    _ = Task.Run(() => FailAsync(deviceGeneration, "Camera error: no picture from camera (unplugged or in use?)"));
                     break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Shuts the camera off (so its light goes out) and reports the error.
+        /// The next ApplySettingsAsync, e.g. after closing Options, tries again.
+        /// </summary>
+        private async Task FailAsync(int deviceGeneration, string message)
+        {
+            try
+            {
+                await applyLock.WaitAsync().ConfigureAwait(false);
+                try
+                {
+                    // Ignore failures from a device that has already been replaced or stopped.
+                    if (disposed || deviceGeneration != Volatile.Read(ref generation) || captureDevice == null)
+                    {
+                        return;
+                    }
+
+                    await StopAsync().ConfigureAwait(false);
+                    SetStatus(CameraStatus.Error, message);
+                }
+                finally
+                {
+                    applyLock.Release();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unable to stop failed camera: {ex}");
             }
         }
 
@@ -262,50 +323,52 @@ namespace BabySmash
 
         private async Task StopAsync()
         {
-            watchdogCts?.Cancel();
-            if (watchdogTask != null)
+            CancellationTokenSource cts = watchdogCts;
+            Task watchdog = watchdogTask;
+            watchdogCts = null;
+            watchdogTask = null;
+
+            cts?.Cancel();
+            if (watchdog != null)
             {
                 try
                 {
-                    await watchdogTask;
+                    await watchdog.ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Camera watchdog ended with: {ex.Message}");
                 }
-
-                watchdogTask = null;
             }
 
-            watchdogCts?.Dispose();
-            watchdogCts = null;
+            cts?.Dispose();
 
             CaptureDevice device = captureDevice;
             captureDevice = null;
+            activeRequestedDeviceId = null;
+            latestFrame = null;
+
             if (device != null)
             {
                 try
                 {
-                    await Task.Run(() => device.StopAsync());
+                    await Task.Run(() => device.StopAsync()).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"Unable to stop camera: {ex.Message}");
                 }
 
-                DisposeDevice(device);
+                await DisposeDeviceAsync(device).ConfigureAwait(false);
             }
-
-            activeRequestedDeviceId = null;
-            latestFrame = null;
         }
 
-        private static void DisposeDevice(CaptureDevice device)
+        /// <summary>Releases the device off the UI thread, giving up after a timeout so a bad driver can't hang us.</summary>
+        private static async Task DisposeDeviceAsync(CaptureDevice device)
         {
             try
             {
-                // Bounded so a misbehaving driver can't hang shutdown.
-                Task.Run(device.Dispose).Wait(DisposeTimeout);
+                await Task.Run(device.Dispose).WaitAsync(DisposeTimeout).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -354,6 +417,10 @@ namespace BabySmash
             return firstLine.Length > 80 ? firstLine.Substring(0, 77) + "..." : firstLine;
         }
 
+        /// <summary>
+        /// Called on app exit. Blocks briefly (bounded) so the camera is released before the process ends;
+        /// a start still in progress sees <see cref="disposed"/> and releases its own device.
+        /// </summary>
         public void Dispose()
         {
             if (disposed)
@@ -374,12 +441,18 @@ namespace BabySmash
 
             CaptureDevice device = captureDevice;
             captureDevice = null;
+            latestFrame = null;
             if (device != null)
             {
-                DisposeDevice(device);
+                try
+                {
+                    Task.Run(device.Dispose).Wait(DisposeTimeout);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Unable to release camera on exit: {ex.Message}");
+                }
             }
-
-            latestFrame = null;
         }
     }
 }

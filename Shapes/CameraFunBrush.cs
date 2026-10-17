@@ -18,17 +18,18 @@ namespace BabySmash
     internal static class CameraFunBrush
     {
         // Prop artwork is designed in a 100x100 box and placed with PlaceGeometry.
-        private const string MustacheData = "M50,42 C42,28 18,26 4,44 C2,47 6,49 9,47 C18,42 26,50 32,56 C40,63 48,58 50,50 C52,58 60,63 68,56 C74,50 82,42 91,47 C94,49 98,47 96,44 C82,26 58,28 50,42 Z";
-        private const string PartyHatData = "M50,0 L82,100 L18,100 Z";
-        private const string CrownData = "M8,92 L8,30 L30,58 L50,12 L70,58 L92,30 L92,92 Z";
-        private const string SparkleData = "M50,0 C54,38 62,46 100,50 C62,54 54,62 50,100 C46,62 38,54 0,50 C38,46 46,38 50,0 Z";
+        // Geometry.Parse returns frozen geometry, so these are parsed once and shared.
+        private static readonly Geometry Mustache = Geometry.Parse("M50,42 C42,28 18,26 4,44 C2,47 6,49 9,47 C18,42 26,50 32,56 C40,63 48,58 50,50 C52,58 60,63 68,56 C74,50 82,42 91,47 C94,49 98,47 96,44 C82,26 58,28 50,42 Z");
+        private static readonly Geometry PartyHat = Geometry.Parse("M50,0 L82,100 L18,100 Z");
+        private static readonly Geometry Crown = Geometry.Parse("M8,92 L8,30 L30,58 L50,12 L70,58 L92,30 L92,92 Z");
+        private static readonly Geometry Sparkle = Geometry.Parse("M50,0 C54,38 62,46 100,50 C62,54 54,62 50,100 C46,62 38,54 0,50 C38,46 46,38 50,0 Z");
 
         private static readonly Color[] PartyColors =
         {
             Colors.DeepPink, Colors.Gold, Colors.DeepSkyBlue, Colors.LimeGreen, Colors.MediumPurple, Colors.Orange
         };
 
-        private static Random Random => System.Random.Shared;
+        private static int RandomPartyColorIndex() => Utils.RandomBetweenTwoNumbers(0, PartyColors.Length - 1);
 
         public static Brush Create(BitmapSource frame, Color shapeColor)
         {
@@ -56,7 +57,7 @@ namespace BabySmash
                 default: break; // No hat half the time
             }
 
-            if (Random.Next(2) == 0)
+            if (Utils.GetRandomBoolean())
             {
                 AddRosyCheeks(drawing, w, h);
             }
@@ -113,7 +114,7 @@ namespace BabySmash
                 drawing.Children.Add(new GeometryDrawing(Brushes.White, outline, new EllipseGeometry(center, radius, radius)));
 
                 // Each pupil wanders a bit for that googly look.
-                double angle = Random.NextDouble() * Math.PI * 2;
+                double angle = Utils.RandomFraction() * Math.PI * 2;
                 var pupil = new Point(
                     center.X + Math.Cos(angle) * radius * 0.4,
                     center.Y + Math.Sin(angle) * radius * 0.4);
@@ -138,14 +139,14 @@ namespace BabySmash
 
         private static void AddMustache(DrawingGroup drawing, double w, double h)
         {
-            Brush color = Random.Next(3) == 0 ? new SolidColorBrush(PartyColors[Random.Next(PartyColors.Length)]) : Brushes.SaddleBrown;
+            Brush color = Utils.RandomBetweenTwoNumbers(0, 2) == 0 ? new SolidColorBrush(PartyColors[RandomPartyColorIndex()]) : Brushes.SaddleBrown;
             drawing.Children.Add(new GeometryDrawing(color, new Pen(Brushes.Black, w * 0.004),
-                PlaceGeometry(MustacheData, new Point(w * 0.5, h * 0.64), w * 0.3)));
+                PlaceGeometry(Mustache, new Point(w * 0.5, h * 0.64), w * 0.3)));
         }
 
         private static void AddSunglasses(DrawingGroup drawing, double w, double h)
         {
-            var frameColor = new SolidColorBrush(PartyColors[Random.Next(PartyColors.Length)]);
+            var frameColor = new SolidColorBrush(PartyColors[RandomPartyColorIndex()]);
             var framePen = new Pen(frameColor, w * 0.014);
             var lens = new SolidColorBrush(Color.FromArgb(0xE6, 0x10, 0x10, 0x20));
             double lensWidth = w * 0.16;
@@ -196,8 +197,8 @@ namespace BabySmash
 
         private static void AddPartyHat(DrawingGroup drawing, double w, double h)
         {
-            Color first = PartyColors[Random.Next(PartyColors.Length)];
-            Color second = PartyColors[Random.Next(PartyColors.Length)];
+            Color first = PartyColors[RandomPartyColorIndex()];
+            Color second = PartyColors[RandomPartyColorIndex()];
             var stripes = new LinearGradientBrush
             {
                 StartPoint = new Point(0, 0),
@@ -211,7 +212,7 @@ namespace BabySmash
 
             double size = w * 0.26;
             var center = new Point(w * 0.5, h * 0.13);
-            drawing.Children.Add(new GeometryDrawing(stripes, new Pen(Brushes.Black, w * 0.005), PlaceGeometry(PartyHatData, center, size)));
+            drawing.Children.Add(new GeometryDrawing(stripes, new Pen(Brushes.Black, w * 0.005), PlaceGeometry(PartyHat, center, size)));
 
             var pomPom = new Point(center.X, center.Y - size / 2);
             drawing.Children.Add(new GeometryDrawing(Brushes.White, new Pen(Brushes.Black, w * 0.004),
@@ -223,7 +224,7 @@ namespace BabySmash
             var gold = new LinearGradientBrush(Colors.Gold, Colors.DarkGoldenrod, 90);
             double size = w * 0.3;
             var center = new Point(w * 0.5, h * 0.12);
-            drawing.Children.Add(new GeometryDrawing(gold, new Pen(Brushes.SaddleBrown, w * 0.005), PlaceGeometry(CrownData, center, size)));
+            drawing.Children.Add(new GeometryDrawing(gold, new Pen(Brushes.SaddleBrown, w * 0.005), PlaceGeometry(Crown, center, size)));
 
             // Jewels along the band
             Brush[] jewels = { Brushes.Red, Brushes.DeepSkyBlue, Brushes.LimeGreen };
@@ -239,28 +240,31 @@ namespace BabySmash
             for (int i = 0; i < count; i++)
             {
                 // Keep sparkles near the edges so they don't cover the face.
-                double x = Random.NextDouble();
-                double y = Random.NextDouble();
+                double x = Utils.RandomFraction();
+                double y = Utils.RandomFraction();
                 if (Math.Abs(x - 0.5) < 0.3 && Math.Abs(y - 0.5) < 0.3)
                 {
                     x = x < 0.5 ? x * 0.4 : 0.6 + (x - 0.5) * 0.8;
                 }
 
-                Color color = Random.Next(3) == 0 ? Colors.White : PartyColors[Random.Next(PartyColors.Length)];
-                double size = w * (0.06 + Random.NextDouble() * 0.08);
+                Color color = Utils.RandomBetweenTwoNumbers(0, 2) == 0 ? Colors.White : PartyColors[RandomPartyColorIndex()];
+                double size = w * (0.06 + Utils.RandomFraction() * 0.08);
                 drawing.Children.Add(new GeometryDrawing(new SolidColorBrush(Color.FromArgb(0xE6, color.R, color.G, color.B)),
                     new Pen(new SolidColorBrush(Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF)), w * 0.003),
-                    PlaceGeometry(SparkleData, new Point(w * x, h * y), size)));
+                    PlaceGeometry(Sparkle, new Point(w * x, h * y), size)));
             }
         }
 
         /// <summary>Scales artwork drawn in a 100x100 box to <paramref name="size"/> and centers it on <paramref name="center"/>.</summary>
-        private static Geometry PlaceGeometry(string data, Point center, double size)
+        private static Geometry PlaceGeometry(Geometry artwork, Point center, double size)
         {
-            Geometry geometry = Geometry.Parse(data).Clone();
             double scale = size / 100.0;
-            geometry.Transform = new MatrixTransform(scale, 0, 0, scale, center.X - size / 2, center.Y - size / 2);
-            return geometry;
+            var placed = new GeometryGroup
+            {
+                Transform = new MatrixTransform(scale, 0, 0, scale, center.X - size / 2, center.Y - size / 2)
+            };
+            placed.Children.Add(artwork);
+            return placed;
         }
     }
 }

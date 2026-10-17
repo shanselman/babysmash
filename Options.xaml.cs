@@ -26,12 +26,15 @@ namespace BabySmash
                 };
                 choices.AddRange(cameras);
 
-                CameraChooser.ItemsSource = choices;
-                CameraChooser.SelectedValue = Settings.Default.CameraDeviceId ?? string.Empty;
-                if (CameraChooser.SelectedIndex < 0)
+                // Keep an unplugged saved camera selectable so opening Options doesn't silently forget it.
+                string savedId = Settings.Default.CameraDeviceId;
+                if (!string.IsNullOrEmpty(savedId) && choices.All(choice => choice.Id != savedId))
                 {
-                    CameraChooser.SelectedIndex = 0;
+                    choices.Add(new CameraInfo(savedId, "Saved camera (not connected)"));
                 }
+
+                // The XAML SelectedValue binding picks the saved camera once items are available.
+                CameraChooser.ItemsSource = choices;
             }
             catch (Exception ex)
             {
