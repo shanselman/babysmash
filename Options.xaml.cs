@@ -12,6 +12,31 @@ namespace BabySmash
         public Options()
         {
             InitializeComponent();
+            Loaded += Options_Loaded;
+        }
+
+        private async void Options_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IReadOnlyList<CameraInfo> cameras = await CameraService.GetCamerasAsync();
+                var choices = new List<CameraInfo>
+                {
+                    new CameraInfo(string.Empty, cameras.Count == 0 ? "No camera found" : "Default camera")
+                };
+                choices.AddRange(cameras);
+
+                CameraChooser.ItemsSource = choices;
+                CameraChooser.SelectedValue = Settings.Default.CameraDeviceId ?? string.Empty;
+                if (CameraChooser.SelectedIndex < 0)
+                {
+                    CameraChooser.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unable to list cameras for Options: {ex}");
+            }
         }
 
         private void OK_Click(object sender, RoutedEventArgs e)

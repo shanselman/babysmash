@@ -4,7 +4,7 @@
 	x:Class="BabySmash.Options"
 	x:Name="Window"
 	Title="BabySmash! - Options"
-	Width="760" Height="480" 
+	Width="760" Height="540"
      xmlns:local="clr-namespace:BabySmash.Properties"
      xmlns:l="clr-namespace:BabySmash"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Luna"
@@ -609,7 +609,7 @@
 
 
 
-        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="720" Height="370" Background="{x:Null}">
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="720" Height="430" Background="{x:Null}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0.5*"/>
                 <ColumnDefinition Width="0.5*"/>
@@ -742,6 +742,8 @@
 					<RowDefinition Height="29"/>
 					<RowDefinition Height="29"/>
 					<RowDefinition Height="29"/>
+					<RowDefinition Height="29"/>
+					<RowDefinition Height="29"/>
 				</Grid.RowDefinitions>
 				
 				
@@ -808,6 +810,14 @@
 					             IsEnabled="{Binding Path=IsChecked, ElementName=FadeChecked, Mode=OneWay}" Height="25" Margin="5,0,0,0" VerticalAlignment="Center" />
 							    <TextBlock Margin="5,0,0,0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI" VerticalAlignment="Center"><Run Text="secs."/></TextBlock>
 					            </StackPanel>
+
+					        <CheckBox Style="{DynamicResource SimpleCheckBox}" x:Name="CameraCheckBox" Grid.Row="10" Grid.ColumnSpan="2" Grid.Column="0" Foreground="#FFD1D1D1" FontSize="14" FontFamily="Segoe UI"
+					                  IsChecked="{Binding Path=Default.CameraEnabled, Mode=TwoWay}" Content="Enable Camera (silly selfie shapes)" />
+					        <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Foreground="#FFD1D1D1" Text="Camera" Grid.Row="11" Margin="0,0,0,0" FontSize="14" FontFamily="Segoe UI" />
+					        <ComboBox x:Name="CameraChooser" DisplayMemberPath="Name" SelectedValuePath="Id"
+					            SelectedValue="{Binding Path=Default.CameraDeviceId}"
+					            IsEnabled="{Binding Path=IsChecked, ElementName=CameraCheckBox, Mode=OneWay}"
+					            Grid.Row="11" Grid.Column="0" VerticalAlignment="Top" Style="{DynamicResource babySmashComboBox}" Grid.ColumnSpan="2" Width="170" HorizontalAlignment="Right"/>
 
 			</Grid>
 			<Button x:Name="okButton" Click="OK_Click" HorizontalAlignment="Right" Margin="0,-15,-15,0" VerticalAlignment="Top" Content="Button"  Grid.Column="1" Style="{DynamicResource RoundButtonStyle2}"/>

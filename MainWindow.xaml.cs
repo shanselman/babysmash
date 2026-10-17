@@ -50,6 +50,18 @@ namespace BabySmash
             this.figuresCanvas.Children.Remove(c);
         }
 
+        internal void SetCameraStatus(CameraStatus status, string text)
+        {
+            cameraStatusLabel.Text = text;
+            cameraStatusLabel.Foreground = status switch
+            {
+                CameraStatus.Enabled => System.Windows.Media.Brushes.ForestGreen,
+                CameraStatus.Error => System.Windows.Media.Brushes.Firebrick,
+                _ => System.Windows.Media.Brushes.DimGray
+            };
+            cameraStatusLabel.Visibility = status == CameraStatus.Disabled ? Visibility.Collapsed : Visibility.Visible;
+        }
+
         public MainWindow(Controller c, bool showFps = false)
         {
             this.controller = c;

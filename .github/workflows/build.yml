@@ -195,7 +195,7 @@ jobs:
         endpoint: https://wus2.codesigning.azure.net/
         signing-account-name: hanselman
         certificate-profile-name: WindowsEdgeLight
-        files-folder: ${{ github.workspace }}\bin\Release\net10.0-windows\win-x64\publish
+        files-folder: ${{ github.workspace }}\bin\Release\net10.0-windows10.0.19041.0\win-x64\publish
         files-folder-filter: exe
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
@@ -212,7 +212,7 @@ jobs:
       run: |
         # Copy signed exe to publish folder for installer
         New-Item -ItemType Directory -Path publish -Force
-        Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe" -Destination "publish/"
+        Copy-Item "bin/Release/net10.0-windows10.0.19041.0/win-x64/publish/BabySmash.exe" -Destination "publish/"
         
         # Compile installer with version
         iscc "/DMyAppVersion=$env:VERSION" installer.iss
@@ -244,7 +244,7 @@ jobs:
         # Create portable ZIP with exe and README
         # Updatum looks for "win-x64" in asset name by default (AssetRegexPattern)
         New-Item -ItemType Directory -Path "temp-x64" -Force
-        Copy-Item "bin/Release/net10.0-windows/win-x64/publish/BabySmash.exe" -Destination "temp-x64/"
+        Copy-Item "bin/Release/net10.0-windows10.0.19041.0/win-x64/publish/BabySmash.exe" -Destination "temp-x64/"
         Copy-Item "README.md" -Destination "temp-x64/"
         Compress-Archive -Path "temp-x64/*" -DestinationPath "artifacts/BabySmash-win-x64.zip"
         

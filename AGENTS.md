@@ -5,7 +5,7 @@ Quick context for coding agents working on BabySmash.
 ## What this repo is
 - BabySmash is a keyboard-smash game for babies/kids.
 - Two frontends:
-  - Windows WPF app: `BabySmash.csproj` (net10.0-windows)
+  - Windows WPF app: `BabySmash.csproj` (net10.0-windows10.0.19041.0)
   - Linux Avalonia app: `BabySmash.Linux/BabySmash.Linux.csproj` (net10.0)
 - Shared assets live in `Shared/Resources/` and are embedded into both apps.
 
@@ -35,6 +35,10 @@ Quick context for coding agents working on BabySmash.
 ## Important behavior
 - Windows uses a low-level keyboard hook to block system keys in `App.xaml.cs`.
 - Linux currently relies on Avalonia key events (no global hook).
+- Webcam "silly selfie" shapes (Windows only): `CameraService.cs` uses WinRT `Windows.Media.Capture` (hence the
+  `net10.0-windows10.0.19041.0` TFM) to keep a recent snapshot; `Shapes/CameraFunBrush.cs` turns it into a
+  distorted/tinted fill for ~1 in 5 non-letter shapes. Settings: `CameraEnabled`, `CameraDeviceId`. Camera
+  failures must never throw; they surface as "Camera error: ..." in the main-screen status label.
 - Auto-update (Windows) uses Updatum in `App.xaml.cs`.
 
 ## Shared resources
@@ -46,6 +50,7 @@ Quick context for coding agents working on BabySmash.
 - Try to keep Windows and Linux behavior aligned where feasible:
   - shape generation, sounds, word detection, fade/clear, cursor behavior
 - Localization on Windows uses JSON resources; Linux TTS uses language mapping.
+- Known gap: webcam shapes are not implemented on Linux yet.
 
 ## Settings
 - Windows: `Properties/Settings.settings` and `Properties/Settings.Designer.cs`
