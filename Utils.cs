@@ -97,6 +97,12 @@ namespace BabySmash
             return RandomInstance.Next(min, max + 1);
         }
 
+        /// <summary>Returns a random number in [0, 1).</summary>
+        public static double RandomFraction()
+        {
+            return RandomInstance.NextDouble();
+        }
+
         internal static System.Windows.Controls.UserControl GetCursor()
         {
             switch (Properties.Settings.Default.CursorType)

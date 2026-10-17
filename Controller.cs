@@ -64,6 +64,7 @@ namespace BabySmash
         private bool isRestoringKioskState;
         private bool isSubscribedToDisplayChanges;
         private readonly SpeechQueue _speechQueue = new SpeechQueue(5);
+        private readonly CameraService camera = new CameraService();
 
         private DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Normal);
         private Queue<Shape> ellipsesQueue = new Queue<Shape>();
@@ -76,6 +77,11 @@ namespace BabySmash
         public static Controller Instance
         {
             get { return instance; }
+        }
+
+        public CameraService Camera
+        {
+            get { return camera; }
         }
 
         public void Launch()
@@ -128,6 +134,10 @@ namespace BabySmash
             {
                 firstWindow.infoLabel.Visibility = Visibility.Visible;
             }
+
+            // Camera startup runs in the background and reports problems via the status label, never by throwing.
+            camera.StatusChanged += HandleCameraStatusChanged;
+            _ = camera.ApplySettingsAsync();
 
             //Startup sound
             Win32Audio.PlayWavResourceYield("EditedJackPlaysBabySmash.wav");
@@ -283,7 +293,8 @@ namespace BabySmash
                 IHasFace face = f as IHasFace;
                 if (face != null)
                 {
-                    face.FaceVisible = Settings.Default.FacesOnShapes ? Visibility.Visible : Visibility.Hidden;
+                    // Camera shapes already show a real (silly) face, so skip the cartoon one.
+                    face.FaceVisible = Settings.Default.FacesOnShapes && !template.IsCameraShape ? Visibility.Visible : Visibility.Hidden;
                 }
 
                 if (queue.Count > Settings.Default.ClearAfter)
@@ -482,7 +493,15 @@ namespace BabySmash
                 isSubscribedToDisplayChanges = false;
             }
 
+            camera.StatusChanged -= HandleCameraStatusChanged;
+            camera.Dispose();
             _speechQueue.Dispose();
+        }
+
+        private void HandleCameraStatusChanged(object sender, EventArgs e)
+        {
+            PruneClosedWindows();
+            GetFirstLoadedWindow()?.SetCameraStatus(camera.Status, camera.StatusText);
         }
 
         public void ShowOptionsDialog()
@@ -543,6 +562,9 @@ namespace BabySmash
                 owner?.ResetOptionsGestureAfterDialog();
 
                 RestoreKioskStateCore(restoreCursor: true);
+
+                // Pick up camera enable/disable or a different camera chosen in Options.
+                _ = camera.ApplySettingsAsync();
             }
         }
 

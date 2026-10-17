@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using System.Windows.Media.Imaging;
 using BrushControlFunc = System.Func<System.Windows.Media.Brush, System.Windows.Controls.UserControl>;
 using BabySmash.Properties;
 using BabySmash.Shapes;
@@ -22,10 +23,14 @@ namespace BabySmash
         public Effect Effect { get; set; }
         public string Name { get; set; }
         public string Letter { get; set; }
+        public bool IsCameraShape { get; set; }
     }
 
     public class FigureGenerator
     {
+        // Roughly one in this many shapes is filled with a silly webcam snapshot (when the camera is on).
+        private const int CameraShapeOdds = 5;
+
         private static readonly List<KeyValuePair<BabySmashShape, BrushControlFunc>> hashTableOfFigureGenerators = new List<KeyValuePair<BabySmashShape, BrushControlFunc>>
              {
                      new KeyValuePair<BabySmashShape, BrushControlFunc>(BabySmashShape.Circle, x => new CoolCircle(x) ),
@@ -92,12 +97,25 @@ namespace BabySmash
                 name = Controller.GetLocalizedString(nameFunc.Key.ToString());
             }
 
+            Brush fill = Utils.GetGradientBrush(c);
+            bool isCameraShape = false;
+            if (!Char.IsLetterOrDigit(displayChar) && Utils.RandomBetweenTwoNumbers(1, CameraShapeOdds) == 1)
+            {
+                BitmapSource frame = Controller.Instance.Camera.LatestFrame;
+                if (frame != null)
+                {
+                    fill = CameraFunBrush.Create(frame, c);
+                    isCameraShape = true;
+                }
+            }
+
             return new FigureTemplate
             {
                 Color = c,
                 Name = name,
                 GeneratorFunc = nameFunc.Value,
-                Fill = Utils.GetGradientBrush(c),
+                Fill = fill,
+                IsCameraShape = isCameraShape,
                 Letter = displayChar.ToString(),
                 Effect = Animation.GetRandomBitmapEffect()
             };
