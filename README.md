@@ -12,9 +12,10 @@ As babies or children smash on the keyboard, colored shapes, letters and numbers
 - 🔤 Letters and numbers with text-to-speech
 - 🔊 Fun sounds and giggles
 - 🖥️ Multi-monitor support
-- 🔒 Locks out system keys to prevent accidental exits
+- 🔒 Locks out system keys on Windows to prevent accidental exits
 - 🔄 **Auto-updates** via GitHub Releases (Windows)
 - 🐧 **Linux support** via Avalonia
+- 🍎 **macOS support** via Avalonia
 
 ## Downloads
 
@@ -53,6 +54,40 @@ BabySmash blocks most keyboard shortcuts, but **Windows touchpad gestures** (lik
 1. Open **Windows Settings** → **Bluetooth & devices** → **Touchpad**
 2. Under **Three-finger gestures**, set "Swipes" to **Nothing**
 3. Optionally disable four-finger gestures too
+
+---
+
+## macOS
+
+### Installation
+
+BabySmash for macOS is currently build-validated and source-only: CI builds app bundles as build artifacts on every release tag, but there is no public release download until Developer ID signing and notarization are configured.
+
+Build and run from source:
+
+```bash
+dotnet publish BabySmash.Linux/BabySmash.Linux.csproj -c Release -r osx-arm64 --self-contained
+```
+
+(Substitute `osx-x64` for Intel Macs.)
+
+It uses the built-in `/usr/bin/say` for text-to-speech and `/usr/bin/afplay` for sound playback.
+
+BabySmash uses borderless, per-display windows on macOS, but it does not globally block system shortcuts such as Command+Tab, Mission Control, or Command+Q.
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| Any key | Display shapes/letters! |
+| `Alt+O` | Options dialog |
+| `Escape` | Exit |
+
+### Requirements
+
+- macOS 14 or later
+- Apple Silicon (`osx-arm64`) or Intel (`osx-x64`)
+- .NET 10 SDK (for building from source)
 
 ---
 
@@ -187,7 +222,7 @@ cd babysmash
 # Windows
 dotnet run
 
-# Linux
+# Linux/macOS Avalonia frontend
 dotnet run --project BabySmash.Linux
 ```
 
@@ -199,6 +234,10 @@ dotnet publish -c Release -r win-x64 --self-contained
 
 # Linux
 dotnet publish BabySmash.Linux -c Release -r linux-x64 --self-contained
+
+# macOS
+dotnet publish BabySmash.Linux -c Release -r osx-arm64 --self-contained
+dotnet publish BabySmash.Linux -c Release -r osx-x64 --self-contained
 ```
 
 ---
@@ -210,6 +249,7 @@ Originally developed by [Scott Hanselman](https://www.hanselman.com), based on A
 - **v1-v2**: Original .NET Framework 3.5 version
 - **v3.0**: Migrated to .NET 10, single-file deployment
 - **v4.0**: Linux support via Avalonia, shared resources, auto-updates
+- **v5.0**: macOS support via Avalonia
 
 > **Looking for the original code?** The legacy .NET Framework 3.5 version is preserved in the [legacy-dotnet35](https://github.com/shanselman/babysmash/tree/legacy-dotnet35) branch.
 
