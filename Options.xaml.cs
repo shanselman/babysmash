@@ -12,6 +12,34 @@ namespace BabySmash
         public Options()
         {
             InitializeComponent();
+            Loaded += Options_Loaded;
+        }
+
+        private async void Options_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                IReadOnlyList<CameraInfo> cameras = await CameraService.GetCamerasAsync();
+                var choices = new List<CameraInfo>
+                {
+                    new CameraInfo(string.Empty, cameras.Count == 0 ? "No camera found" : "Default camera")
+                };
+                choices.AddRange(cameras);
+
+                // Keep an unplugged saved camera selectable so opening Options doesn't silently forget it.
+                string savedId = Settings.Default.CameraDeviceId;
+                if (!string.IsNullOrEmpty(savedId) && choices.All(choice => choice.Id != savedId))
+                {
+                    choices.Add(new CameraInfo(savedId, "Saved camera (not connected)"));
+                }
+
+                // The XAML SelectedValue binding picks the saved camera once items are available.
+                CameraChooser.ItemsSource = choices;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unable to list cameras for Options: {ex}");
+            }
         }
 
         private void OK_Click(object sender, RoutedEventArgs e)
