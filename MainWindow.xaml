@@ -81,6 +81,11 @@
             <LineBreak/>
             Hold <Bold>Ctrl-Shift-Alt-O for 3 seconds</Bold> for options, <Bold>ALT-F4</Bold> to exit
             </TextBlock>
+            <TextBlock x:Name="cameraStatusLabel" Visibility="Collapsed" Margin="15,8,0,0" FontSize="12" FontWeight="Bold">
+                <TextBlock.Effect>
+                    <DropShadowEffect ShadowDepth="0" Color="White" BlurRadius="4"/>
+                </TextBlock.Effect>
+            </TextBlock>
             <TextBlock x:Name="UpdateAvailableLabel" Visibility="Hidden" Margin="15,10,0,0" FontSize="12">
                 <TextBlock.BitmapEffect>
                     <BitmapEffectGroup>

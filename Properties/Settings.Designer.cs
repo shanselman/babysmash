@@ -166,5 +166,29 @@ namespace BabySmash.Properties {
                 this["EffectsAutoDetected"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CameraEnabled {
+            get {
+                return ((bool)(this["CameraEnabled"]));
+            }
+            set {
+                this["CameraEnabled"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CameraDeviceId {
+            get {
+                return ((string)(this["CameraDeviceId"]));
+            }
+            set {
+                this["CameraDeviceId"] = value;
+            }
+        }
     }
 }

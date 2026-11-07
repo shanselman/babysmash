@@ -35,6 +35,10 @@ Quick context for coding agents working on BabySmash.
 ## Important behavior
 - Windows uses a low-level keyboard hook to block system keys in `App.xaml.cs`.
 - Linux currently relies on Avalonia key events (no global hook).
+- Webcam "silly selfie" shapes (Windows only): `CameraService.cs` uses the FlashCap NuGet package to keep a
+  recent snapshot; `Shapes/CameraFunBrush.cs` decorates it with random props/sparkles for ~1 in 5 non-letter
+  shapes. Settings: `CameraEnabled`, `CameraDeviceId`. Camera failures must never throw; they surface as
+  "Camera error: ..." in the main-screen status label.
 - Auto-update (Windows) uses Updatum in `App.xaml.cs`.
 
 ## Shared resources
@@ -46,6 +50,7 @@ Quick context for coding agents working on BabySmash.
 - Try to keep Windows and Linux behavior aligned where feasible:
   - shape generation, sounds, word detection, fade/clear, cursor behavior
 - Localization on Windows uses JSON resources; Linux TTS uses language mapping.
+- Known gap: webcam shapes are not implemented on Linux yet (FlashCap also supports V4L2, so it can be reused).
 
 ## Settings
 - Windows: `Properties/Settings.settings` and `Properties/Settings.Designer.cs`
