@@ -18,7 +18,20 @@ license: "MIT"
 # Dependencies
 depends:
   - espeak
-  - pulseaudio-utils | alsa-utils
+
+# Debian supports alternative dependencies, but nfpm's RPM dependency parser
+# does not. Keep RPM installs flexible and suggest both supported audio players.
+overrides:
+  deb:
+    depends:
+      - espeak
+      - pulseaudio-utils | alsa-utils
+  rpm:
+    depends:
+      - espeak
+    recommends:
+      - pulseaudio-utils
+      - alsa-utils
 
 # Recommended packages
 recommends:
