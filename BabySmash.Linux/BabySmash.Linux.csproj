@@ -5,22 +5,22 @@
     <Nullable>disable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    
-    <!-- Linux-specific settings -->
-    <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+
+    <!-- Avalonia desktop publish settings -->
+    <RuntimeIdentifiers>linux-x64;osx-arm64;osx-x64</RuntimeIdentifiers>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    
+
     <!-- Assembly Information -->
     <AssemblyVersion>5.0.0.0</AssemblyVersion>
     <FileVersion>5.0.0.0</FileVersion>
     <Version>5.0.0</Version>
     <Authors>Scott Hanselman</Authors>
     <Company>Scott Hanselman</Company>
-    <Product>BabySmash! for Linux</Product>
-    <Description>A game for babies who like to bang on the keyboard - Linux version</Description>
-    
+    <Product>BabySmash!</Product>
+    <Description>A game for babies who like to bang on the keyboard - Avalonia desktop version</Description>
+
     <!-- Suppress nullable warnings when disabled -->
     <NoWarn>$(NoWarn);CS8632</NoWarn>
   </PropertyGroup>

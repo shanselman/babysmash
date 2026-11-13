@@ -5,6 +5,7 @@
         Width="500" Height="400"
         WindowStartupLocation="CenterScreen"
         CanResize="False"
+        RequestedThemeVariant="Light"
         Background="#F5F5F5">
     
     <Grid Margin="20">
@@ -46,7 +47,7 @@
                 <NumericUpDown Name="ClearAfterNumeric" 
                                Minimum="5" Maximum="100" 
                                Value="30" 
-                               Width="100"/>
+                               MinWidth="120"/>
                 <TextBlock Text="shapes" VerticalAlignment="Center"/>
             </StackPanel>
             
