@@ -31,12 +31,12 @@ jobs:
         dotnet-version: '10.0.x'
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.7.0
+      uses: gittools/actions/gitversion/setup@v5.0.0
       with:
-        versionSpec: '6.4.x'
+        versionSpec: '7.0.x'
 
     - name: GitVersion
-      uses: gittools/actions/gitversion/execute@v4.7.0
+      uses: gittools/actions/gitversion/execute@v5.0.0
       id: gitversion
 
     - name: Set version environment variable
@@ -116,12 +116,26 @@ jobs:
       uses: actions/setup-dotnet@v6
       with:
         dotnet-version: '10.0.x'
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v5.0.0
+      with:
+        versionSpec: '7.0.x'
+
+    - name: GitVersion
+      uses: gittools/actions/gitversion/execute@v5.0.0
+      id: gitversion
         
     - name: Restore dependencies
       run: dotnet restore BabySmash.csproj
 
     - name: Build
-      run: dotnet build BabySmash.csproj -c Release --no-restore
+      run: |
+        dotnet build BabySmash.csproj -c Release --no-restore `
+          /p:Version=${{ steps.gitversion.outputs.semVer }} `
+          /p:AssemblyVersion=${{ steps.gitversion.outputs.assemblySemVer }} `
+          /p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} `
+          /p:AssemblyInformationalVersion=${{ steps.gitversion.outputs.fullSemVer }}
 
   build-windows:
     runs-on: windows-latest
@@ -142,12 +156,12 @@ jobs:
       run: dotnet restore BabySmash.csproj
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.7.0
+      uses: gittools/actions/gitversion/setup@v5.0.0
       with:
-        versionSpec: '6.4.x'
+        versionSpec: '7.0.x'
 
     - name: GitVersion
-      uses: gittools/actions/gitversion/execute@v4.7.0
+      uses: gittools/actions/gitversion/execute@v5.0.0
       id: gitversion
 
     - name: Set version environment variables

@@ -1,16 +1,14 @@
-mode: ContinuousDelivery
-tag-prefix: 'v'
-# When tag-prefix is 'v' and your tags are like 'v1.2.3', GitVersion will
-# parse them as semantic versions and set semVer/fullSemVer accordingly.
+calculation:
+  mode: ContinuousDelivery
+  tag-prefix: 'v'
+  # Tags like 'v1.2.3' are parsed as semantic versions.
+  branches:
+    main:
+      regex: ^(master|main)$
+      label: ''
+      increment: Patch
+  ignore:
+    sha: []
 
-assembly-versioning-scheme: MajorMinorPatch
-
-branches:
-  main:
-    regex: ^(master|main)$
-    label: ''
-    increment: Patch
-
-
-ignore:
-  sha: []
+output:
+  assembly-versioning-scheme: MajorMinorPatch

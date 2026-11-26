@@ -70,11 +70,13 @@ Quick context for coding agents working on BabySmash.
 - CI is defined in `.github/workflows/build.yml` (Build BabySmash).
 - Runs on all branches and PRs; release jobs run only on tags `v*`.
 - Versioning uses GitVersion in both Windows and Linux builds:
+  - GitTools Actions setup/execute v5 require GitVersion.Tool 7.0.x and .NET 10.
+  - Non-release Windows checks also calculate versions and consume the outputs.
   - SemVer from GitVersion is injected into `Version`, `AssemblyVersion`, and `FileVersion`.
   - GitVersion config (`GitVersion.yml`):
-    - `mode: ContinuousDelivery`
-    - `tag-prefix: v`
-    - `assembly-versioning-scheme: MajorMinorPatch`
+    - `calculation.mode: ContinuousDelivery`
+    - `calculation.tag-prefix: v`
+    - `output.assembly-versioning-scheme: MajorMinorPatch`
     - `main` branch increments `Patch` with no label
 - Windows artifacts are code-signed via Azure Trusted Signing (exe and installer).
 - Linux builds produce three artifact types:
